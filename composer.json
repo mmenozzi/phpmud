@@ -1,0 +1,21 @@
+{
+    "require-dev": {
+        "behat/behat": "^3.11"
+    },
+    "autoload": {
+        "psr-4": {
+            "PHPMud\\": "src/"
+        }
+    },
+    "autoload-dev": {
+        "psr-4": {
+            "PHPMud\\Tests\\": "tests/"
+        }
+    },
+    "require": {
+        "symfony/uid": "^6.1",
+        "webgriffe/in-memory-repository": "^0.1.0",
+        "webmozart/assert": "^1.11",
+        "symfony/dependency-injection": "^6.1"
+    }
+}

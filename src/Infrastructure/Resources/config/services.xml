@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<container xmlns="http://symfony.com/schema/dic/services"
+           xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+           xsi:schemaLocation="http://symfony.com/schema/dic/services
+        https://symfony.com/schema/dic/services/services-1.0.xsd"
+>
+<!--    <parameters>-->
+<!--        &lt;!&ndash; ... &ndash;&gt;-->
+<!--        <parameter key="mailer.transport">sendmail</parameter>-->
+<!--    </parameters>-->
+
+    <services>
+        <service id="phpmud.repository.location" class="PHPMud\Infrastructure\Repository\InMemory\LocationRepository">
+        </service>
+
+        <service id="phpmud.repository.character" class="PHPMud\Infrastructure\Repository\InMemory\CharacterRepository">
+        </service>
+    </services>
+</container>
