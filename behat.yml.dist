@@ -1,13 +1,6 @@
+imports:
+    - tests/Behat/Resources/config/suites.yml
+
 default:
-    suites:
-        default:
-            contexts:
-                - phpmud.behat.context.setup.character
-                - phpmud.behat.context.setup.location
-
-                - phpmud.behat.context.transform.location
-                - phpmud.behat.context.transform.direction
-
-                - phpmud.behat.context.domain.movement
     extensions:
         PHPMud\Tests\Behat\Extension\SymfonyExtension: ~

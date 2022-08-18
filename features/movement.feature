@@ -1,3 +1,4 @@
+@movement
 Feature: Movement
   In order to move around the world
   As Player
@@ -13,26 +14,32 @@ Feature: Movement
     And there is the location "G" down from location "A"
     And my character is in the location "A"
 
+  @domain
   Scenario: Moving north
     When I move to north
     Then I should see that I am in the location "B"
 
+  @domain
   Scenario: Moving east
     When I move to east
     Then I should see that I am in the location "C"
 
+  @domain
   Scenario: Moving south
     When I move to south
     Then I should see that I am in the location "D"
 
+  @domain
   Scenario: Moving west
     When I move to west
     Then I should see that I am in the location "E"
 
+  @domain
   Scenario: Moving up
     When I move to up
     Then I should see that I am in the location "F"
 
+  @domain
   Scenario: Moving down
     When I move to down
     Then I should see that I am in the location "G"
