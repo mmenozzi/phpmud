@@ -15,4 +15,8 @@ interface LocationRepositoryInterface
      * @return Collection<array-key, Location>
      */
     public function findByName(string $name): Collection;
+
+    public function findAll(): Collection;
+
+    public function remove(Location $location): void;
 }

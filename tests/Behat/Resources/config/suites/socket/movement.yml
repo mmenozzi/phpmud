@@ -1,0 +1,16 @@
+default:
+    suites:
+        socket_movement:
+            contexts:
+                - phpmud.behat.context.hook.purge
+
+                - phpmud.behat.context.setup.filesystem.character
+                - phpmud.behat.context.setup.filesystem.location
+
+                - phpmud.behat.context.transform.filesystem.location
+                - phpmud.behat.context.transform.direction
+
+                - phpmud.behat.context.socket.movement
+
+            filters:
+                tags: "@movement&&@socket"

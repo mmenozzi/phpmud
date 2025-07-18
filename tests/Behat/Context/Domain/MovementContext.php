@@ -6,9 +6,7 @@ namespace PHPMud\Tests\Behat\Context\Domain;
 
 use Behat\Behat\Context\Context;
 use PHPMud\Domain\Direction;
-use PHPMud\Domain\Entity\Character;
 use PHPMud\Domain\Entity\Location;
-use PHPMud\Domain\Repository\CharacterRepositoryInterface;
 use PHPMud\Tests\Behat\Service\SharedStorage;
 use Webmozart\Assert\Assert;
 

@@ -26,6 +26,11 @@ final class CharacterRepository extends ObjectRepository implements CharacterRep
         return $this->findBy(['firstName' => $firstName, 'lastName' => $lastName]);
     }
 
+    public function remove(Character $character): void
+    {
+        $this->objectCollection->removeElement($character);
+    }
+
     protected function getIdProperty(): string
     {
         return 'id';

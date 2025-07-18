@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace PHPMud\Domain\Entity;
 
 use PHPMud\Domain\Direction;
+use Symfony\Component\Uid\Uuid;
 
 final class Character
 {
@@ -15,6 +16,12 @@ final class Character
         private readonly string $lastName,
         private Location $location
     ) {
+        $this->createId();
+    }
+
+    public function getId(): Uuid
+    {
+        return $this->id;
     }
 
     public function getFirstName(): string
@@ -35,7 +42,10 @@ final class Character
     public function moveTo(Direction $direction): void
     {
         $newLocation = $this->getLocation()->getNeighbor($direction);
-        // TODO throw if $newLocation is null
+        if ($newLocation === null) {
+            // TODO throw if $newLocation is null? For now we simply remain in the current location without feedback.
+            return;
+        }
         $this->location = $newLocation;
     }
 }

@@ -15,4 +15,11 @@ interface CharacterRepositoryInterface
      * @return Collection<array-key, Character>
      */
     public function findByFirstNameAndLastName(string $firstName, string $lastName): Collection;
+
+    /**
+     * @return Collection<array-key, Character>
+     */
+    public function findAll(): Collection;
+
+    public function remove(Character $character): void;
 }

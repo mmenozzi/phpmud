@@ -1,0 +1,18 @@
+#!/usr/bin/env php
+<?php
+
+declare(strict_types=1);
+
+use PHPMud\Infrastructure\Kernel;
+use PHPMud\Infrastructure\Server\SocketServer;
+
+require_once __DIR__ . '/../vendor/autoload.php';
+
+$kernel = new Kernel($_ENV['APP_ENV'] ?? $_SERVER['APP_ENV'] ?? 'dev');
+$kernel->boot();
+
+$container = $kernel->getContainer();
+echo 'Starting PHPMud server...' . PHP_EOL;
+/** @var SocketServer $server */
+$server = $container->get('phpmud.server.socket');
+$server->listen();

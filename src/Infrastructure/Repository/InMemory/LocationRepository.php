@@ -26,6 +26,11 @@ final class LocationRepository extends ObjectRepository implements LocationRepos
         return $this->findBy(['name' => $name]);
     }
 
+    public function remove(Location $location): void
+    {
+        $this->objectCollection->removeElement($location);
+    }
+
     protected function getIdProperty(): string
     {
         return 'id';

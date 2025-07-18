@@ -10,10 +10,23 @@
 <!--    </parameters>-->
 
     <services>
-        <service id="phpmud.repository.location" class="PHPMud\Infrastructure\Repository\InMemory\LocationRepository">
+        <service id="phpmud.repository.filesystem.location" class="PHPMud\Infrastructure\Repository\Filesystem\LocationRepository">
+            <argument>/tmp/phpmud.location</argument>
+        </service>
+        <service id="phpmud.repository.location" alias="phpmud.repository.filesystem.location" />
+
+        <service id="phpmud.repository.filesystem.character" class="PHPMud\Infrastructure\Repository\Filesystem\CharacterRepository">
+            <argument>/tmp/phpmud.character</argument>
+        </service>
+        <service id="phpmud.repository.character" alias="phpmud.repository.filesystem.character" />
+
+        <service id="phpmud.server.socket" class="PHPMud\Infrastructure\Server\SocketServer">
+            <argument>127.0.0.1:10666</argument>
+            <argument type="service" id="phpmud.server.client_factory" />
         </service>
 
-        <service id="phpmud.repository.character" class="PHPMud\Infrastructure\Repository\InMemory\CharacterRepository">
+        <service id="phpmud.server.client_factory" class="PHPMud\Infrastructure\Server\ClientFactory">
+            <argument type="service" id="phpmud.repository.character" />
         </service>
     </services>
 </container>

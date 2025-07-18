@@ -14,32 +14,32 @@ Feature: Movement
     And there is the location "G" down from location "A"
     And my character is in the location "A"
 
-  @domain
+  @domain @socket
   Scenario: Moving north
     When I move to north
     Then I should see that I am in the location "B"
 
-  @domain
+  @domain @socket
   Scenario: Moving east
     When I move to east
     Then I should see that I am in the location "C"
 
-  @domain
+  @domain @socket
   Scenario: Moving south
     When I move to south
     Then I should see that I am in the location "D"
 
-  @domain
+  @domain @socket
   Scenario: Moving west
     When I move to west
     Then I should see that I am in the location "E"
 
-  @domain
+  @domain @socket
   Scenario: Moving up
     When I move to up
     Then I should see that I am in the location "F"
 
-  @domain
+  @domain @socket
   Scenario: Moving down
     When I move to down
     Then I should see that I am in the location "G"

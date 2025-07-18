@@ -7,13 +7,22 @@
     <services>
         <defaults public="true" />
 
-        <service id="phpmud.behat.context.setup.character" class="PHPMud\Tests\Behat\Context\Setup\CharacterContext">
-            <argument type="service" id="phpmud.repository.character" />
+        <service id="phpmud.behat.context.setup.in_memory.character" class="PHPMud\Tests\Behat\Context\Setup\CharacterContext">
+            <argument type="service" id="phpmud.repository.in_memory.character" />
             <argument type="service" id="phpmud.behat.shared_storage" />
         </service>
 
-        <service id="phpmud.behat.context.setup.location" class="PHPMud\Tests\Behat\Context\Setup\LocationContext">
-            <argument type="service" id="phpmud.repository.location" />
+        <service id="phpmud.behat.context.setup.in_memory.location" class="PHPMud\Tests\Behat\Context\Setup\LocationContext">
+            <argument type="service" id="phpmud.repository.in_memory.location" />
+        </service>
+
+        <service id="phpmud.behat.context.setup.filesystem.character" class="PHPMud\Tests\Behat\Context\Setup\CharacterContext">
+            <argument type="service" id="phpmud.repository.filesystem.character" />
+            <argument type="service" id="phpmud.behat.shared_storage" />
+        </service>
+
+        <service id="phpmud.behat.context.setup.filesystem.location" class="PHPMud\Tests\Behat\Context\Setup\LocationContext">
+            <argument type="service" id="phpmud.repository.filesystem.location" />
         </service>
     </services>
 </container>

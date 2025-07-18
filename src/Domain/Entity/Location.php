@@ -7,6 +7,7 @@ namespace PHPMud\Domain\Entity;
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
 use PHPMud\Domain\Direction;
+use Symfony\Component\Uid\Uuid;
 
 final class Location
 {
@@ -19,6 +20,11 @@ final class Location
     {
         $this->createId();
         $this->neighbors = new ArrayCollection();
+    }
+
+    public function getId(): Uuid
+    {
+        return $this->id;
     }
 
     public function getName(): string
