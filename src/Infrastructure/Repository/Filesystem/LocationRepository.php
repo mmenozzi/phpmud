@@ -50,7 +50,7 @@ final class LocationRepository implements LocationRepositoryInterface
 
     private function load(): Collection
     {
-        if ($this->locations === null) {
+        if (null === $this->locations) {
             $this->locations = unserialize(file_get_contents($this->filepath));
             Assert::isInstanceOf($this->locations, Collection::class);
         }

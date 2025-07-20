@@ -4,7 +4,6 @@ declare(strict_types=1);
 
 namespace PHPMud\Infrastructure;
 
-use LogicException;
 use Symfony\Component\Config\Exception\FileLocatorFileNotFoundException;
 use Symfony\Component\Config\FileLocator;
 use Symfony\Component\DependencyInjection\Container;
@@ -22,7 +21,7 @@ final class Kernel
     public function boot(): void
     {
         $this->container = new ContainerBuilder();
-        $loader = new XmlFileLoader($this->container, new FileLocator(__DIR__ . '/Resources/config'));
+        $loader = new XmlFileLoader($this->container, new FileLocator(__DIR__.'/Resources/config'));
         $loader->load('services.xml');
         try {
             $loader->load("services_{$this->environment}.xml");
@@ -38,8 +37,8 @@ final class Kernel
 
     public function getContainer(): Container
     {
-        if ($this->container === null) {
-            throw new LogicException('Cannot retrieve the container from a non-booted kernel.');
+        if (null === $this->container) {
+            throw new \LogicException('Cannot retrieve the container from a non-booted kernel.');
         }
 
         return $this->container;

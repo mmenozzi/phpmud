@@ -30,7 +30,7 @@ final class LocationContext implements Context
     public function thereIsTheLocationFromLocation(
         string $newLocationName,
         Direction $direction,
-        Location $existentLocation
+        Location $existentLocation,
     ) {
         $newLocation = new Location($newLocationName);
         $existentLocation->placeBorderingLocation($newLocation, $direction);

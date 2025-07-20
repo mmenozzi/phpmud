@@ -17,12 +17,12 @@ final class SocketServer
     public function listen(): void
     {
         $server = Socket\listen($this->uri);
-        echo 'Server listening on ' . $this->uri . PHP_EOL;
+        echo 'Server listening on '.$this->uri.PHP_EOL;
 
         while ($socket = $server->accept()) {
             async(function () use ($socket) {
                 $client = $this->clientFactory->create($socket);
-                echo 'New client connected: ' . $socket->getRemoteAddress() . PHP_EOL;
+                echo 'New client connected: '.$socket->getRemoteAddress().PHP_EOL;
                 $buffer = '';
                 while (null !== $chunk = $socket->read()) {
                     $buffer .= $chunk;
@@ -32,7 +32,7 @@ final class SocketServer
                     $commands = explode(PHP_EOL, $buffer);
                     $buffer = array_pop($commands);
                     foreach ($commands as $command) {
-                        echo $socket->getRemoteAddress() . ': ' . $command . PHP_EOL;
+                        echo $socket->getRemoteAddress().': '.$command.PHP_EOL;
                         $client->handleCommand($command);
                     }
                 }

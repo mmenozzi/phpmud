@@ -4,8 +4,6 @@ declare(strict_types=1);
 
 namespace PHPMud\Tests\Behat\Service;
 
-use InvalidArgumentException;
-
 final class SharedStorage
 {
     private array $clipboard = [];
@@ -15,7 +13,7 @@ final class SharedStorage
     public function get(string $key)
     {
         if (!isset($this->clipboard[$key])) {
-            throw new InvalidArgumentException(sprintf('There is no current resource for "%s"!', $key));
+            throw new \InvalidArgumentException(sprintf('There is no current resource for "%s"!', $key));
         }
 
         return $this->clipboard[$key];
@@ -42,7 +40,7 @@ final class SharedStorage
     public function getLatestResource()
     {
         if (!isset($this->clipboard[$this->latestKey])) {
-            throw new InvalidArgumentException(sprintf('There is no "%s" latest resource!', $this->latestKey));
+            throw new \InvalidArgumentException(sprintf('There is no "%s" latest resource!', $this->latestKey));
         }
 
         return $this->clipboard[$this->latestKey];

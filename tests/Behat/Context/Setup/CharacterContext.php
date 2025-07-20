@@ -17,7 +17,7 @@ final class CharacterContext implements Context
 
     public function __construct(
         private readonly CharacterRepositoryInterface $characterRepository,
-        private readonly SharedStorage $sharedStorage
+        private readonly SharedStorage $sharedStorage,
     ) {
     }
 

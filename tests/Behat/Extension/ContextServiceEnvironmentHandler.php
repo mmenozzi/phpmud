@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace PHPMud\Tests\Behat\Extension;;
+namespace PHPMud\Tests\Behat\Extension;
 
 use Behat\Behat\Context\Context;
 use Behat\Behat\Context\Environment\ContextEnvironment;
@@ -117,11 +117,7 @@ final class ContextServiceEnvironmentHandler implements EnvironmentHandler
         $contexts = $suite->getSetting('contexts');
 
         if (!is_array($contexts)) {
-            throw new SuiteConfigurationException(sprintf(
-                '"contexts" setting of the "%s" suite is expected to be an array, %s given.',
-                $suite->getName(),
-                gettype($contexts)
-            ), $suite->getName());
+            throw new SuiteConfigurationException(sprintf('"contexts" setting of the "%s" suite is expected to be an array, %s given.', $suite->getName(), gettype($contexts)), $suite->getName());
         }
 
         return array_map([$this, 'normalizeContext'], $contexts);
@@ -132,11 +128,7 @@ final class ContextServiceEnvironmentHandler implements EnvironmentHandler
         $contexts = $suite->getSetting('contexts');
 
         if (!is_array($contexts)) {
-            throw new SuiteConfigurationException(sprintf(
-                '"contexts" setting of the "%s" suite is expected to be an array, %s given.',
-                $suite->getName(),
-                gettype($contexts)
-            ), $suite->getName());
+            throw new SuiteConfigurationException(sprintf('"contexts" setting of the "%s" suite is expected to be an array, %s given.', $suite->getName(), gettype($contexts)), $suite->getName());
         }
 
         $contexts = array_filter($contexts, function ($context) use ($contextsToRemove): bool {
@@ -167,11 +159,7 @@ final class ContextServiceEnvironmentHandler implements EnvironmentHandler
     private function assertEnvironmentCanBeIsolated(Environment $uninitializedEnvironment, $testSubject): void
     {
         if (!$this->supportsEnvironmentAndSubject($uninitializedEnvironment, $testSubject)) {
-            throw new EnvironmentIsolationException(sprintf(
-                '"%s" does not support isolation of "%s" environment.',
-                static::class,
-                get_class($uninitializedEnvironment)
-            ), $uninitializedEnvironment);
+            throw new EnvironmentIsolationException(sprintf('"%s" does not support isolation of "%s" environment.', static::class, get_class($uninitializedEnvironment)), $uninitializedEnvironment);
         }
     }
 

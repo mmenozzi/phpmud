@@ -18,37 +18,43 @@ final class Client
 
     public function handleCommand(string $command): void
     {
-        if ($command === 'north') {
+        if ('north' === $command) {
             $this->character->moveTo(Direction::North);
-            $this->socket->write($this->character->getLocation()->getName() . PHP_EOL . PHP_EOL);
+            $this->socket->write($this->character->getLocation()->getName().PHP_EOL.PHP_EOL);
+
             return;
         }
-        if ($command === 'east') {
+        if ('east' === $command) {
             $this->character->moveTo(Direction::East);
-            $this->socket->write($this->character->getLocation()->getName() . PHP_EOL . PHP_EOL);
+            $this->socket->write($this->character->getLocation()->getName().PHP_EOL.PHP_EOL);
+
             return;
         }
-        if ($command === 'south') {
+        if ('south' === $command) {
             $this->character->moveTo(Direction::South);
-            $this->socket->write($this->character->getLocation()->getName() . PHP_EOL . PHP_EOL);
+            $this->socket->write($this->character->getLocation()->getName().PHP_EOL.PHP_EOL);
+
             return;
         }
-        if ($command === 'west') {
+        if ('west' === $command) {
             $this->character->moveTo(Direction::West);
-            $this->socket->write($this->character->getLocation()->getName() . PHP_EOL . PHP_EOL);
+            $this->socket->write($this->character->getLocation()->getName().PHP_EOL.PHP_EOL);
+
             return;
         }
-        if ($command === 'up') {
+        if ('up' === $command) {
             $this->character->moveTo(Direction::Up);
-            $this->socket->write($this->character->getLocation()->getName() . PHP_EOL . PHP_EOL);
+            $this->socket->write($this->character->getLocation()->getName().PHP_EOL.PHP_EOL);
+
             return;
         }
-        if ($command === 'down') {
+        if ('down' === $command) {
             $this->character->moveTo(Direction::Down);
-            $this->socket->write($this->character->getLocation()->getName() . PHP_EOL . PHP_EOL);
+            $this->socket->write($this->character->getLocation()->getName().PHP_EOL.PHP_EOL);
+
             return;
         }
 
-        $this->socket->write('What???' . PHP_EOL . PHP_EOL);
+        $this->socket->write('What???'.PHP_EOL.PHP_EOL);
     }
 }

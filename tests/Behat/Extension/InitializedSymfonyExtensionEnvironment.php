@@ -62,10 +62,7 @@ final class InitializedSymfonyExtensionEnvironment implements SymfonyExtensionEn
     public function getContext(string $class): Context
     {
         if (!isset($this->contexts[$class])) {
-            throw new ContextNotFoundException(sprintf(
-                '`%s` context is not found in the suite environment. Have you registered it?',
-                $class
-            ), $class);
+            throw new ContextNotFoundException(sprintf('`%s` context is not found in the suite environment. Have you registered it?', $class), $class);
         }
 
         return $this->contexts[$class];

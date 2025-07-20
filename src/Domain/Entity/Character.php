@@ -14,7 +14,7 @@ final class Character
     public function __construct(
         private readonly string $firstName,
         private readonly string $lastName,
-        private Location $location
+        private Location $location,
     ) {
         $this->createId();
     }
@@ -42,7 +42,7 @@ final class Character
     public function moveTo(Direction $direction): void
     {
         $newLocation = $this->getLocation()->getNeighbor($direction);
-        if ($newLocation === null) {
+        if (null === $newLocation) {
             // TODO throw if $newLocation is null? For now we simply remain in the current location without feedback.
             return;
         }

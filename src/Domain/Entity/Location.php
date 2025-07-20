@@ -35,7 +35,7 @@ final class Location
     public function placeBorderingLocation(Location $newLocation, Direction $direction): void
     {
         $this->neighbors->set($direction->value, $newLocation);
-        if ($newLocation->getNeighbor($direction->opposite()) === null) {
+        if (null === $newLocation->getNeighbor($direction->opposite())) {
             $newLocation->placeBorderingLocation($this, $direction->opposite());
         }
     }

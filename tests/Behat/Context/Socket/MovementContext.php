@@ -8,12 +8,11 @@ use Behat\Behat\Context\Context;
 use PHPMud\Domain\Direction;
 use PHPMud\Domain\Entity\Location;
 use PHPMud\Tests\Behat\Service\SharedStorage;
-use Socket;
 use Webmozart\Assert\Assert;
 
 final class MovementContext implements Context
 {
-    private Socket $socket;
+    private \Socket $socket;
 
     public function __construct(private readonly SharedStorage $sharedStorage)
     {
@@ -26,7 +25,7 @@ final class MovementContext implements Context
     {
         $this->socket = socket_create(AF_INET, SOCK_STREAM, SOL_TCP);
         socket_connect($this->socket, '127.0.0.1', 10666);
-        socket_write($this->socket, $direction->value . PHP_EOL);
+        socket_write($this->socket, $direction->value.PHP_EOL);
     }
 
     /**
@@ -39,10 +38,10 @@ final class MovementContext implements Context
         $responses = [];
         while ($chunk = socket_read($this->socket, 1024)) {
             $buffer .= $chunk;
-            if (!str_contains($buffer, PHP_EOL . PHP_EOL)) {
+            if (!str_contains($buffer, PHP_EOL.PHP_EOL)) {
                 continue;
             }
-            $responses = explode(PHP_EOL . PHP_EOL, $buffer);
+            $responses = explode(PHP_EOL.PHP_EOL, $buffer);
             break;
         }
         Assert::notEmpty($responses);

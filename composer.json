@@ -1,7 +1,8 @@
 {
     "require-dev": {
         "ext-sockets": "*",
-        "behat/behat": "^3.23"
+        "behat/behat": "^3.23",
+        "symplify/easy-coding-standard": "^12.5"
     },
     "autoload": {
         "psr-4": {
@@ -23,6 +24,7 @@
     },
     "scripts": {
         "start": "bin/phpmud & echo $! > /tmp/phpmud.pid",
-        "stop": "kill $(cat /tmp/phpmud.pid); rm /tmp/phpmud.pid"
+        "stop": "kill $(cat /tmp/phpmud.pid); rm /tmp/phpmud.pid",
+        "ecs": "vendor/bin/ecs check"
     }
 }
