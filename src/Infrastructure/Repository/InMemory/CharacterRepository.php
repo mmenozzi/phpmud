@@ -9,6 +9,9 @@ use PHPMud\Domain\Entity\Character;
 use PHPMud\Domain\Repository\CharacterRepositoryInterface;
 use Webgriffe\InMemoryRepository\ObjectRepository;
 
+/**
+ * @extends ObjectRepository<array-key, Character>
+ */
 final class CharacterRepository extends ObjectRepository implements CharacterRepositoryInterface
 {
     public function getClassName(): string

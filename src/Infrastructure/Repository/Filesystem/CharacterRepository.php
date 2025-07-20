@@ -46,14 +46,22 @@ final class CharacterRepository implements CharacterRepositoryInterface
         $this->flush($characters);
     }
 
+    /**
+     * @return Collection<array-key, Character>
+     */
     private function load(): Collection
     {
-        $characters = unserialize(file_get_contents($this->filepath));
+        $data = file_get_contents($this->filepath);
+        Assert::string($data);
+        $characters = unserialize($data);
         Assert::isInstanceOf($characters, Collection::class);
 
         return $characters;
     }
 
+    /**
+     * @param Collection<array-key, Character> $characters
+     */
     private function flush(Collection $characters): void
     {
         file_put_contents($this->filepath, serialize($characters));

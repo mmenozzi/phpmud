@@ -9,14 +9,14 @@ use Symfony\Component\Uid\Uuid;
 
 final class Character
 {
-    use IdTrait;
+    private readonly Uuid $id;
 
     public function __construct(
         private readonly string $firstName,
         private readonly string $lastName,
         private Location $location,
     ) {
-        $this->createId();
+        $this->id = Uuid::v6();
     }
 
     public function getId(): Uuid

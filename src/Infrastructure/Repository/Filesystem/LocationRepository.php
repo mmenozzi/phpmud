@@ -12,6 +12,9 @@ use Webmozart\Assert\Assert;
 
 final class LocationRepository implements LocationRepositoryInterface
 {
+    /**
+     * @var Collection<array-key, Location>|null
+     */
     private ?Collection $locations = null;
 
     public function __construct(private readonly string $filepath)
@@ -29,6 +32,9 @@ final class LocationRepository implements LocationRepositoryInterface
         $this->flush($locations);
     }
 
+    /**
+     * @return Collection<array-key, Location>
+     */
     public function findByName(string $name): Collection
     {
         return $this->load()->filter(function (Location $location) use ($name) {
@@ -48,16 +54,26 @@ final class LocationRepository implements LocationRepositoryInterface
         $this->flush($locations);
     }
 
+    /**
+     * @return Collection<array-key, Location>
+     */
     private function load(): Collection
     {
         if (null === $this->locations) {
-            $this->locations = unserialize(file_get_contents($this->filepath));
+            $data = file_get_contents($this->filepath);
+            Assert::string($data);
+            /** @var Collection<array-key, Location> $locations */
+            $locations = unserialize($data);
+            $this->locations = $locations;
             Assert::isInstanceOf($this->locations, Collection::class);
         }
 
         return $this->locations;
     }
 
+    /**
+     * @param Collection<array-key, Location> $locations
+     */
     private function flush(Collection $locations): void
     {
         file_put_contents($this->filepath, serialize($locations));

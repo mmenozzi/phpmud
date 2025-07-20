@@ -2,7 +2,8 @@
     "require-dev": {
         "ext-sockets": "*",
         "behat/behat": "^3.23",
-        "symplify/easy-coding-standard": "^12.5"
+        "symplify/easy-coding-standard": "^12.5",
+        "phpstan/phpstan": "^2.1"
     },
     "autoload": {
         "psr-4": {
@@ -26,9 +27,11 @@
         "start": "bin/phpmud & echo $! > /tmp/phpmud.pid",
         "stop": "kill $(cat /tmp/phpmud.pid); rm /tmp/phpmud.pid",
         "ecs": "vendor/bin/ecs check",
+        "phpstan": "vendor/bin/phpstan analyse -l max src/",
         "behat": "vendor/bin/behat",
         "test": [
             "@ecs",
+            "@phpstan",
             "@behat"
         ]
     }

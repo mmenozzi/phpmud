@@ -6,6 +6,7 @@ namespace PHPMud\Infrastructure\Server;
 
 use Amp\Socket\ResourceSocket;
 use PHPMud\Domain\Repository\CharacterRepositoryInterface;
+use Webmozart\Assert\Assert;
 
 final class ClientFactory
 {
@@ -16,6 +17,7 @@ final class ClientFactory
     public function create(ResourceSocket $socket): Client
     {
         $character = $this->characterRepository->findAll()->first();
+        Assert::notFalse($character);
 
         return new Client($socket, $character);
     }

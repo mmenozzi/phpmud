@@ -9,6 +9,9 @@ use PHPMud\Domain\Entity\Location;
 use PHPMud\Domain\Repository\LocationRepositoryInterface;
 use Webgriffe\InMemoryRepository\ObjectRepository;
 
+/**
+ * @extends ObjectRepository<array-key, Location>
+ */
 final class LocationRepository extends ObjectRepository implements LocationRepositoryInterface
 {
     public function add(Location $location): void

@@ -11,14 +11,14 @@ use Symfony\Component\Uid\Uuid;
 
 final class Location
 {
-    use IdTrait;
+    private readonly Uuid $id;
 
-    /** @var Collection<Direction, Location> */
+    /** @var Collection<string, Location> */
     private Collection $neighbors;
 
     public function __construct(private readonly string $name)
     {
-        $this->createId();
+        $this->id = Uuid::v6();
         $this->neighbors = new ArrayCollection();
     }
 
