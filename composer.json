@@ -1,6 +1,7 @@
 {
     "require-dev": {
-        "behat/behat": "^3.11"
+        "ext-sockets": "*",
+        "behat/behat": "^3.23"
     },
     "autoload": {
         "psr-4": {
@@ -13,11 +14,12 @@
         }
     },
     "require": {
-        "symfony/uid": "^6.1",
-        "webgriffe/in-memory-repository": "^0.1.0",
+        "php": "^8.4",
+        "symfony/uid": "^7.3",
+        "webgriffe/in-memory-repository": "^0.3.0",
         "webmozart/assert": "^1.11",
-        "symfony/dependency-injection": "^6.1",
-        "amphp/socket": "^1.2"
+        "symfony/dependency-injection": "^7.3",
+        "amphp/socket": "^2.3"
     },
     "scripts": {
         "start": "bin/phpmud & echo $! > /tmp/phpmud.pid",

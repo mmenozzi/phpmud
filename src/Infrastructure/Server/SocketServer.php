@@ -4,11 +4,9 @@ declare(strict_types=1);
 
 namespace PHPMud\Infrastructure\Server;
 
-use Amp\Loop;
-use Amp\Socket\ResourceSocket;
-use Amp\Socket\Server;
+use Amp\Socket;
 
-use function Amp\asyncCoroutine;
+use function Amp\async;
 
 final class SocketServer
 {
@@ -18,14 +16,15 @@ final class SocketServer
 
     public function listen(): void
     {
-        Loop::run(function () {
-            $server = Server::listen($this->uri);
-            echo 'Server listening on ' . $this->uri . PHP_EOL;
-            $clientHandler = asyncCoroutine(function (ResourceSocket $socket) {
+        $server = Socket\listen($this->uri);
+        echo 'Server listening on ' . $this->uri . PHP_EOL;
+
+        while ($socket = $server->accept()) {
+            async(function () use ($socket) {
                 $client = $this->clientFactory->create($socket);
                 echo 'New client connected: ' . $socket->getRemoteAddress() . PHP_EOL;
                 $buffer = '';
-                while (null !== $chunk = yield $socket->read()) {
+                while (null !== $chunk = $socket->read()) {
                     $buffer .= $chunk;
                     if (!str_contains($buffer, PHP_EOL)) {
                         continue;
@@ -34,14 +33,10 @@ final class SocketServer
                     $buffer = array_pop($commands);
                     foreach ($commands as $command) {
                         echo $socket->getRemoteAddress() . ': ' . $command . PHP_EOL;
-                        yield $client->handleCommand($command);
+                        $client->handleCommand($command);
                     }
                 }
             });
-
-            while ($socket = yield $server->accept()) {
-                $clientHandler($socket);
-            }
-        });
+        }
     }
 }
