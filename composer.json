@@ -25,6 +25,11 @@
     "scripts": {
         "start": "bin/phpmud & echo $! > /tmp/phpmud.pid",
         "stop": "kill $(cat /tmp/phpmud.pid); rm /tmp/phpmud.pid",
-        "ecs": "vendor/bin/ecs check"
+        "ecs": "vendor/bin/ecs check",
+        "behat": "vendor/bin/behat",
+        "test": [
+            "@ecs",
+            "@behat"
+        ]
     }
 }
