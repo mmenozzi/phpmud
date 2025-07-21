@@ -20,7 +20,7 @@ final class LocationContext implements Context
      */
     public function thereIsTheLocation(string $locationName): void
     {
-        $location = new Location($locationName);
+        $location = new Location($locationName, 'Description of '.$locationName);
         $this->locationRepository->add($location);
     }
 
@@ -32,7 +32,7 @@ final class LocationContext implements Context
         Direction $direction,
         Location $existentLocation,
     ) {
-        $newLocation = new Location($newLocationName);
+        $newLocation = new Location($newLocationName, 'Description of '.$newLocationName);
         $existentLocation->placeBorderingLocation($newLocation, $direction);
         $this->locationRepository->add($newLocation);
     }

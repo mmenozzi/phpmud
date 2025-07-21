@@ -16,7 +16,7 @@ final class Location
     /** @var Collection<string, Location> */
     private Collection $neighbors;
 
-    public function __construct(private readonly string $name)
+    public function __construct(private readonly string $name, private readonly string $description)
     {
         $this->id = Uuid::v6();
         $this->neighbors = new ArrayCollection();
@@ -30,6 +30,11 @@ final class Location
     public function getName(): string
     {
         return $this->name;
+    }
+
+    public function getDescription(): string
+    {
+        return $this->description;
     }
 
     public function placeBorderingLocation(Location $newLocation, Direction $direction): void

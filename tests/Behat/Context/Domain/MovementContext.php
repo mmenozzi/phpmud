@@ -32,5 +32,6 @@ final class MovementContext implements Context
     {
         $character = $this->sharedStorage->get('character');
         Assert::eq($character->getLocation()->getName(), $location->getName());
+        Assert::eq($character->getLocation()->getDescription(), $location->getDescription());
     }
 }

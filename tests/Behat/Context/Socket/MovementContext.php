@@ -45,6 +45,7 @@ final class MovementContext implements Context
             break;
         }
         Assert::notEmpty($responses);
-        Assert::eq($responses[0], $location->getName());
+        Assert::contains($responses[0], $location->getName());
+        Assert::contains($responses[0], $location->getDescription());
     }
 }
