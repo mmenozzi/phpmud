@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-require_once __DIR__ . '/vendor/autoload.php';
+require_once __DIR__ . '/../vendor/autoload.php';
 
 // read locations form CSV file
 function readLocationsFromCsv(string $filepath): array
@@ -18,7 +18,7 @@ function readLocationsFromCsv(string $filepath): array
             if (count($data) < 2) {
                 continue; // Skip invalid lines
             }
-            $id = trim($data[0]);
+            $id = (int) trim($data[0]);
             $name = trim($data[1]);
             $description = trim($data[2]);
             $nord = trim($data[3] ?? '');
@@ -44,28 +44,38 @@ function readLocationsFromCsv(string $filepath): array
     return $locations;
 }
 
-$locations = readLocationsFromCsv(__DIR__ . '/src/Infrastructure/Resources/locations.csv');
+$locations = readLocationsFromCsv(__DIR__ . '/locations.csv');
+unlink('/tmp/phpmud.location');
 $locationRepository = new \PHPMud\Infrastructure\Repository\Filesystem\LocationRepository('/tmp/phpmud.location');
-$addedLocations = [];
+$alreadyAddedLocations = [];
 foreach ($locations as $id => $locationData) {
-    $location = new \PHPMud\Domain\Entity\Location($locationData['name'], $locationData['description']);
+    if (!in_array($id, $alreadyAddedLocations, true)) {
+        $location = new \PHPMud\Domain\Entity\Location($locationData['name'], $locationData['description']);
+        $locationRepository->add($location);
+        $alreadyAddedLocations[] = $id;
+    } else {
+        $location = $locationRepository->findByName($locationData['name'])->first();
+    }
+
     foreach (['north', 'east', 'south', 'west', 'up', 'down'] as $directionString) {
         if (empty($locationData[$directionString])) {
             continue;
         }
-        $neighborId = $locationData[$directionString];
+        $neighborId = (int) $locationData[$directionString];
+        if (in_array($neighborId, $alreadyAddedLocations, true)) {
+            continue; // Skip already added locations
+        }
+
         $neighborData = $locations[$neighborId];
         $neighbor = new \PHPMud\Domain\Entity\Location($neighborData['name'], $neighborData['description']);
         $direction = \PHPMud\Domain\Direction::from($directionString);
         $location->placeBorderingLocation($neighbor, \PHPMud\Domain\Direction::from($directionString));
         $locationRepository->add($neighbor);
-        $addedLocations[] = $neighborId;
+        $alreadyAddedLocations[] = $neighborId;
     }
-    $locationRepository->add($location);
-    $addedLocations[] = $id;
 }
 
-$initialLocation = $locationRepository->findAll()->first();
-$character = new \PHPMud\Domain\Entity\Character('John', 'Doe', $initialLocation);
+$character = new \PHPMud\Domain\Entity\Character('John', 'Doe', $locationRepository->findAll()->first());
+unlink('/tmp/phpmud.character');
 $characterRepository = new \PHPMud\Infrastructure\Repository\Filesystem\CharacterRepository('/tmp/phpmud.character');
 $characterRepository->add($character);
