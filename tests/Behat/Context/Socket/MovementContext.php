@@ -26,13 +26,6 @@ final class MovementContext implements Context
         $this->socket = socket_create(AF_INET, SOCK_STREAM, SOL_TCP);
         socket_connect($this->socket, '127.0.0.1', 10666);
         socket_write($this->socket, $direction->value.PHP_EOL);
-    }
-
-    /**
-     * @Then /^I should see that I am in the (location "([^"]*)")$/
-     */
-    public function iShouldSeeThatIAmInTheLocation(Location $location)
-    {
         socket_set_option($this->socket, SOL_SOCKET, SO_RCVTIMEO, ['sec' => 5, 'usec' => 0]);
         $buffer = '';
         $responses = [];
@@ -41,11 +34,32 @@ final class MovementContext implements Context
             if (!str_contains($buffer, PHP_EOL.PHP_EOL)) {
                 continue;
             }
-            $responses = explode(PHP_EOL.PHP_EOL, $buffer);
+            $responses = array_filter(explode(PHP_EOL.PHP_EOL, $buffer));
             break;
         }
-        Assert::notEmpty($responses);
-        Assert::contains($responses[0], $location->getName());
-        Assert::contains($responses[0], $location->getDescription());
+        Assert::count($responses, 1);
+        $this->sharedStorage->set('last_response', $responses[0]);
+    }
+
+    /**
+     * @Then /^I should see that I am in the (location "[^"]*")$/
+     */
+    public function iShouldSeeThatIAmInTheLocation(Location $location)
+    {
+        /** @var string $lastResponse */
+        $lastResponse = $this->sharedStorage->get('last_response');
+        Assert::contains($lastResponse, $location->getName());
+        Assert::contains($lastResponse, $location->getDescription());
+    }
+
+    /**
+     * @Then /^I should see that there is a (location "[^"]*") (north|east|south|west|up|down) from here$/
+     */
+    public function iShouldSeeThatThereIsALocationSouthFromLocation(Location $location, Direction $direction)
+    {
+        /** @var string $lastResponse */
+        $lastResponse = $this->sharedStorage->get('last_response');
+        $expected = sprintf('%s: %s', ucwords($direction->value), $location->getName());
+        Assert::contains($lastResponse, $expected);
     }
 }
