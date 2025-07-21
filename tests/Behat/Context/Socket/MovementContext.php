@@ -12,7 +12,7 @@ use Webmozart\Assert\Assert;
 
 final class MovementContext implements Context
 {
-    private \Socket $socket;
+    private ?\Socket $socket = null;
 
     public function __construct(private readonly SharedStorage $sharedStorage)
     {
@@ -23,10 +23,12 @@ final class MovementContext implements Context
      */
     public function iMoveTo(Direction $direction): void
     {
-        $this->socket = socket_create(AF_INET, SOCK_STREAM, SOL_TCP);
-        socket_connect($this->socket, '127.0.0.1', 10666);
+        if ($this->socket === null) {
+            $this->socket = socket_create(AF_INET, SOCK_STREAM, SOL_TCP);
+            socket_connect($this->socket, '127.0.0.1', 10666);
+        }
         socket_write($this->socket, $direction->value.PHP_EOL);
-        socket_set_option($this->socket, SOL_SOCKET, SO_RCVTIMEO, ['sec' => 5, 'usec' => 0]);
+        socket_set_option($this->socket, SOL_SOCKET, SO_RCVTIMEO, ['sec' => 50, 'usec' => 0]);
         $buffer = '';
         $responses = [];
         while ($chunk = socket_read($this->socket, 1024)) {

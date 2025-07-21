@@ -12,6 +12,7 @@ Feature: Movement
     And there is the location "E" west from location "A"
     And there is the location "F" up from location "A"
     And there is the location "G" down from location "A"
+    And there is the location "Far away" north from location "B"
     And my character is in the location "A"
 
   @domain @socket
@@ -49,3 +50,11 @@ Feature: Movement
     When I move to down
     Then I should see that I am in the location "G"
     And I should see that there is a location "A" up from here
+
+  @domain @socket
+  Scenario: Moving to far away from initial location
+    When I move to north
+    Then I should see that I am in the location "B"
+    When I move to north
+    Then I should see that I am in the location "Far away"
+
