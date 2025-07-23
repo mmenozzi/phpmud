@@ -7,17 +7,33 @@ namespace PHPMud\Infrastructure\Server;
 use Amp\Socket\ResourceSocket;
 use PHPMud\Domain\Direction;
 use PHPMud\Domain\Entity\Character;
+use Webmozart\Assert\Assert;
 
 final class Client
 {
+    private ?Character $character = null;
+
+    private ?string $authenticatingCharacterName = null;
+
     public function __construct(
         private readonly ResourceSocket $socket,
-        private readonly Character $character,
     ) {
+    }
+
+    public function getSocket(): ResourceSocket
+    {
+        return $this->socket;
+    }
+
+    public function getCharacter(): ?Character
+    {
+        return $this->character;
     }
 
     public function handleCommand(string $command): void
     {
+        Assert::notNull($this->character);
+
         if ('north' === $command) {
             $this->character->moveTo(Direction::North);
             $this->showCurrentLocation();
@@ -36,6 +52,10 @@ final class Client
         } elseif ('down' === $command) {
             $this->character->moveTo(Direction::Down);
             $this->showCurrentLocation();
+        } elseif ('whoami' === $command) {
+            $this->showWhoAmI();
+        } elseif ('look' === $command) {
+            $this->showCurrentLocation();
         } else {
             $this->socket->write('What???'.PHP_EOL);
         }
@@ -45,6 +65,7 @@ final class Client
 
     private function showCurrentLocation(): void
     {
+        Assert::notNull($this->character);
         $this->socket->write($this->character->getLocation()->getName().PHP_EOL);
         $this->socket->write($this->character->getLocation()->getDescription().PHP_EOL);
         $this->socket->write('You can go:'.PHP_EOL);
@@ -55,5 +76,46 @@ final class Client
             }
             $this->socket->write(sprintf('%s: %s', ucwords($direction->value), $neighbor->getName()).PHP_EOL);
         }
+    }
+
+    public function isAuthenticated(): bool
+    {
+        return null !== $this->character;
+    }
+
+    public function isAuthenticating(): bool
+    {
+        return null !== $this->authenticatingCharacterName;
+    }
+
+    public function beginAuthenticationWithCharacterName(string $characterName): void
+    {
+        $this->authenticatingCharacterName = $characterName;
+    }
+
+    public function getAuthenticatingCharacterName(): string
+    {
+        if (null === $this->authenticatingCharacterName) {
+            throw new \LogicException('No character name is being authenticated.');
+        }
+
+        return $this->authenticatingCharacterName;
+    }
+
+    public function stopAuthentication(): void
+    {
+        $this->authenticatingCharacterName = null;
+    }
+
+    public function authenticate(Character $character): void
+    {
+        $this->character = $character;
+        $this->stopAuthentication();
+    }
+
+    private function showWhoAmI(): void
+    {
+        Assert::notNull($this->character);
+        $this->socket->write(sprintf('Your name is "%s".', $this->character->getName()).PHP_EOL);
     }
 }

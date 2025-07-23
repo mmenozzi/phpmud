@@ -11,10 +11,7 @@ interface CharacterRepositoryInterface
 {
     public function add(Character $character): void;
 
-    /**
-     * @return Collection<array-key, Character>
-     */
-    public function findByFirstNameAndLastName(string $firstName, string $lastName): Collection;
+    public function findOneByName(string $name): ?Character;
 
     /**
      * @return Collection<array-key, Character>

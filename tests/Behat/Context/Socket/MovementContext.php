@@ -12,10 +12,11 @@ use Webmozart\Assert\Assert;
 
 final class MovementContext implements Context
 {
-    private ?\Socket $socket = null;
+    use SocketResponseTrait;
 
-    public function __construct(private readonly SharedStorage $sharedStorage)
+    public function __construct(SharedStorage $sharedStorage)
     {
+        $this->sharedStorage = $sharedStorage;
     }
 
     /**
@@ -23,24 +24,7 @@ final class MovementContext implements Context
      */
     public function iMoveTo(Direction $direction): void
     {
-        if ($this->socket === null) {
-            $this->socket = socket_create(AF_INET, SOCK_STREAM, SOL_TCP);
-            socket_connect($this->socket, '127.0.0.1', 10666);
-        }
-        socket_write($this->socket, $direction->value.PHP_EOL);
-        socket_set_option($this->socket, SOL_SOCKET, SO_RCVTIMEO, ['sec' => 50, 'usec' => 0]);
-        $buffer = '';
-        $responses = [];
-        while ($chunk = socket_read($this->socket, 1024)) {
-            $buffer .= $chunk;
-            if (!str_contains($buffer, PHP_EOL.PHP_EOL)) {
-                continue;
-            }
-            $responses = array_filter(explode(PHP_EOL.PHP_EOL, $buffer));
-            break;
-        }
-        Assert::count($responses, 1);
-        $this->sharedStorage->set('last_response', $responses[0]);
+        socket_write($this->sharedStorage->get('socket'), $direction->value.PHP_EOL);
     }
 
     /**
@@ -48,10 +32,9 @@ final class MovementContext implements Context
      */
     public function iShouldSeeThatIAmInTheLocation(Location $location)
     {
-        /** @var string $lastResponse */
-        $lastResponse = $this->sharedStorage->get('last_response');
-        Assert::contains($lastResponse, $location->getName());
-        Assert::contains($lastResponse, $location->getDescription());
+        $response = $this->getNextResponse();
+        Assert::contains($response, $location->getName());
+        Assert::contains($response, $location->getDescription());
     }
 
     /**
@@ -59,9 +42,7 @@ final class MovementContext implements Context
      */
     public function iShouldSeeThatThereIsALocationSouthFromLocation(Location $location, Direction $direction)
     {
-        /** @var string $lastResponse */
-        $lastResponse = $this->sharedStorage->get('last_response');
-        $expected = sprintf('%s: %s', ucwords($direction->value), $location->getName());
-        Assert::contains($lastResponse, $expected);
+        socket_write($this->sharedStorage->get('socket'), 'look'.PHP_EOL);
+        Assert::contains($this->getNextResponse(), sprintf('%s: %s', ucwords($direction->value), $location->getName()));
     }
 }

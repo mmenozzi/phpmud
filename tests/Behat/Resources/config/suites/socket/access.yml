@@ -1,6 +1,6 @@
 default:
     suites:
-        socket_movement:
+        socket_access:
             contexts:
                 - phpmud.behat.context.hook.purge
 
@@ -14,4 +14,4 @@ default:
                 - phpmud.behat.context.socket.movement
 
             filters:
-                tags: "@movement&&@socket"
+                tags: "@access&&@socket"

@@ -8,6 +8,7 @@ default:
                 - phpmud.behat.context.transform.in_memory.location
                 - phpmud.behat.context.transform.direction
 
+                - phpmud.behat.context.domain.access
                 - phpmud.behat.context.domain.movement
 
             filters:

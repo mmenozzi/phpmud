@@ -14,6 +14,7 @@ Feature: Movement
     And there is the location "G" down from location "A"
     And there is the location "Far away" north from location "B"
     And my character is in the location "A"
+    And I am connected to the game
 
   @domain @socket
   Scenario: Moving north

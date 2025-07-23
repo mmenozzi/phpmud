@@ -10,5 +10,8 @@
         <service id="phpmud.behat.context.domain.movement" class="PHPMud\Tests\Behat\Context\Domain\MovementContext">
             <argument type="service" id="phpmud.behat.shared_storage" />
         </service>
+
+        <service id="phpmud.behat.context.domain.access" class="PHPMud\Tests\Behat\Context\Domain\AccessContext">
+        </service>
     </services>
 </container>

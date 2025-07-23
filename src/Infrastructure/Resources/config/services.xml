@@ -20,13 +20,13 @@
         </service>
         <service id="phpmud.repository.character" alias="phpmud.repository.filesystem.character" />
 
-        <service id="phpmud.server.socket" class="PHPMud\Infrastructure\Server\SocketServer">
-            <argument>127.0.0.1:10666</argument>
-            <argument type="service" id="phpmud.server.client_factory" />
+        <service id="phpmud.server.client_handler" class="PHPMud\Infrastructure\Server\ClientHandler">
+            <argument type="service" id="phpmud.repository.character" />
         </service>
 
-        <service id="phpmud.server.client_factory" class="PHPMud\Infrastructure\Server\ClientFactory">
-            <argument type="service" id="phpmud.repository.character" />
+        <service id="phpmud.server.socket" class="PHPMud\Infrastructure\Server\SocketServer">
+            <argument>127.0.0.1:10666</argument>
+            <argument type="service" id="phpmud.server.client_handler" />
         </service>
     </services>
 </container>

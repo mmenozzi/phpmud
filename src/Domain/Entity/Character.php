@@ -12,9 +12,9 @@ final class Character
     private readonly Uuid $id;
 
     public function __construct(
-        private readonly string $firstName,
-        private readonly string $lastName,
+        private readonly string $name,
         private Location $location,
+        private string $passwordHash,
     ) {
         $this->id = Uuid::v6();
     }
@@ -24,19 +24,24 @@ final class Character
         return $this->id;
     }
 
-    public function getFirstName(): string
+    public function getName(): string
     {
-        return $this->firstName;
-    }
-
-    public function getLastName(): string
-    {
-        return $this->lastName;
+        return $this->name;
     }
 
     public function getLocation(): Location
     {
         return $this->location;
+    }
+
+    public function getPasswordHash(): string
+    {
+        return $this->passwordHash;
+    }
+
+    public function setPasswordHash(string $passwordHash): void
+    {
+        $this->passwordHash = $passwordHash;
     }
 
     public function moveTo(Direction $direction): void

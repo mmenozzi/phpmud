@@ -27,11 +27,16 @@ final class CharacterRepository implements CharacterRepositoryInterface
         $this->flush($characters);
     }
 
-    public function findByFirstNameAndLastName(string $firstName, string $lastName): Collection
+    public function findOneByName(string $name): ?Character
     {
-        return $this->load()->filter(function (Character $character) use ($firstName, $lastName) {
-            return $character->getFirstName() === $firstName && $character->getLastName() === $lastName;
+        $result = $this->load()->filter(function (Character $character) use ($name) {
+            return $character->getName() === $name;
         });
+        if ($result->isEmpty()) {
+            return null;
+        }
+
+        return $result->first() ?: null;
     }
 
     public function findAll(): Collection

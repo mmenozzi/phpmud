@@ -10,7 +10,7 @@ use function Amp\async;
 
 final class SocketServer
 {
-    public function __construct(private readonly string $uri, private readonly ClientFactory $clientFactory)
+    public function __construct(private readonly string $uri, private readonly ClientHandler $clientHandler)
     {
     }
 
@@ -21,8 +21,9 @@ final class SocketServer
 
         while ($socket = $server->accept()) {
             async(function () use ($socket) {
-                $client = $this->clientFactory->create($socket);
+                $client = new Client($socket);
                 echo 'New client connected: '.$socket->getRemoteAddress().PHP_EOL;
+                $this->clientHandler->handleConnection($client);
                 $buffer = '';
                 while (null !== $chunk = $socket->read()) {
                     $buffer .= $chunk;
@@ -33,7 +34,7 @@ final class SocketServer
                     $buffer = array_pop($commands);
                     foreach ($commands as $command) {
                         echo $socket->getRemoteAddress().': '.$command.PHP_EOL;
-                        $client->handleCommand($command);
+                        $this->clientHandler->handleCommand($client, $command);
                     }
                 }
             });

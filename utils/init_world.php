@@ -45,7 +45,7 @@ function readLocationsFromCsv(string $filepath): array
 }
 
 $locations = readLocationsFromCsv(__DIR__ . '/locations.csv');
-unlink('/tmp/phpmud.location');
+@unlink('/tmp/phpmud.location');
 $locationRepository = new \PHPMud\Infrastructure\Repository\Filesystem\LocationRepository('/tmp/phpmud.location');
 $alreadyAddedLocations = [];
 foreach ($locations as $id => $locationData) {
@@ -75,7 +75,7 @@ foreach ($locations as $id => $locationData) {
     }
 }
 
-$character = new \PHPMud\Domain\Entity\Character('John', 'Doe', $locationRepository->findAll()->first());
-unlink('/tmp/phpmud.character');
+$character = new \PHPMud\Domain\Entity\Character('John', $locationRepository->findAll()->first(), password_hash('p4ssw0rd', PASSWORD_DEFAULT));
+@unlink('/tmp/phpmud.character');
 $characterRepository = new \PHPMud\Infrastructure\Repository\Filesystem\CharacterRepository('/tmp/phpmud.character');
 $characterRepository->add($character);
