@@ -9,10 +9,10 @@
     </imports>
 
     <services>
-        <service id="phpmud.repository.in_memory.location" class="PHPMud\Infrastructure\Repository\InMemory\LocationRepository">
+        <service id="phpmud.domain.repository.in_memory.location" class="PHPMud\Infrastructure\Repository\InMemory\LocationRepository">
         </service>
 
-        <service id="phpmud.repository.in_memory.character" class="PHPMud\Infrastructure\Repository\InMemory\CharacterRepository">
+        <service id="phpmud.domain.repository.in_memory.character" class="PHPMud\Infrastructure\Repository\InMemory\CharacterRepository">
         </service>
     </services>
 </container>

@@ -8,11 +8,11 @@
         <defaults public="true" />
 
         <service id="phpmud.behat.context.transform.in_memory.location" class="PHPMud\Tests\Behat\Context\Transform\LocationContext">
-            <argument type="service" id="phpmud.repository.in_memory.location" />
+            <argument type="service" id="phpmud.domain.repository.in_memory.location" />
         </service>
 
         <service id="phpmud.behat.context.transform.filesystem.location" class="PHPMud\Tests\Behat\Context\Transform\LocationContext">
-            <argument type="service" id="phpmud.repository.filesystem.location" />
+            <argument type="service" id="phpmud.domain.repository.filesystem.location" />
         </service>
 
         <service id="phpmud.behat.context.transform.direction" class="PHPMud\Tests\Behat\Context\Transform\DirectionContext" />

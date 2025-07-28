@@ -34,25 +34,7 @@ final class Client
     {
         Assert::notNull($this->character);
 
-        if ('north' === $command) {
-            $this->character->moveTo(Direction::North);
-            $this->showCurrentLocation();
-        } elseif ('east' === $command) {
-            $this->character->moveTo(Direction::East);
-            $this->showCurrentLocation();
-        } elseif ('south' === $command) {
-            $this->character->moveTo(Direction::South);
-            $this->showCurrentLocation();
-        } elseif ('west' === $command) {
-            $this->character->moveTo(Direction::West);
-            $this->showCurrentLocation();
-        } elseif ('up' === $command) {
-            $this->character->moveTo(Direction::Up);
-            $this->showCurrentLocation();
-        } elseif ('down' === $command) {
-            $this->character->moveTo(Direction::Down);
-            $this->showCurrentLocation();
-        } elseif ('whoami' === $command) {
+        if ('whoami' === $command) {
             $this->showWhoAmI();
         } elseif ('look' === $command) {
             $this->showCurrentLocation();

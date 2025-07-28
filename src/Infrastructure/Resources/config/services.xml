@@ -10,18 +10,45 @@
 <!--    </parameters>-->
 
     <services>
-        <service id="phpmud.repository.filesystem.location" class="PHPMud\Infrastructure\Repository\Filesystem\LocationRepository">
+        <service id="phpmud.application.movement.command_executor.move" class="PHPMud\Application\Movement\CommandExecutor\MoveCommandExecutor">
+            <argument type="service" id="phpmud.domain.repository.character" />
+        </service>
+
+        <service id="phpmud.application.help.command_executor.unknown" class="PHPMud\Application\Help\CommandExecutor\UnknowCommandExecutor">
+        </service>
+
+        <service id="phpmud.application.command_router" class="PHPMud\Application\CommandRouter">
+            <call method="addExecutorForCommand">
+                <argument>PHPMud\Application\Movement\Command\MoveCommand</argument>
+                <argument type="service" id="phpmud.application.movement.command_executor.move" />
+            </call>
+            <call method="addExecutorForCommand">
+                <argument>PHPMud\Application\Help\Command\UnknowCommand</argument>
+                <argument type="service" id="phpmud.application.help.command_executor.unknown" />
+            </call>
+        </service>
+
+        <service id="phpmud.domain.repository.filesystem.location" class="PHPMud\Infrastructure\Repository\Filesystem\LocationRepository">
             <argument>/tmp/phpmud.location</argument>
         </service>
-        <service id="phpmud.repository.location" alias="phpmud.repository.filesystem.location" />
+        <service id="phpmud.domain.repository.location" alias="phpmud.domain.repository.filesystem.location" />
 
-        <service id="phpmud.repository.filesystem.character" class="PHPMud\Infrastructure\Repository\Filesystem\CharacterRepository">
+        <service id="phpmud.domain.repository.filesystem.character" class="PHPMud\Infrastructure\Repository\Filesystem\CharacterRepository">
             <argument>/tmp/phpmud.character</argument>
         </service>
-        <service id="phpmud.repository.character" alias="phpmud.repository.filesystem.character" />
+        <service id="phpmud.domain.repository.character" alias="phpmud.domain.repository.filesystem.character" />
+
+        <service id="phpmud.infrastructure.server.command_resolver" class="PHPMud\Infrastructure\Server\CommandResolver">
+        </service>
+
+        <service id="phpmud.infrastructure.server.command_response_handler" class="PHPMud\Infrastructure\Server\CommandResponseHandler">
+        </service>
 
         <service id="phpmud.server.client_handler" class="PHPMud\Infrastructure\Server\ClientHandler">
-            <argument type="service" id="phpmud.repository.character" />
+            <argument type="service" id="phpmud.domain.repository.character" />
+            <argument type="service" id="phpmud.infrastructure.server.command_resolver" />
+            <argument type="service" id="phpmud.application.command_router" />
+            <argument type="service" id="phpmud.infrastructure.server.command_response_handler" />
         </service>
 
         <service id="phpmud.server.socket" class="PHPMud\Infrastructure\Server\SocketServer">
