@@ -14,6 +14,9 @@
             <argument type="service" id="phpmud.domain.repository.character" />
         </service>
 
+        <service id="phpmud.application.movement.command_executor.look" class="PHPMud\Application\Movement\CommandExecutor\LookCommandExecutor">
+        </service>
+
         <service id="phpmud.application.help.command_executor.unknown" class="PHPMud\Application\Help\CommandExecutor\UnknowCommandExecutor">
         </service>
 
@@ -21,6 +24,10 @@
             <call method="addExecutorForCommand">
                 <argument>PHPMud\Application\Movement\Command\MoveCommand</argument>
                 <argument type="service" id="phpmud.application.movement.command_executor.move" />
+            </call>
+            <call method="addExecutorForCommand">
+                <argument>PHPMud\Application\Movement\Command\LookCommand</argument>
+                <argument type="service" id="phpmud.application.movement.command_executor.look" />
             </call>
             <call method="addExecutorForCommand">
                 <argument>PHPMud\Application\Help\Command\UnknowCommand</argument>

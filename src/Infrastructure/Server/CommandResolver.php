@@ -6,6 +6,7 @@ namespace PHPMud\Infrastructure\Server;
 
 use PHPMud\Application\CommandInterface;
 use PHPMud\Application\Help\Command\UnknowCommand;
+use PHPMud\Application\Movement\Command\LookCommand;
 use PHPMud\Application\Movement\Command\MoveCommand;
 use PHPMud\Domain\Direction;
 use Webmozart\Assert\Assert;
@@ -16,6 +17,9 @@ final class CommandResolver
     {
         $tokens = explode(' ', strtolower(trim($commandString)));
         if ($command = $this->resolveMoveCommand($tokens, $client)) {
+            return $command;
+        }
+        if ($command = $this->resolveLookCommand($tokens, $client)) {
             return $command;
         }
 
@@ -70,5 +74,18 @@ final class CommandResolver
         }
 
         return Direction::tryFrom($resolvedDirection);
+    }
+
+    /**
+     * @param array<array-key, string> $tokens
+     */
+    private function resolveLookCommand(array $tokens, Client $client): ?LookCommand
+    {
+        Assert::notNull($client->getCharacter());
+        if (1 === count($tokens) && 'look' === $tokens[0]) {
+            return new LookCommand($client->getCharacter());
+        }
+
+        return null;
     }
 }

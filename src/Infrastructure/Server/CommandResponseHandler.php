@@ -4,10 +4,13 @@ declare(strict_types=1);
 
 namespace PHPMud\Infrastructure\Server;
 
+use Amp\Socket\ResourceSocket;
 use PHPMud\Application\CommandResponseInterface;
 use PHPMud\Application\Help\Command\UnknownCommandResponse;
+use PHPMud\Application\Movement\Command\LookCommandResponse;
 use PHPMud\Application\Movement\Command\MoveCommandResponse;
 use PHPMud\Domain\Direction;
+use PHPMud\Domain\Entity\Location;
 
 final class CommandResponseHandler
 {
@@ -15,6 +18,12 @@ final class CommandResponseHandler
     {
         if ($commandResponse instanceof MoveCommandResponse) {
             $this->handleMoveCommandResponse($client, $commandResponse);
+
+            return;
+        }
+
+        if ($commandResponse instanceof LookCommandResponse) {
+            $this->handleLookCommandResponse($client, $commandResponse);
 
             return;
         }
@@ -35,26 +44,15 @@ final class CommandResponseHandler
 
     private function handleMoveCommandResponse(Client $client, MoveCommandResponse $commandResponse): void
     {
+        $socket = $client->getSocket();
         if (!$commandResponse->isSuccessful()) {
-            $client->getSocket()->write('Non puoi muoverti in quella direzione!'.PHP_EOL);
+            $socket->write('Non puoi muoverti in quella direzione!'.PHP_EOL);
             $this->closeResponse($client);
 
             return;
         }
 
-        $client->getSocket()->write('Ti muovi verso '.$commandResponse->getDirection()->name.PHP_EOL);
-        $client->getSocket()->write($commandResponse->getLocation()->getName().PHP_EOL);
-        $client->getSocket()->write($commandResponse->getLocation()->getDescription().PHP_EOL);
-        $client->getSocket()->write('You can go:'.PHP_EOL);
-        foreach (Direction::cases() as $direction) {
-            $neighbor = $commandResponse->getLocation()->getNeighbor($direction);
-            if (null === $neighbor) {
-                continue;
-            }
-            $client->getSocket()->write(
-                sprintf('%s: %s', ucwords($direction->value), $neighbor->getName()).PHP_EOL
-            );
-        }
+        $this->writeLocation($socket, $commandResponse->getLocation());
         $this->closeResponse($client);
     }
 
@@ -62,5 +60,27 @@ final class CommandResponseHandler
     {
         $client->getSocket()->write('Cosa???'.PHP_EOL);
         $this->closeResponse($client);
+    }
+
+    private function handleLookCommandResponse(Client $client, LookCommandResponse $commandResponse): void
+    {
+        $this->writeLocation($client->getSocket(), $commandResponse->getLocation());
+        $this->closeResponse($client);
+    }
+
+    private function writeLocation(ResourceSocket $socket, Location $location): void
+    {
+        $socket->write($location->getName().PHP_EOL);
+        $socket->write($location->getDescription().PHP_EOL);
+        $socket->write('You can go:'.PHP_EOL);
+        foreach (Direction::cases() as $direction) {
+            $neighbor = $location->getNeighbor($direction);
+            if (null === $neighbor) {
+                continue;
+            }
+            $socket->write(
+                sprintf('%s: %s', ucwords($direction->value), $neighbor->getName()).PHP_EOL
+            );
+        }
     }
 }
