@@ -61,7 +61,12 @@ no ticket refs, no conventional-commit prefix (`feat:`, `fix:`, ...). E.g.:
 Three layers, strict dependency direction `Infrastructure → Application → Domain`:
 
 - **`src/Domain`** — entities (`Character`, `Location`), the `Direction` enum,
-  and repository *interfaces* only. No framework/infra dependencies.
+  and repository *interfaces* only. No framework/infra dependencies, with
+  one accepted exception: third-party libraries that only provide plain
+  data structures (e.g. `Doctrine\Common\Collections\Collection`,
+  `Symfony\Component\Uid\Uuid`) are fine to use directly in entities — they
+  carry no framework/infra coupling (no DB, no HTTP, no config wiring), so
+  depending on them doesn't compromise the Domain layer's independence.
   `Location` is a graph: `placeBorderingLocation()` links two locations in a
   `Direction` and auto-links the reverse (`direction->opposite()`) if not
   already set. `Character::moveTo()` just follows `getNeighbor()`.
