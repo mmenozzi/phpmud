@@ -9,13 +9,17 @@ PHPMud: personal project to learn Domain-Driven Design by implementing a MUD
 authenticate with character name/password, then issue text commands (move,
 look, ...) to play.
 
-The codebase is mid-refactor toward DDD (see commit "WIP ddd refactor"):
-`src/Infrastructure/Server/Client.php` still has an old `handleCommand()`
-method (`whoami`/`look`/else) that duplicates logic now properly handled by
-`CommandResolver` → `CommandRouter` → `ExecutorInterface` → `CommandResponseHandler`.
-Don't copy patterns from that method; follow the Application/Command pattern below.
+The codebase is mid-refactor toward DDD (see commit "WIP ddd refactor").
+See `TODO.md` for the remaining architectural cleanup points identified by
+code review. Follow the Application/Command pattern below for any new
+player command.
 
 ## Commands
+
+Requires PHP >= 8.4 (see `composer.json`). If the system default `php`
+resolves to an older version, invoke the 8.4 binary explicitly (e.g.
+Homebrew: `/opt/homebrew/opt/php@8.4/bin/php`) in front of every command
+below and `composer` itself — otherwise Composer's platform check fails.
 
 ```
 composer install       # install deps
