@@ -5,9 +5,7 @@ declare(strict_types=1);
 namespace PHPMud\Infrastructure\Server;
 
 use Amp\Socket\ResourceSocket;
-use PHPMud\Domain\Direction;
 use PHPMud\Domain\Entity\Character;
-use Webmozart\Assert\Assert;
 
 final class Client
 {
@@ -28,36 +26,6 @@ final class Client
     public function getCharacter(): ?Character
     {
         return $this->character;
-    }
-
-    public function handleCommand(string $command): void
-    {
-        Assert::notNull($this->character);
-
-        if ('whoami' === $command) {
-            $this->showWhoAmI();
-        } elseif ('look' === $command) {
-            $this->showCurrentLocation();
-        } else {
-            $this->socket->write('What???'.PHP_EOL);
-        }
-
-        $this->socket->write(PHP_EOL);
-    }
-
-    private function showCurrentLocation(): void
-    {
-        Assert::notNull($this->character);
-        $this->socket->write($this->character->getLocation()->getName().PHP_EOL);
-        $this->socket->write($this->character->getLocation()->getDescription().PHP_EOL);
-        $this->socket->write('You can go:'.PHP_EOL);
-        foreach (Direction::cases() as $direction) {
-            $neighbor = $this->character->getLocation()->getNeighbor($direction);
-            if (null === $neighbor) {
-                continue;
-            }
-            $this->socket->write(sprintf('%s: %s', ucwords($direction->value), $neighbor->getName()).PHP_EOL);
-        }
     }
 
     public function isAuthenticated(): bool
@@ -93,11 +61,5 @@ final class Client
     {
         $this->character = $character;
         $this->stopAuthentication();
-    }
-
-    private function showWhoAmI(): void
-    {
-        Assert::notNull($this->character);
-        $this->socket->write(sprintf('Your name is "%s".', $this->character->getName()).PHP_EOL);
     }
 }

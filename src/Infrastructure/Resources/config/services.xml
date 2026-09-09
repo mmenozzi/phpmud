@@ -20,6 +20,9 @@
         <service id="phpmud.application.help.command_executor.unknown" class="PHPMud\Application\Help\CommandExecutor\UnknowCommandExecutor">
         </service>
 
+        <service id="phpmud.application.character.command_executor.whoami" class="PHPMud\Application\Character\CommandExecutor\WhoAmICommandExecutor">
+        </service>
+
         <service id="phpmud.application.command_router" class="PHPMud\Application\CommandRouter">
             <call method="addExecutorForCommand">
                 <argument>PHPMud\Application\Movement\Command\MoveCommand</argument>
@@ -32,6 +35,10 @@
             <call method="addExecutorForCommand">
                 <argument>PHPMud\Application\Help\Command\UnknowCommand</argument>
                 <argument type="service" id="phpmud.application.help.command_executor.unknown" />
+            </call>
+            <call method="addExecutorForCommand">
+                <argument>PHPMud\Application\Character\Command\WhoAmICommand</argument>
+                <argument type="service" id="phpmud.application.character.command_executor.whoami" />
             </call>
         </service>
 

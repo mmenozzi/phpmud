@@ -3,24 +3,6 @@
 Punti architetturali emersi da una code review (2026-09-09), da affrontare in
 sessioni future. Vedi `AGENTS.md` per il contesto architetturale generale.
 
-## Rimuovere la dipendenza del login dal metodo legacy `Client::handleCommand()`
-
-`ClientHandler::handleCommand()` chiama ancora `$client->handleCommand('whoami')`
-e `$client->handleCommand('look')` dopo l'autenticazione, cioè il nuovo flow
-dipende dal vecchio metodo legacy che `AGENTS.md` descrive come da non copiare.
-Va sostituito con chiamate dirette a `CommandResolver`/`CommandRouter`/
-`CommandResponseHandler` (o equivalente), così il vecchio `handleCommand()` di
-`Client` diventa davvero rimovibile.
-
-## Eliminare la duplicazione del rendering della location
-
-Il rendering di nome/descrizione/uscite di una `Location` è duplicato in
-`Client::showCurrentLocation()` (path legacy, messaggi in inglese: "What???")
-e in `CommandResponseHandler::writeLocation()` (path nuovo, messaggi in
-italiano: "Cosa???"). I due path sono già divergenti nel testo mostrato al
-giocatore. Da unificare in un solo punto (dipende dalla rimozione del punto
-precedente).
-
 ## Rispettare il boundary tra gli aggregate Character e Location
 
 `Character` e `Location` hanno repository separati (sembrano due aggregate

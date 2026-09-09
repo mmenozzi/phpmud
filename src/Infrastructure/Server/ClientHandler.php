@@ -4,7 +4,10 @@ declare(strict_types=1);
 
 namespace PHPMud\Infrastructure\Server;
 
+use PHPMud\Application\Character\Command\WhoAmICommand;
+use PHPMud\Application\CommandInterface;
 use PHPMud\Application\CommandRouter;
+use PHPMud\Application\Movement\Command\LookCommand;
 use PHPMud\Domain\Repository\CharacterRepositoryInterface;
 use Webmozart\Assert\Assert;
 
@@ -57,13 +60,17 @@ final readonly class ClientHandler
             }
 
             $client->authenticate($character);
-            $client->handleCommand('whoami');
-            $client->handleCommand('look');
+            $this->dispatch($client, new WhoAmICommand($character));
+            $this->dispatch($client, new LookCommand($character));
 
             return;
         }
 
-        $command = $this->commandResolver->resolve($client, $commandString);
+        $this->dispatch($client, $this->commandResolver->resolve($client, $commandString));
+    }
+
+    private function dispatch(Client $client, CommandInterface $command): void
+    {
         $executor = $this->commandRouter->resolve($command);
         $commandResponse = $executor->execute($command);
         $this->commandResponseHandler->handle($client, $commandResponse);

@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace PHPMud\Infrastructure\Server;
 
 use Amp\Socket\ResourceSocket;
+use PHPMud\Application\Character\Command\WhoAmICommandResponse;
 use PHPMud\Application\CommandResponseInterface;
 use PHPMud\Application\Help\Command\UnknownCommandResponse;
 use PHPMud\Application\Movement\Command\LookCommandResponse;
@@ -30,6 +31,12 @@ final class CommandResponseHandler
 
         if ($commandResponse instanceof UnknownCommandResponse) {
             $this->handleUnknownCommandResponse($client);
+
+            return;
+        }
+
+        if ($commandResponse instanceof WhoAmICommandResponse) {
+            $this->handleWhoAmICommandResponse($client, $commandResponse);
 
             return;
         }
@@ -65,6 +72,12 @@ final class CommandResponseHandler
     private function handleLookCommandResponse(Client $client, LookCommandResponse $commandResponse): void
     {
         $this->writeLocation($client->getSocket(), $commandResponse->getLocation());
+        $this->closeResponse($client);
+    }
+
+    private function handleWhoAmICommandResponse(Client $client, WhoAmICommandResponse $commandResponse): void
+    {
+        $client->getSocket()->write(sprintf('Your name is "%s".', $commandResponse->getCharacter()->getName()).PHP_EOL);
         $this->closeResponse($client);
     }
 
