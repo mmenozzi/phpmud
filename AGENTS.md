@@ -10,8 +10,7 @@ authenticate with character name/password, then issue text commands (move,
 look, ...) to play.
 
 The codebase is mid-refactor toward DDD (see commit "WIP ddd refactor").
-See `TODO.md` for the remaining architectural cleanup points identified by
-code review. Follow the Application/Command pattern below for any new
+Follow the Application/Command pattern below for any new
 player command.
 
 ## Commands
