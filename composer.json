@@ -24,7 +24,7 @@
         "amphp/socket": "^2.3"
     },
     "scripts": {
-        "start": "bin/phpmud & echo $! > /tmp/phpmud.pid",
+        "start": "bin/phpmud > /tmp/phpmud.log 2>&1 & echo $! > /tmp/phpmud.pid",
         "stop": "kill $(cat /tmp/phpmud.pid); rm /tmp/phpmud.pid",
         "ecs": "vendor/bin/ecs check",
         "phpstan": "vendor/bin/phpstan analyse -l max src/",

@@ -23,7 +23,7 @@ below and `composer` itself — otherwise Composer's platform check fails.
 
 ```
 composer install       # install deps
-composer start         # boot the socket server (bin/phpmud), backgrounded, pid in /tmp/phpmud.pid
+composer start         # boot the socket server (bin/phpmud), backgrounded, pid in /tmp/phpmud.pid, output in /tmp/phpmud.log
 composer stop          # kill the backgrounded server
 composer test          # runs ecs, phpstan, behat in sequence
 composer ecs           # code style check (Symplify ECS, Symfony ruleset) — src/ and tests/
