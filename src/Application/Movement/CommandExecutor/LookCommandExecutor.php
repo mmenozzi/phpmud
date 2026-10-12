@@ -9,16 +9,23 @@ use PHPMud\Application\CommandResponseInterface;
 use PHPMud\Application\ExecutorInterface;
 use PHPMud\Application\Movement\Command\LookCommand;
 use PHPMud\Application\Movement\Command\LookCommandResponse;
+use PHPMud\Application\Movement\View\LocationViewFactory;
+use PHPMud\Domain\Repository\LocationRepositoryInterface;
 use Webmozart\Assert\Assert;
 
 final readonly class LookCommandExecutor implements ExecutorInterface
 {
+    public function __construct(
+        private LocationRepositoryInterface $locationRepository,
+        private LocationViewFactory $locationViewFactory,
+    ) {
+    }
+
     public function execute(CommandInterface $command): CommandResponseInterface
     {
         Assert::isInstanceOf($command, LookCommand::class);
-        $character = $command->getCharacter();
-        Assert::notNull($character->getLocation());
+        $location = $this->locationRepository->get($command->getCharacter()->getLocationId());
 
-        return new LookCommandResponse($character->getLocation());
+        return new LookCommandResponse($this->locationViewFactory->create($location));
     }
 }

@@ -10,11 +10,22 @@
 <!--    </parameters>-->
 
     <services>
+        <service id="phpmud.domain.service.movement_policy" class="PHPMud\Domain\Service\MovementPolicy" />
+
+        <service id="phpmud.application.movement.view.location_view_factory" class="PHPMud\Application\Movement\View\LocationViewFactory">
+            <argument type="service" id="phpmud.domain.repository.location" />
+        </service>
+
         <service id="phpmud.application.movement.command_executor.move" class="PHPMud\Application\Movement\CommandExecutor\MoveCommandExecutor">
             <argument type="service" id="phpmud.domain.repository.character" />
+            <argument type="service" id="phpmud.domain.repository.location" />
+            <argument type="service" id="phpmud.domain.service.movement_policy" />
+            <argument type="service" id="phpmud.application.movement.view.location_view_factory" />
         </service>
 
         <service id="phpmud.application.movement.command_executor.look" class="PHPMud\Application\Movement\CommandExecutor\LookCommandExecutor">
+            <argument type="service" id="phpmud.domain.repository.location" />
+            <argument type="service" id="phpmud.application.movement.view.location_view_factory" />
         </service>
 
         <service id="phpmud.application.help.command_executor.unknown" class="PHPMud\Application\Help\CommandExecutor\UnknowCommandExecutor">

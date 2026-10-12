@@ -45,4 +45,12 @@ final class MovementContext implements Context
         socket_write($this->sharedStorage->get('socket'), 'look'.PHP_EOL);
         Assert::contains($this->getNextResponse(), sprintf('%s: %s', ucwords($direction->value), $location->getName()));
     }
+
+    /**
+     * @Then I should be told I cannot move there
+     */
+    public function iShouldBeToldICannotMoveThere(): void
+    {
+        Assert::contains($this->getNextResponse(), 'Non puoi muoverti in quella direzione!');
+    }
 }

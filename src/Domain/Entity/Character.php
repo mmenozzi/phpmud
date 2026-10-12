@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace PHPMud\Domain\Entity;
 
-use PHPMud\Domain\Direction;
+use PHPMud\Domain\ValueObject\LocationId;
 use Symfony\Component\Uid\Uuid;
 
 final class Character
@@ -13,7 +13,7 @@ final class Character
 
     public function __construct(
         private readonly string $name,
-        private Location $location,
+        private LocationId $locationId,
         private string $passwordHash,
     ) {
         $this->id = Uuid::v6();
@@ -29,9 +29,9 @@ final class Character
         return $this->name;
     }
 
-    public function getLocation(): Location
+    public function getLocationId(): LocationId
     {
-        return $this->location;
+        return $this->locationId;
     }
 
     public function getPasswordHash(): string
@@ -44,13 +44,8 @@ final class Character
         $this->passwordHash = $passwordHash;
     }
 
-    public function moveTo(Direction $direction): void
+    public function relocateTo(LocationId $locationId): void
     {
-        $newLocation = $this->getLocation()->getNeighbor($direction);
-        if (null === $newLocation) {
-            // TODO throw if $newLocation is null? For now we simply remain in the current location without feedback.
-            return;
-        }
-        $this->location = $newLocation;
+        $this->locationId = $locationId;
     }
 }

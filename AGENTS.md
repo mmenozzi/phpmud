@@ -64,16 +64,25 @@ no ticket refs, no conventional-commit prefix (`feat:`, `fix:`, ...). E.g.:
 
 Three layers, strict dependency direction `Infrastructure → Application → Domain`:
 
-- **`src/Domain`** — entities (`Character`, `Location`), the `Direction` enum,
-  and repository *interfaces* only. No framework/infra dependencies, with
+- **`src/Domain`** — entities (`Character`, `Location`), value objects
+  (`LocationId`), domain services (`MovementPolicy`), domain exceptions, the
+  `Direction` enum, and repository *interfaces*. No framework/infra dependencies, with
   one accepted exception: third-party libraries that only provide plain
   data structures (e.g. `Doctrine\Common\Collections\Collection`,
   `Symfony\Component\Uid\Uuid`) are fine to use directly in entities — they
   carry no framework/infra coupling (no DB, no HTTP, no config wiring), so
   depending on them doesn't compromise the Domain layer's independence.
-  `Location` is a graph: `placeBorderingLocation()` links two locations in a
-  `Direction` and auto-links the reverse (`direction->opposite()`) if not
-  already set. `Character::moveTo()` just follows `getNeighbor()`.
+  `Character` and `Location` are separate aggregates; aggregates reference
+  other aggregates **only by id**, never by object: `Character` holds a `LocationId`,
+  and `Location` holds its exits as `Direction → LocationId`.
+  `placeBorderingLocation()` links two locations in a `Direction` and
+  auto-links the reverse (`direction->opposite()`) if not already set; it
+  mutates both locations, so callers must save both.
+  Movement rules on the world topology live in `MovementPolicy::move()`
+  (throws `NoExitInDirectionException` when there is no exit, otherwise
+  calls `Character::relocateTo()`); `relocateTo()` is where invariants on
+  the character's own state belong, and is reusable for non-walking moves
+  (teleport, recall, ...).
 - **`src/Application`** — one subdirectory per feature (`Movement`, `Help`),
   each following the same triad:
   - `Command/*Command.php` implements `CommandInterface` (marker interface,
@@ -88,6 +97,10 @@ Three layers, strict dependency direction `Infrastructure → Application → Do
   - `CommandRouter` maps command class → executor (wired explicitly in
     `services.xml` via `addExecutorForCommand` calls); it has no
     autodiscovery.
+  - `Movement/View/LocationViewFactory` builds a `LocationView` (a location
+    plus its exits resolved to `Location` objects, keyed by `Direction`
+    value) for responses that need to render exit names, since `Location`
+    only knows exit ids.
   To add a new player command: create the Command/Response/Executor triple,
   register the executor + router mapping in `services.xml`, and teach
   `CommandResolver` (parses raw input into a `CommandInterface`) and
@@ -110,7 +123,11 @@ Three layers, strict dependency direction `Infrastructure → Application → Do
     `dev`/socket-test config) and `Repository/InMemory/*` (from
     `webgriffe/in-memory-repository`, used by `test`/domain-test config)
     are the two `*RepositoryInterface` implementations; which one is active
-    is purely a matter of which `services*.xml` is loaded.
+    is purely a matter of which `services*.xml` is loaded. The filesystem
+    repositories re-read their file on every call (no in-memory cache), so
+    the long-running server sees fixtures written by other processes
+    (Behat); the flip side is that every loaded object is a fresh copy, so
+    a mutated entity must be re-`add()`ed to persist.
 
 ## Testing
 

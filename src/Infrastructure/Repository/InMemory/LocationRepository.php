@@ -7,6 +7,7 @@ namespace PHPMud\Infrastructure\Repository\InMemory;
 use Doctrine\Common\Collections\Collection;
 use PHPMud\Domain\Entity\Location;
 use PHPMud\Domain\Repository\LocationRepositoryInterface;
+use PHPMud\Domain\ValueObject\LocationId;
 use Webgriffe\InMemoryRepository\ObjectRepository;
 
 /**
@@ -16,7 +17,22 @@ final class LocationRepository extends ObjectRepository implements LocationRepos
 {
     public function add(Location $location): void
     {
+        if ($this->objectCollection->contains($location)) {
+            return;
+        }
         $this->objectCollection->add($location);
+    }
+
+    public function get(LocationId $id): Location
+    {
+        $location = $this->objectCollection->findFirst(
+            static fn (int|string $key, Location $location): bool => $location->getId()->equals($id),
+        );
+        if (null === $location) {
+            throw new \OutOfBoundsException(sprintf('Location "%s" not found.', $id->toString()));
+        }
+
+        return $location;
     }
 
     public function getClassName(): string

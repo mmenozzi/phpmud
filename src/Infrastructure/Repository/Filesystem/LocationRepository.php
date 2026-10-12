@@ -8,15 +8,11 @@ use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
 use PHPMud\Domain\Entity\Location;
 use PHPMud\Domain\Repository\LocationRepositoryInterface;
+use PHPMud\Domain\ValueObject\LocationId;
 use Webmozart\Assert\Assert;
 
 final class LocationRepository implements LocationRepositoryInterface
 {
-    /**
-     * @var Collection<array-key, Location>|null
-     */
-    private ?Collection $locations = null;
-
     public function __construct(private readonly string $filepath)
     {
         if (!file_exists($this->filepath)) {
@@ -28,8 +24,18 @@ final class LocationRepository implements LocationRepositoryInterface
     public function add(Location $location): void
     {
         $locations = $this->load();
-        $locations->set($location->getId()->toRfc4122(), $location);
+        $locations->set($location->getId()->toString(), $location);
         $this->flush($locations);
+    }
+
+    public function get(LocationId $id): Location
+    {
+        $location = $this->load()->get($id->toString());
+        if (null === $location) {
+            throw new \OutOfBoundsException(sprintf('Location "%s" not found.', $id->toString()));
+        }
+
+        return $location;
     }
 
     /**
@@ -50,7 +56,7 @@ final class LocationRepository implements LocationRepositoryInterface
     public function remove(Location $location): void
     {
         $locations = $this->load();
-        $locations->remove($location->getId()->toRfc4122());
+        $locations->remove($location->getId()->toString());
         $this->flush($locations);
     }
 
@@ -59,16 +65,12 @@ final class LocationRepository implements LocationRepositoryInterface
      */
     private function load(): Collection
     {
-        if (null === $this->locations) {
-            $data = file_get_contents($this->filepath);
-            Assert::string($data);
-            /** @var Collection<array-key, Location> $locations */
-            $locations = unserialize($data);
-            $this->locations = $locations;
-            Assert::isInstanceOf($this->locations, Collection::class);
-        }
+        $data = file_get_contents($this->filepath);
+        Assert::string($data);
+        $locations = unserialize($data);
+        Assert::isInstanceOf($locations, Collection::class);
 
-        return $this->locations;
+        return $locations;
     }
 
     /**

@@ -27,7 +27,7 @@ final class CharacterContext implements Context
     {
         $character = new Character(
             self::DEFAULT_CHARACTER_NAME,
-            $location,
+            $location->getId(),
             password_hash('p4ssw0rd', PASSWORD_DEFAULT),
         );
         $this->characterRepository->add($character);
@@ -39,7 +39,7 @@ final class CharacterContext implements Context
      */
     public function thereIsTheCharacterWithPasswordInTheLocation(string $name, string $password, Location $location): void
     {
-        $character = new Character($name, $location, password_hash($password, PASSWORD_DEFAULT));
+        $character = new Character($name, $location->getId(), password_hash($password, PASSWORD_DEFAULT));
         $this->characterRepository->add($character);
         $this->sharedStorage->set('character', $character);
     }

@@ -6,10 +6,13 @@ namespace PHPMud\Domain\Repository;
 
 use Doctrine\Common\Collections\Collection;
 use PHPMud\Domain\Entity\Location;
+use PHPMud\Domain\ValueObject\LocationId;
 
 interface LocationRepositoryInterface
 {
     public function add(Location $location): void;
+
+    public function get(LocationId $id): Location;
 
     /**
      * @return Collection<array-key, Location>

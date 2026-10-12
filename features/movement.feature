@@ -59,3 +59,10 @@ Feature: Movement
     When I move to north
     Then I should see that I am in the location "Far away"
 
+  @domain @socket
+  Scenario: Moving where there is no exit
+    When I move to north
+    Then I should see that I am in the location "B"
+    When I move to east
+    Then I should be told I cannot move there
+    And I should see that there is a location "A" south from here

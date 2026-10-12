@@ -31,9 +31,10 @@ final class LocationContext implements Context
         string $newLocationName,
         Direction $direction,
         Location $existentLocation,
-    ) {
+    ): void {
         $newLocation = new Location($newLocationName, 'Description of '.$newLocationName);
         $existentLocation->placeBorderingLocation($newLocation, $direction);
         $this->locationRepository->add($newLocation);
+        $this->locationRepository->add($existentLocation);
     }
 }

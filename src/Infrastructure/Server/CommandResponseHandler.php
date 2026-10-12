@@ -10,8 +10,7 @@ use PHPMud\Application\CommandResponseInterface;
 use PHPMud\Application\Help\Command\UnknownCommandResponse;
 use PHPMud\Application\Movement\Command\LookCommandResponse;
 use PHPMud\Application\Movement\Command\MoveCommandResponse;
-use PHPMud\Domain\Direction;
-use PHPMud\Domain\Entity\Location;
+use PHPMud\Application\Movement\View\LocationView;
 
 final class CommandResponseHandler
 {
@@ -59,7 +58,7 @@ final class CommandResponseHandler
             return;
         }
 
-        $this->writeLocation($socket, $commandResponse->getLocation());
+        $this->writeLocation($socket, $commandResponse->getLocationView());
         $this->closeResponse($client);
     }
 
@@ -71,7 +70,7 @@ final class CommandResponseHandler
 
     private function handleLookCommandResponse(Client $client, LookCommandResponse $commandResponse): void
     {
-        $this->writeLocation($client->getSocket(), $commandResponse->getLocation());
+        $this->writeLocation($client->getSocket(), $commandResponse->getLocationView());
         $this->closeResponse($client);
     }
 
@@ -81,18 +80,15 @@ final class CommandResponseHandler
         $this->closeResponse($client);
     }
 
-    private function writeLocation(ResourceSocket $socket, Location $location): void
+    private function writeLocation(ResourceSocket $socket, LocationView $locationView): void
     {
+        $location = $locationView->getLocation();
         $socket->write($location->getName().PHP_EOL);
         $socket->write($location->getDescription().PHP_EOL);
         $socket->write('You can go:'.PHP_EOL);
-        foreach (Direction::cases() as $direction) {
-            $neighbor = $location->getNeighbor($direction);
-            if (null === $neighbor) {
-                continue;
-            }
+        foreach ($locationView->getExits() as $direction => $neighbor) {
             $socket->write(
-                sprintf('%s: %s', ucwords($direction->value), $neighbor->getName()).PHP_EOL
+                sprintf('%s: %s', ucwords($direction), $neighbor->getName()).PHP_EOL
             );
         }
     }

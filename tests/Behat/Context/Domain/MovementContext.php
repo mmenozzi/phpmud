@@ -8,13 +8,19 @@ use Behat\Behat\Context\Context;
 use PHPMud\Domain\Direction;
 use PHPMud\Domain\Entity\Character;
 use PHPMud\Domain\Entity\Location;
+use PHPMud\Domain\Exception\NoExitInDirectionException;
+use PHPMud\Domain\Repository\LocationRepositoryInterface;
+use PHPMud\Domain\Service\MovementPolicy;
 use PHPMud\Tests\Behat\Service\SharedStorage;
 use Webmozart\Assert\Assert;
 
 final class MovementContext implements Context
 {
-    public function __construct(private readonly SharedStorage $sharedStorage)
-    {
+    public function __construct(
+        private readonly SharedStorage $sharedStorage,
+        private readonly LocationRepositoryInterface $locationRepository,
+        private readonly MovementPolicy $movementPolicy,
+    ) {
     }
 
     /**
@@ -22,28 +28,43 @@ final class MovementContext implements Context
      */
     public function iMoveTo(Direction $direction): void
     {
+        /** @var Character $character */
         $character = $this->sharedStorage->get('character');
-        $character->moveTo($direction);
+        $current = $this->locationRepository->get($character->getLocationId());
+        try {
+            $this->movementPolicy->move($character, $current, $direction);
+        } catch (NoExitInDirectionException $exception) {
+            $this->sharedStorage->set('movement_failure', $exception);
+        }
     }
 
     /**
      * @Then /^I should see that I am in the (location "[^"]*")$/
      */
-    public function iShouldSeeThatIAmInTheLocation(Location $location)
+    public function iShouldSeeThatIAmInTheLocation(Location $location): void
     {
         /** @var Character $character */
         $character = $this->sharedStorage->get('character');
-        Assert::eq($character->getLocation()->getName(), $location->getName());
-        Assert::eq($character->getLocation()->getDescription(), $location->getDescription());
+        Assert::true($character->getLocationId()->equals($location->getId()));
     }
 
     /**
      * @Then /^I should see that there is a (location "[^"]*") (north|east|south|west|up|down) from here$/
      */
-    public function iShouldSeeThatThereIsALocationSouthFromLocation(Location $location, Direction $direction)
+    public function iShouldSeeThatThereIsALocationSouthFromLocation(Location $location, Direction $direction): void
     {
         /** @var Character $character */
         $character = $this->sharedStorage->get('character');
-        Assert::same($character->getLocation()->getNeighbor($direction), $location);
+        $exit = $this->locationRepository->get($character->getLocationId())->getExit($direction);
+        Assert::notNull($exit);
+        Assert::true($exit->equals($location->getId()));
+    }
+
+    /**
+     * @Then I should be told I cannot move there
+     */
+    public function iShouldBeToldICannotMoveThere(): void
+    {
+        Assert::isInstanceOf($this->sharedStorage->get('movement_failure'), NoExitInDirectionException::class);
     }
 }
