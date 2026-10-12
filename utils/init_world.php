@@ -51,7 +51,7 @@ $alreadyAddedLocations = [];
 foreach ($locations as $id => $locationData) {
     if (!in_array($id, $alreadyAddedLocations, true)) {
         $location = new \PHPMud\Domain\Entity\Location($locationData['name'], $locationData['description']);
-        $locationRepository->add($location);
+        $locationRepository->save($location);
         $alreadyAddedLocations[] = $id;
     } else {
         $location = $locationRepository->findByName($locationData['name'])->first();
@@ -70,8 +70,8 @@ foreach ($locations as $id => $locationData) {
         $neighbor = new \PHPMud\Domain\Entity\Location($neighborData['name'], $neighborData['description']);
         $direction = \PHPMud\Domain\Direction::from($directionString);
         $location->placeBorderingLocation($neighbor, \PHPMud\Domain\Direction::from($directionString));
-        $locationRepository->add($neighbor);
-        $locationRepository->add($location);
+        $locationRepository->save($neighbor);
+        $locationRepository->save($location);
         $alreadyAddedLocations[] = $neighborId;
     }
 }
@@ -79,4 +79,4 @@ foreach ($locations as $id => $locationData) {
 $character = new \PHPMud\Domain\Entity\Character('John', $locationRepository->findAll()->first()->getId(), password_hash('p4ssw0rd', PASSWORD_DEFAULT));
 @unlink('/tmp/phpmud.character');
 $characterRepository = new \PHPMud\Infrastructure\Repository\Filesystem\CharacterRepository('/tmp/phpmud.character');
-$characterRepository->add($character);
+$characterRepository->save($character);

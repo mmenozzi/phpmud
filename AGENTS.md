@@ -127,7 +127,7 @@ Three layers, strict dependency direction `Infrastructure → Application → Do
     repositories re-read their file on every call (no in-memory cache), so
     the long-running server sees fixtures written by other processes
     (Behat); the flip side is that every loaded object is a fresh copy, so
-    a mutated entity must be re-`add()`ed to persist.
+    a mutated entity must be re-`save()`d to persist.
 
 ## Testing
 

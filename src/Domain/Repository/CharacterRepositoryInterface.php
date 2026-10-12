@@ -9,7 +9,7 @@ use PHPMud\Domain\Entity\Character;
 
 interface CharacterRepositoryInterface
 {
-    public function add(Character $character): void;
+    public function save(Character $character): void;
 
     public function findOneByName(string $name): ?Character;
 

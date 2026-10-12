@@ -18,8 +18,11 @@ final class CharacterRepository extends ObjectRepository implements CharacterRep
         return Character::class;
     }
 
-    public function add(Character $character): void
+    public function save(Character $character): void
     {
+        if ($this->objectCollection->contains($character)) {
+            return;
+        }
         $this->objectCollection->add($character);
     }
 

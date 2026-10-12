@@ -10,7 +10,7 @@ use PHPMud\Domain\ValueObject\LocationId;
 
 interface LocationRepositoryInterface
 {
-    public function add(Location $location): void;
+    public function save(Location $location): void;
 
     public function get(LocationId $id): Location;
 

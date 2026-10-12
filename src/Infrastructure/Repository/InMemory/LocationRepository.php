@@ -15,7 +15,7 @@ use Webgriffe\InMemoryRepository\ObjectRepository;
  */
 final class LocationRepository extends ObjectRepository implements LocationRepositoryInterface
 {
-    public function add(Location $location): void
+    public function save(Location $location): void
     {
         if ($this->objectCollection->contains($location)) {
             return;

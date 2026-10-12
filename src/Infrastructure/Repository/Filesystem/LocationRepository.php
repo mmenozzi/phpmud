@@ -21,7 +21,7 @@ final class LocationRepository implements LocationRepositoryInterface
         }
     }
 
-    public function add(Location $location): void
+    public function save(Location $location): void
     {
         $locations = $this->load();
         $locations->set($location->getId()->toString(), $location);

@@ -21,7 +21,7 @@ final class LocationContext implements Context
     public function thereIsTheLocation(string $locationName): void
     {
         $location = new Location($locationName, 'Description of '.$locationName);
-        $this->locationRepository->add($location);
+        $this->locationRepository->save($location);
     }
 
     /**
@@ -34,7 +34,7 @@ final class LocationContext implements Context
     ): void {
         $newLocation = new Location($newLocationName, 'Description of '.$newLocationName);
         $existentLocation->placeBorderingLocation($newLocation, $direction);
-        $this->locationRepository->add($newLocation);
-        $this->locationRepository->add($existentLocation);
+        $this->locationRepository->save($newLocation);
+        $this->locationRepository->save($existentLocation);
     }
 }

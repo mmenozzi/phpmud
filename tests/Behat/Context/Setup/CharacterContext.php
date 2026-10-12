@@ -30,7 +30,7 @@ final class CharacterContext implements Context
             $location->getId(),
             password_hash('p4ssw0rd', PASSWORD_DEFAULT),
         );
-        $this->characterRepository->add($character);
+        $this->characterRepository->save($character);
         $this->sharedStorage->set('character', $character);
     }
 
@@ -40,7 +40,7 @@ final class CharacterContext implements Context
     public function thereIsTheCharacterWithPasswordInTheLocation(string $name, string $password, Location $location): void
     {
         $character = new Character($name, $location->getId(), password_hash($password, PASSWORD_DEFAULT));
-        $this->characterRepository->add($character);
+        $this->characterRepository->save($character);
         $this->sharedStorage->set('character', $character);
     }
 }

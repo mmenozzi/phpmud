@@ -38,7 +38,7 @@ final readonly class MoveCommandExecutor implements ExecutorInterface
         }
 
         // Add method also flushes the changes to the repository
-        $this->characterRepository->add($character);
+        $this->characterRepository->save($character);
 
         return new MoveCommandResponse(
             true,

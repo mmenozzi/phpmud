@@ -20,7 +20,7 @@ final class CharacterRepository implements CharacterRepositoryInterface
         }
     }
 
-    public function add(Character $character): void
+    public function save(Character $character): void
     {
         $characters = $this->load();
         $characters->set($character->getId()->toRfc4122(), $character);
