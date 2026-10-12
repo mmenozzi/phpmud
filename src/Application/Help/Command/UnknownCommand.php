@@ -6,6 +6,6 @@ namespace PHPMud\Application\Help\Command;
 
 use PHPMud\Application\CommandInterface;
 
-final readonly class UnknowCommand implements CommandInterface
+final readonly class UnknownCommand implements CommandInterface
 {
 }

@@ -5,7 +5,7 @@ declare(strict_types=1);
 namespace PHPMud\Infrastructure\Server;
 
 use PHPMud\Application\CommandInterface;
-use PHPMud\Application\Help\Command\UnknowCommand;
+use PHPMud\Application\Help\Command\UnknownCommand;
 use PHPMud\Application\Movement\Command\LookCommand;
 use PHPMud\Application\Movement\Command\MoveCommand;
 use PHPMud\Domain\Direction;
@@ -23,7 +23,7 @@ final class CommandResolver
             return $command;
         }
 
-        return new UnknowCommand();
+        return new UnknownCommand();
     }
 
     /**

@@ -28,7 +28,7 @@
             <argument type="service" id="phpmud.application.movement.view.location_view_factory" />
         </service>
 
-        <service id="phpmud.application.help.command_executor.unknown" class="PHPMud\Application\Help\CommandExecutor\UnknowCommandExecutor">
+        <service id="phpmud.application.help.command_executor.unknown" class="PHPMud\Application\Help\CommandExecutor\UnknownCommandExecutor">
         </service>
 
         <service id="phpmud.application.character.command_executor.whoami" class="PHPMud\Application\Character\CommandExecutor\WhoAmICommandExecutor">
@@ -44,7 +44,7 @@
                 <argument type="service" id="phpmud.application.movement.command_executor.look" />
             </call>
             <call method="addExecutorForCommand">
-                <argument>PHPMud\Application\Help\Command\UnknowCommand</argument>
+                <argument>PHPMud\Application\Help\Command\UnknownCommand</argument>
                 <argument type="service" id="phpmud.application.help.command_executor.unknown" />
             </call>
             <call method="addExecutorForCommand">
