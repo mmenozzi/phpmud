@@ -5,8 +5,8 @@ declare(strict_types=1);
 namespace PHPMud\Tests\Behat\Context\Transform;
 
 use Behat\Behat\Context\Context;
-use PHPMud\Domain\Location\Location;
-use PHPMud\Domain\Location\LocationRepositoryInterface;
+use PHPMud\World\Domain\Location\Location;
+use PHPMud\World\Domain\Location\LocationRepositoryInterface;
 use Webmozart\Assert\Assert;
 
 final class LocationContext implements Context

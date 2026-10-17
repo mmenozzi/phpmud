@@ -3,8 +3,8 @@
 
 declare(strict_types=1);
 
-use PHPMud\Infrastructure\Kernel;
-use PHPMud\Infrastructure\Server\SocketServer;
+use PHPMud\World\Infrastructure\Kernel;
+use PHPMud\World\Infrastructure\Server\SocketServer;
 
 require_once __DIR__ . '/../vendor/autoload.php';
 

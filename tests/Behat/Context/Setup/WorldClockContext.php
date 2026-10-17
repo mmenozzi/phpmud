@@ -5,8 +5,8 @@ declare(strict_types=1);
 namespace PHPMud\Tests\Behat\Context\Setup;
 
 use Behat\Behat\Context\Context;
-use PHPMud\Domain\Time\WorldClock;
-use PHPMud\Domain\Time\WorldClockRepositoryInterface;
+use PHPMud\World\Domain\Time\WorldClock;
+use PHPMud\World\Domain\Time\WorldClockRepositoryInterface;
 
 final class WorldClockContext implements Context
 {

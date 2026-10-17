@@ -5,13 +5,13 @@ declare(strict_types=1);
 namespace PHPMud\Tests\Behat\Context\Domain;
 
 use Behat\Behat\Context\Context;
-use PHPMud\Domain\Character\Character;
-use PHPMud\Domain\Location\Direction;
-use PHPMud\Domain\Location\Location;
-use PHPMud\Domain\Location\LocationRepositoryInterface;
-use PHPMud\Domain\Movement\MovementPolicy;
-use PHPMud\Domain\Movement\NoExitInDirectionException;
 use PHPMud\Tests\Behat\Service\SharedStorage;
+use PHPMud\World\Domain\Character\Character;
+use PHPMud\World\Domain\Location\Direction;
+use PHPMud\World\Domain\Location\Location;
+use PHPMud\World\Domain\Location\LocationRepositoryInterface;
+use PHPMud\World\Domain\Movement\MovementPolicy;
+use PHPMud\World\Domain\Movement\NoExitInDirectionException;
 use Webmozart\Assert\Assert;
 
 final class MovementContext implements Context

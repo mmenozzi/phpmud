@@ -4,10 +4,10 @@ declare(strict_types=1);
 
 namespace PHPMud\Tests\Behat\Context\Socket;
 
-use PHPMud\Domain\Time\DayPhase;
-use PHPMud\Infrastructure\Server\DayPhaseMessage;
-use PHPMud\Infrastructure\Server\Telnet;
 use PHPMud\Tests\Behat\Service\SharedStorage;
+use PHPMud\World\Domain\Time\DayPhase;
+use PHPMud\World\Infrastructure\Server\DayPhaseMessage;
+use PHPMud\World\Infrastructure\Server\Telnet;
 use Webmozart\Assert\Assert;
 
 trait SocketResponseTrait

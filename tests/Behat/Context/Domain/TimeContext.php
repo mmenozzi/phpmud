@@ -5,11 +5,11 @@ declare(strict_types=1);
 namespace PHPMud\Tests\Behat\Context\Domain;
 
 use Behat\Behat\Context\Context;
-use PHPMud\Application\Time\Command\TickCommand;
-use PHPMud\Application\Time\Command\TickCommandResponse;
-use PHPMud\Application\Time\CommandExecutor\TickCommandExecutor;
-use PHPMud\Domain\Time\DayPhase;
 use PHPMud\Tests\Behat\Service\SharedStorage;
+use PHPMud\World\Application\Time\Command\TickCommand;
+use PHPMud\World\Application\Time\Command\TickCommandResponse;
+use PHPMud\World\Application\Time\CommandExecutor\TickCommandExecutor;
+use PHPMud\World\Domain\Time\DayPhase;
 use Webmozart\Assert\Assert;
 
 final class TimeContext implements Context

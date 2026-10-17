@@ -5,7 +5,7 @@ declare(strict_types=1);
 namespace PHPMud\Tests\Behat\Context\Transform;
 
 use Behat\Behat\Context\Context;
-use PHPMud\Domain\Location\Direction;
+use PHPMud\World\Domain\Location\Direction;
 
 final class DirectionContext implements Context
 {

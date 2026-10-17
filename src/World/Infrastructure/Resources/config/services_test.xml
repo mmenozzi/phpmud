@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<container xmlns="http://symfony.com/schema/dic/services"
+           xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+           xsi:schemaLocation="http://symfony.com/schema/dic/services
+        https://symfony.com/schema/dic/services/services-1.0.xsd"
+>
+    <imports>
+        <import resource="../../../../../tests/Behat/Resources/config/services.xml" />
+    </imports>
+
+    <services>
+        <service id="phpmud.domain.repository.in_memory.location" class="PHPMud\World\Infrastructure\Repository\InMemory\LocationRepository">
+        </service>
+
+        <service id="phpmud.domain.repository.in_memory.character" class="PHPMud\World\Infrastructure\Repository\InMemory\CharacterRepository">
+        </service>
+
+        <service id="phpmud.domain.repository.in_memory.world_clock" class="PHPMud\World\Infrastructure\Repository\InMemory\WorldClockRepository">
+        </service>
+    </services>
+</container>

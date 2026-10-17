@@ -14,7 +14,7 @@ use Behat\Testwork\Environment\Handler\EnvironmentHandler;
 use Behat\Testwork\Suite\Exception\SuiteConfigurationException;
 use Behat\Testwork\Suite\GenericSuite;
 use Behat\Testwork\Suite\Suite;
-use PHPMud\Infrastructure\Kernel;
+use PHPMud\World\Infrastructure\Kernel;
 use Symfony\Component\DependencyInjection\ContainerInterface;
 
 final class ContextServiceEnvironmentHandler implements EnvironmentHandler

@@ -56,7 +56,7 @@ vendor/bin/behat features/movement.feature:20
 Suites tagged `@socket` (see below) connect to a **real** socket server at
 `127.0.0.1:10666` and read/write the filesystem repositories at
 `/tmp/phpmud.location` / `/tmp/phpmud.character` / `/tmp/phpmud.world_clock`
-(paths hardcoded in `src/Infrastructure/Resources/config/services.xml`). The
+(paths hardcoded in `src/World/Infrastructure/Resources/config/services.xml`). The
 server must already be running before these scenarios execute — Behat does
 not start it for you — and with a 1-second tick, otherwise the `@time`
 scenarios time out waiting for a day phase broadcast:
@@ -87,9 +87,32 @@ them into separate commits, each with its own subject line.
 
 ## Architecture
 
+### Bounded contexts
+
+Code is organized **bounded context first, layers inside**:
+`src/<Context>/{Domain,Application,Infrastructure}` (namespace
+`PHPMud\<Context>\...`). The bounded context is the outermost unit because
+it is the boundary of a model and its ubiquitous language; layers and
+Modules are internal structure of one context. Never split a context
+across top-level layer folders (`src/Domain/<Context>`, ...).
+
+Today there is a single context, `World` (`src/World`): the game world
+model shared by every feature (characters, locations, movement, time).
+The feature folders in `World/Application` (`Access`, `Movement`, ...)
+are Modules of this one context, not bounded contexts.
+
+Pragmatic deviation: `Kernel`, `Server/*` and the shared
+`CommandInterface`/`CommandResponseInterface`/`ExecutorInterface`/
+`CommandRouter` are generic host/delivery plumbing, not part of the World
+model. They live in `World` only because there is one context; when a
+second context appears, move them to a context-independent level (e.g.
+`src/Shared` or `src/Server`) instead of duplicating them per context.
+
+### Layers
+
 Three layers, strict dependency direction `Infrastructure → Application → Domain`:
 
-- **`src/Domain`** — organized in DDD *Modules* by domain concept, not by
+- **`src/World/Domain`** — organized in DDD *Modules* by domain concept, not by
   building-block type (no `Entity/`, `Repository/`, `ValueObject/`
   folders): each aggregate lives together with its repository interface,
   value objects and enums, so the aggregate boundary is visible in the
@@ -123,7 +146,7 @@ Three layers, strict dependency direction `Infrastructure → Application → Do
   `WorldClock` is a singleton aggregate holding the game hour (0..23);
   `tick()` advances it by one hour and returns the `DayPhase` that starts
   at the new hour, if any (`DayPhase::startingHour()`).
-- **`src/Application`** — one subdirectory per feature (`Access`, `Character`,
+- **`src/World/Application`** — one subdirectory per feature (`Access`, `Character`,
   `Movement`, `Help`, `Time`),
   each following the same triad:
   - `Command/*Command.php` implements `CommandInterface` (marker interface,
@@ -148,7 +171,7 @@ Three layers, strict dependency direction `Infrastructure → Application → Do
   `CommandResponseHandler` (renders a `CommandResponseInterface` back to the
   socket) about the new types — both are hand-written `instanceof`/if-chains,
   not polymorphic dispatch.
-- **`src/Infrastructure`**:
+- **`src/World/Infrastructure`**:
   - `Kernel` boots a Symfony `ContainerBuilder` from XML configs — always
     loads `services.xml`, then optionally `services_{environment}.php`'s
     XML sibling (`services_test.xml` exists, imports Behat's own service
@@ -208,5 +231,5 @@ Context classes are grouped by role under `tests/Behat/Context/`: `Setup`
 `socket_connect`/`socket_write`, see `SocketResponseTrait`), `Transform`
 (Behat argument transforms), `Hook` (`PurgeContext`, wipes repos before
 each scenario). The custom `SymfonyExtension` (`tests/Behat/Extension/`)
-boots a fresh `PHPMud\Infrastructure\Kernel` per scenario and injects its
+boots a fresh `PHPMud\World\Infrastructure\Kernel` per scenario and injects its
 services into contexts by type.

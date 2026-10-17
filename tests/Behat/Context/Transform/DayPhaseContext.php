@@ -5,7 +5,7 @@ declare(strict_types=1);
 namespace PHPMud\Tests\Behat\Context\Transform;
 
 use Behat\Behat\Context\Context;
-use PHPMud\Domain\Time\DayPhase;
+use PHPMud\World\Domain\Time\DayPhase;
 
 final class DayPhaseContext implements Context
 {

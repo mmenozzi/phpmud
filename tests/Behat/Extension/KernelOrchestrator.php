@@ -6,7 +6,7 @@ namespace PHPMud\Tests\Behat\Extension;
 
 use Behat\Behat\EventDispatcher\Event\ExampleTested;
 use Behat\Behat\EventDispatcher\Event\ScenarioTested;
-use PHPMud\Infrastructure\Kernel;
+use PHPMud\World\Infrastructure\Kernel;
 use Symfony\Component\DependencyInjection\ContainerInterface;
 use Symfony\Component\EventDispatcher\EventSubscriberInterface;
 

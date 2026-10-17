@@ -5,10 +5,10 @@ declare(strict_types=1);
 namespace PHPMud\Tests\Behat\Context\Socket;
 
 use Behat\Behat\Context\Context;
-use PHPMud\Domain\Location\Direction;
-use PHPMud\Domain\Location\Location;
-use PHPMud\Infrastructure\Server\DirectionLabel;
 use PHPMud\Tests\Behat\Service\SharedStorage;
+use PHPMud\World\Domain\Location\Direction;
+use PHPMud\World\Domain\Location\Location;
+use PHPMud\World\Infrastructure\Server\DirectionLabel;
 use Webmozart\Assert\Assert;
 
 final class MovementContext implements Context

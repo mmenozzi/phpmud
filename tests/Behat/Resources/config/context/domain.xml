@@ -16,12 +16,12 @@
         <service id="phpmud.behat.context.domain.access" class="PHPMud\Tests\Behat\Context\Domain\AccessContext">
             <argument type="service" id="phpmud.behat.shared_storage" />
             <argument type="service">
-                <service class="PHPMud\Application\Access\CommandExecutor\IdentifyCharacterCommandExecutor">
+                <service class="PHPMud\World\Application\Access\CommandExecutor\IdentifyCharacterCommandExecutor">
                     <argument type="service" id="phpmud.domain.repository.in_memory.character" />
                 </service>
             </argument>
             <argument type="service">
-                <service class="PHPMud\Application\Access\CommandExecutor\AuthenticateCharacterCommandExecutor">
+                <service class="PHPMud\World\Application\Access\CommandExecutor\AuthenticateCharacterCommandExecutor">
                     <argument type="service" id="phpmud.domain.repository.in_memory.character" />
                 </service>
             </argument>
@@ -30,7 +30,7 @@
         <service id="phpmud.behat.context.domain.time" class="PHPMud\Tests\Behat\Context\Domain\TimeContext">
             <argument type="service" id="phpmud.behat.shared_storage" />
             <argument type="service">
-                <service class="PHPMud\Application\Time\CommandExecutor\TickCommandExecutor">
+                <service class="PHPMud\World\Application\Time\CommandExecutor\TickCommandExecutor">
                     <argument type="service" id="phpmud.domain.repository.in_memory.world_clock" />
                 </service>
             </argument>

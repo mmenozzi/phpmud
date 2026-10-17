@@ -5,8 +5,8 @@ declare(strict_types=1);
 namespace PHPMud\Tests\Behat\Context\Socket;
 
 use Behat\Behat\Context\Context;
-use PHPMud\Domain\Character\Character;
 use PHPMud\Tests\Behat\Service\SharedStorage;
+use PHPMud\World\Domain\Character\Character;
 use Webmozart\Assert\Assert;
 
 final class AccessContext implements Context
@@ -34,7 +34,7 @@ final class AccessContext implements Context
      */
     public function iShouldSeeTheMudLogo(): void
     {
-        $banner = file_get_contents(__DIR__.'/../../../../src/Infrastructure/Resources/banner.txt');
+        $banner = file_get_contents(__DIR__.'/../../../../src/World/Infrastructure/Resources/banner.txt');
         Assert::string($banner);
         Assert::eq($this->sharedStorage->get('banner'), rtrim($banner));
     }

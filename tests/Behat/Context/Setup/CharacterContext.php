@@ -5,10 +5,10 @@ declare(strict_types=1);
 namespace PHPMud\Tests\Behat\Context\Setup;
 
 use Behat\Behat\Context\Context;
-use PHPMud\Domain\Character\Character;
-use PHPMud\Domain\Character\CharacterRepositoryInterface;
-use PHPMud\Domain\Location\Location;
 use PHPMud\Tests\Behat\Service\SharedStorage;
+use PHPMud\World\Domain\Character\Character;
+use PHPMud\World\Domain\Character\CharacterRepositoryInterface;
+use PHPMud\World\Domain\Location\Location;
 
 final class CharacterContext implements Context
 {
