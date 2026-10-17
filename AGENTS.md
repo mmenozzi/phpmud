@@ -140,6 +140,14 @@ Three layers, strict dependency direction `Infrastructure → Application → Do
     `WorldClockRepositoryInterface`.
   New domain code goes in the Module of the concept it belongs to; add a
   new Module for a new concept rather than a folder per pattern.
+  This holds inside a Module too: no `Character/Entity/Character`, keep
+  `Character/Character`. Namespaces are part of the ubiquitous language
+  (pattern words like "Entity" are not domain words), the pattern is
+  already clear from the class name (`*RepositoryInterface`, `*Id`,
+  `*Exception`), and entity vs value object is a modelling decision that
+  may change without forcing a namespace move. When a Module grows too
+  big, split it by sub-concept (e.g. `Character/Inventory/`), never by
+  pattern.
   No framework/infra dependencies, with
   one accepted exception: third-party libraries that only provide plain
   data structures (e.g. `Doctrine\Common\Collections\Collection`,
