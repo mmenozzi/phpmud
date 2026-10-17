@@ -59,6 +59,10 @@ Short imperative subject line, capitalized, no trailing period, no body,
 no ticket refs, no conventional-commit prefix (`feat:`, `fix:`, ...). E.g.:
 `Add look command handling`, `Fix init_world.php script`, `Improve README`.
 
+Always make atomic commits: one logical change per commit. When a task
+touches unrelated concerns (e.g. a translation and a logging fix), split
+them into separate commits, each with its own subject line.
+
 ## Architecture
 
 Three layers, strict dependency direction `Infrastructure → Application → Domain`:
