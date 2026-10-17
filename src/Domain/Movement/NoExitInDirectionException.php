@@ -2,9 +2,9 @@
 
 declare(strict_types=1);
 
-namespace PHPMud\Domain\Exception;
+namespace PHPMud\Domain\Movement;
 
-use PHPMud\Domain\Direction;
+use PHPMud\Domain\Location\Direction;
 
 final class NoExitInDirectionException extends \DomainException
 {

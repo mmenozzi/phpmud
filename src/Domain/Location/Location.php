@@ -2,12 +2,10 @@
 
 declare(strict_types=1);
 
-namespace PHPMud\Domain\Entity;
+namespace PHPMud\Domain\Location;
 
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
-use PHPMud\Domain\Direction;
-use PHPMud\Domain\ValueObject\LocationId;
 
 final class Location
 {

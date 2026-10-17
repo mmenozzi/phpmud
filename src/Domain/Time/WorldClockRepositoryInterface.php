@@ -2,9 +2,7 @@
 
 declare(strict_types=1);
 
-namespace PHPMud\Domain\Repository;
-
-use PHPMud\Domain\Entity\WorldClock;
+namespace PHPMud\Domain\Time;
 
 interface WorldClockRepositoryInterface
 {

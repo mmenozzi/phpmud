@@ -8,7 +8,7 @@ use PHPMud\Application\Access\Command\IdentifyCharacterCommand;
 use PHPMud\Application\Access\Command\IdentifyCharacterCommandResponse;
 use PHPMud\Application\CommandInterface;
 use PHPMud\Application\ExecutorInterface;
-use PHPMud\Domain\Repository\CharacterRepositoryInterface;
+use PHPMud\Domain\Character\CharacterRepositoryInterface;
 use Webmozart\Assert\Assert;
 
 final readonly class IdentifyCharacterCommandExecutor implements ExecutorInterface

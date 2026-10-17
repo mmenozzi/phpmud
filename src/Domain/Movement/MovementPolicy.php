@@ -2,13 +2,12 @@
 
 declare(strict_types=1);
 
-namespace PHPMud\Domain\Service;
+namespace PHPMud\Domain\Movement;
 
-use PHPMud\Domain\Direction;
-use PHPMud\Domain\Entity\Character;
-use PHPMud\Domain\Entity\Location;
-use PHPMud\Domain\Exception\NoExitInDirectionException;
-use PHPMud\Domain\ValueObject\LocationId;
+use PHPMud\Domain\Character\Character;
+use PHPMud\Domain\Location\Direction;
+use PHPMud\Domain\Location\Location;
+use PHPMud\Domain\Location\LocationId;
 use Webmozart\Assert\Assert;
 
 final readonly class MovementPolicy

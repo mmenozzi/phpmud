@@ -5,8 +5,8 @@ declare(strict_types=1);
 namespace PHPMud\Application\Movement\Command;
 
 use PHPMud\Application\CommandInterface;
-use PHPMud\Domain\Direction;
-use PHPMud\Domain\Entity\Character;
+use PHPMud\Domain\Character\Character;
+use PHPMud\Domain\Location\Direction;
 
 final readonly class MoveCommand implements CommandInterface
 {

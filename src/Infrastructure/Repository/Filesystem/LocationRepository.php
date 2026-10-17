@@ -6,9 +6,9 @@ namespace PHPMud\Infrastructure\Repository\Filesystem;
 
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
-use PHPMud\Domain\Entity\Location;
-use PHPMud\Domain\Repository\LocationRepositoryInterface;
-use PHPMud\Domain\ValueObject\LocationId;
+use PHPMud\Domain\Location\Location;
+use PHPMud\Domain\Location\LocationId;
+use PHPMud\Domain\Location\LocationRepositoryInterface;
 use Webmozart\Assert\Assert;
 
 final class LocationRepository implements LocationRepositoryInterface

@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace PHPMud\Infrastructure\Server;
 
-use PHPMud\Domain\Direction;
+use PHPMud\Domain\Location\Direction;
 
 final class DirectionLabel
 {

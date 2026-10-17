@@ -5,7 +5,7 @@ declare(strict_types=1);
 namespace PHPMud\Infrastructure\Server;
 
 use Amp\Socket\ResourceSocket;
-use PHPMud\Domain\Entity\Character;
+use PHPMud\Domain\Character\Character;
 
 final class Client
 {

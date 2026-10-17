@@ -5,9 +5,9 @@ declare(strict_types=1);
 namespace PHPMud\Tests\Behat\Context\Setup;
 
 use Behat\Behat\Context\Context;
-use PHPMud\Domain\Direction;
-use PHPMud\Domain\Entity\Location;
-use PHPMud\Domain\Repository\LocationRepositoryInterface;
+use PHPMud\Domain\Location\Direction;
+use PHPMud\Domain\Location\Location;
+use PHPMud\Domain\Location\LocationRepositoryInterface;
 
 final class LocationContext implements Context
 {

@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace PHPMud\Infrastructure\Server;
 
-use PHPMud\Domain\DayPhase;
+use PHPMud\Domain\Time\DayPhase;
 
 final class DayPhaseMessage
 {

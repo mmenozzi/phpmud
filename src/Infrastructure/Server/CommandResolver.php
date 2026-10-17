@@ -8,7 +8,7 @@ use PHPMud\Application\CommandInterface;
 use PHPMud\Application\Help\Command\UnknownCommand;
 use PHPMud\Application\Movement\Command\LookCommand;
 use PHPMud\Application\Movement\Command\MoveCommand;
-use PHPMud\Domain\Direction;
+use PHPMud\Domain\Location\Direction;
 use Webmozart\Assert\Assert;
 
 final class CommandResolver

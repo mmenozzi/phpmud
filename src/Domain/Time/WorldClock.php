@@ -2,9 +2,7 @@
 
 declare(strict_types=1);
 
-namespace PHPMud\Domain\Entity;
-
-use PHPMud\Domain\DayPhase;
+namespace PHPMud\Domain\Time;
 
 final class WorldClock
 {

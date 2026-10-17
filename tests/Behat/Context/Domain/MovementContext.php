@@ -5,12 +5,12 @@ declare(strict_types=1);
 namespace PHPMud\Tests\Behat\Context\Domain;
 
 use Behat\Behat\Context\Context;
-use PHPMud\Domain\Direction;
-use PHPMud\Domain\Entity\Character;
-use PHPMud\Domain\Entity\Location;
-use PHPMud\Domain\Exception\NoExitInDirectionException;
-use PHPMud\Domain\Repository\LocationRepositoryInterface;
-use PHPMud\Domain\Service\MovementPolicy;
+use PHPMud\Domain\Character\Character;
+use PHPMud\Domain\Location\Direction;
+use PHPMud\Domain\Location\Location;
+use PHPMud\Domain\Location\LocationRepositoryInterface;
+use PHPMud\Domain\Movement\MovementPolicy;
+use PHPMud\Domain\Movement\NoExitInDirectionException;
 use PHPMud\Tests\Behat\Service\SharedStorage;
 use Webmozart\Assert\Assert;
 

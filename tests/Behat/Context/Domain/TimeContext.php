@@ -8,7 +8,7 @@ use Behat\Behat\Context\Context;
 use PHPMud\Application\Time\Command\TickCommand;
 use PHPMud\Application\Time\Command\TickCommandResponse;
 use PHPMud\Application\Time\CommandExecutor\TickCommandExecutor;
-use PHPMud\Domain\DayPhase;
+use PHPMud\Domain\Time\DayPhase;
 use PHPMud\Tests\Behat\Service\SharedStorage;
 use Webmozart\Assert\Assert;
 

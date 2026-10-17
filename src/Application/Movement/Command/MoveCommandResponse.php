@@ -6,7 +6,7 @@ namespace PHPMud\Application\Movement\Command;
 
 use PHPMud\Application\CommandResponseInterface;
 use PHPMud\Application\Movement\View\LocationView;
-use PHPMud\Domain\Direction;
+use PHPMud\Domain\Location\Direction;
 
 final readonly class MoveCommandResponse implements CommandResponseInterface
 {

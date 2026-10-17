@@ -5,10 +5,10 @@ declare(strict_types=1);
 namespace PHPMud\Tests\Behat\Context\Hook;
 
 use Behat\Behat\Context\Context;
-use PHPMud\Domain\Entity\WorldClock;
-use PHPMud\Domain\Repository\CharacterRepositoryInterface;
-use PHPMud\Domain\Repository\LocationRepositoryInterface;
-use PHPMud\Domain\Repository\WorldClockRepositoryInterface;
+use PHPMud\Domain\Character\CharacterRepositoryInterface;
+use PHPMud\Domain\Location\LocationRepositoryInterface;
+use PHPMud\Domain\Time\WorldClock;
+use PHPMud\Domain\Time\WorldClockRepositoryInterface;
 
 final class PurgeContext implements Context
 {

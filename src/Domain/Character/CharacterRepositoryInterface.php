@@ -2,10 +2,9 @@
 
 declare(strict_types=1);
 
-namespace PHPMud\Domain\Repository;
+namespace PHPMud\Domain\Character;
 
 use Doctrine\Common\Collections\Collection;
-use PHPMud\Domain\Entity\Character;
 
 interface CharacterRepositoryInterface
 {

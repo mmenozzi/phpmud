@@ -9,7 +9,7 @@ use PHPMud\Application\CommandResponseInterface;
 use PHPMud\Application\ExecutorInterface;
 use PHPMud\Application\Time\Command\TickCommand;
 use PHPMud\Application\Time\Command\TickCommandResponse;
-use PHPMud\Domain\Repository\WorldClockRepositoryInterface;
+use PHPMud\Domain\Time\WorldClockRepositoryInterface;
 use Webmozart\Assert\Assert;
 
 final readonly class TickCommandExecutor implements ExecutorInterface

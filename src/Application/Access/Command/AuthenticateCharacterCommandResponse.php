@@ -5,7 +5,7 @@ declare(strict_types=1);
 namespace PHPMud\Application\Access\Command;
 
 use PHPMud\Application\CommandResponseInterface;
-use PHPMud\Domain\Entity\Character;
+use PHPMud\Domain\Character\Character;
 
 final readonly class AuthenticateCharacterCommandResponse implements CommandResponseInterface
 {

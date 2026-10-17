@@ -9,10 +9,10 @@ use PHPMud\Application\ExecutorInterface;
 use PHPMud\Application\Movement\Command\MoveCommand;
 use PHPMud\Application\Movement\Command\MoveCommandResponse;
 use PHPMud\Application\Movement\View\LocationViewFactory;
-use PHPMud\Domain\Exception\NoExitInDirectionException;
-use PHPMud\Domain\Repository\CharacterRepositoryInterface;
-use PHPMud\Domain\Repository\LocationRepositoryInterface;
-use PHPMud\Domain\Service\MovementPolicy;
+use PHPMud\Domain\Character\CharacterRepositoryInterface;
+use PHPMud\Domain\Location\LocationRepositoryInterface;
+use PHPMud\Domain\Movement\MovementPolicy;
+use PHPMud\Domain\Movement\NoExitInDirectionException;
 use Webmozart\Assert\Assert;
 
 final readonly class MoveCommandExecutor implements ExecutorInterface

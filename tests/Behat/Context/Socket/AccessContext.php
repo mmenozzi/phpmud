@@ -5,7 +5,7 @@ declare(strict_types=1);
 namespace PHPMud\Tests\Behat\Context\Socket;
 
 use Behat\Behat\Context\Context;
-use PHPMud\Domain\Entity\Character;
+use PHPMud\Domain\Character\Character;
 use PHPMud\Tests\Behat\Service\SharedStorage;
 use Webmozart\Assert\Assert;
 

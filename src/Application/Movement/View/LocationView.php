@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace PHPMud\Application\Movement\View;
 
-use PHPMud\Domain\Entity\Location;
+use PHPMud\Domain\Location\Location;
 
 final readonly class LocationView
 {

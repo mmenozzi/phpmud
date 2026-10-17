@@ -8,7 +8,7 @@ use PHPMud\Application\Access\Command\AuthenticateCharacterCommand;
 use PHPMud\Application\Access\Command\AuthenticateCharacterCommandResponse;
 use PHPMud\Application\CommandInterface;
 use PHPMud\Application\ExecutorInterface;
-use PHPMud\Domain\Repository\CharacterRepositoryInterface;
+use PHPMud\Domain\Character\CharacterRepositoryInterface;
 use Webmozart\Assert\Assert;
 
 final readonly class AuthenticateCharacterCommandExecutor implements ExecutorInterface

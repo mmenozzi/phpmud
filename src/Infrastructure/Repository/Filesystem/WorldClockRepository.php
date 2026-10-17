@@ -4,8 +4,8 @@ declare(strict_types=1);
 
 namespace PHPMud\Infrastructure\Repository\Filesystem;
 
-use PHPMud\Domain\Entity\WorldClock;
-use PHPMud\Domain\Repository\WorldClockRepositoryInterface;
+use PHPMud\Domain\Time\WorldClock;
+use PHPMud\Domain\Time\WorldClockRepositoryInterface;
 use Webmozart\Assert\Assert;
 
 final class WorldClockRepository implements WorldClockRepositoryInterface

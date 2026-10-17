@@ -5,7 +5,7 @@ declare(strict_types=1);
 namespace PHPMud\Application\Movement\Command;
 
 use PHPMud\Application\CommandInterface;
-use PHPMud\Domain\Entity\Character;
+use PHPMud\Domain\Character\Character;
 
 final readonly class LookCommand implements CommandInterface
 {

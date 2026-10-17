@@ -2,11 +2,9 @@
 
 declare(strict_types=1);
 
-namespace PHPMud\Domain\Repository;
+namespace PHPMud\Domain\Location;
 
 use Doctrine\Common\Collections\Collection;
-use PHPMud\Domain\Entity\Location;
-use PHPMud\Domain\ValueObject\LocationId;
 
 interface LocationRepositoryInterface
 {

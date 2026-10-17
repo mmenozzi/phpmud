@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace PHPMud\Tests\Behat\Context\Socket;
 
-use PHPMud\Domain\DayPhase;
+use PHPMud\Domain\Time\DayPhase;
 use PHPMud\Infrastructure\Server\DayPhaseMessage;
 use PHPMud\Infrastructure\Server\Telnet;
 use PHPMud\Tests\Behat\Service\SharedStorage;

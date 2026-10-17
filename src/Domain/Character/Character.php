@@ -2,9 +2,9 @@
 
 declare(strict_types=1);
 
-namespace PHPMud\Domain\Entity;
+namespace PHPMud\Domain\Character;
 
-use PHPMud\Domain\ValueObject\LocationId;
+use PHPMud\Domain\Location\LocationId;
 use Symfony\Component\Uid\Uuid;
 
 final class Character

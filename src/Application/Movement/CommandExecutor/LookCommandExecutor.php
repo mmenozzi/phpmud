@@ -10,7 +10,7 @@ use PHPMud\Application\ExecutorInterface;
 use PHPMud\Application\Movement\Command\LookCommand;
 use PHPMud\Application\Movement\Command\LookCommandResponse;
 use PHPMud\Application\Movement\View\LocationViewFactory;
-use PHPMud\Domain\Repository\LocationRepositoryInterface;
+use PHPMud\Domain\Location\LocationRepositoryInterface;
 use Webmozart\Assert\Assert;
 
 final readonly class LookCommandExecutor implements ExecutorInterface

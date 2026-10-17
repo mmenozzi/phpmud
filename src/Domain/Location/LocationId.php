@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace PHPMud\Domain\ValueObject;
+namespace PHPMud\Domain\Location;
 
 use Symfony\Component\Uid\Uuid;
 

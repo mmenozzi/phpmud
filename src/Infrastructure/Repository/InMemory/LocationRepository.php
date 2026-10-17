@@ -5,9 +5,9 @@ declare(strict_types=1);
 namespace PHPMud\Infrastructure\Repository\InMemory;
 
 use Doctrine\Common\Collections\Collection;
-use PHPMud\Domain\Entity\Location;
-use PHPMud\Domain\Repository\LocationRepositoryInterface;
-use PHPMud\Domain\ValueObject\LocationId;
+use PHPMud\Domain\Location\Location;
+use PHPMud\Domain\Location\LocationId;
+use PHPMud\Domain\Location\LocationRepositoryInterface;
 use Webgriffe\InMemoryRepository\ObjectRepository;
 
 /**

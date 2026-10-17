@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace PHPMud\Domain;
+namespace PHPMud\Domain\Time;
 
 enum DayPhase: string
 {

@@ -63,6 +63,12 @@ scenarios time out waiting for a day phase broadcast:
 `PHPMUD_TICK_INTERVAL=1 composer start`. `@domain` suites do not need this; they use the
 in-memory repositories and boot a fresh container per scenario.
 
+The filesystem repositories store PHP-serialized objects, so after renaming
+or moving a domain class the existing `/tmp/phpmud.*` files unserialize as
+`__PHP_Incomplete_Class` (even `PurgeContext` fails): `composer stop`,
+delete `/tmp/phpmud.location`, `/tmp/phpmud.character` and
+`/tmp/phpmud.world_clock`, then start the server again.
+
 `utils/init_world.php` seeds `/tmp/phpmud.*` from `utils/locations.csv` for
 manual/local play; Behat's `PurgeContext` (`@BeforeScenario`) clears the
 repositories (and resets the world clock to hour 0) before each scenario
@@ -83,10 +89,21 @@ them into separate commits, each with its own subject line.
 
 Three layers, strict dependency direction `Infrastructure → Application → Domain`:
 
-- **`src/Domain`** — entities (`Character`, `Location`, `WorldClock`), value
-  objects (`LocationId`), domain services (`MovementPolicy`), domain
-  exceptions, the `Direction` and `DayPhase` enums, and repository
-  *interfaces*. No framework/infra dependencies, with
+- **`src/Domain`** — organized in DDD *Modules* by domain concept, not by
+  building-block type (no `Entity/`, `Repository/`, `ValueObject/`
+  folders): each aggregate lives together with its repository interface,
+  value objects and enums, so the aggregate boundary is visible in the
+  tree.
+  - `Character/` — `Character` aggregate, `CharacterRepositoryInterface`.
+  - `Location/` — `Location` aggregate, `LocationId`, `Direction`,
+    `LocationRepositoryInterface`.
+  - `Movement/` — `MovementPolicy` domain service (spans `Character` and
+    `Location`, so it belongs to neither) and `NoExitInDirectionException`.
+  - `Time/` — `WorldClock` aggregate, `DayPhase`,
+    `WorldClockRepositoryInterface`.
+  New domain code goes in the Module of the concept it belongs to; add a
+  new Module for a new concept rather than a folder per pattern.
+  No framework/infra dependencies, with
   one accepted exception: third-party libraries that only provide plain
   data structures (e.g. `Doctrine\Common\Collections\Collection`,
   `Symfony\Component\Uid\Uuid`) are fine to use directly in entities — they

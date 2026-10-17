@@ -9,7 +9,7 @@
     </parameters>
 
     <services>
-        <service id="phpmud.domain.service.movement_policy" class="PHPMud\Domain\Service\MovementPolicy" />
+        <service id="phpmud.domain.service.movement_policy" class="PHPMud\Domain\Movement\MovementPolicy" />
 
         <service id="phpmud.application.movement.view.location_view_factory" class="PHPMud\Application\Movement\View\LocationViewFactory">
             <argument type="service" id="phpmud.domain.repository.location" />

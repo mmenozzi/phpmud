@@ -5,8 +5,8 @@ declare(strict_types=1);
 namespace PHPMud\Tests\Behat\Context\Socket;
 
 use Behat\Behat\Context\Context;
-use PHPMud\Domain\Direction;
-use PHPMud\Domain\Entity\Location;
+use PHPMud\Domain\Location\Direction;
+use PHPMud\Domain\Location\Location;
 use PHPMud\Infrastructure\Server\DirectionLabel;
 use PHPMud\Tests\Behat\Service\SharedStorage;
 use Webmozart\Assert\Assert;

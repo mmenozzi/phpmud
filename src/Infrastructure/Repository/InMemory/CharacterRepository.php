@@ -4,8 +4,8 @@ declare(strict_types=1);
 
 namespace PHPMud\Infrastructure\Repository\InMemory;
 
-use PHPMud\Domain\Entity\Character;
-use PHPMud\Domain\Repository\CharacterRepositoryInterface;
+use PHPMud\Domain\Character\Character;
+use PHPMud\Domain\Character\CharacterRepositoryInterface;
 use Webgriffe\InMemoryRepository\ObjectRepository;
 
 /**

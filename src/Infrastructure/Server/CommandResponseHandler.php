@@ -12,7 +12,7 @@ use PHPMud\Application\Movement\Command\LookCommandResponse;
 use PHPMud\Application\Movement\Command\MoveCommandResponse;
 use PHPMud\Application\Movement\View\LocationView;
 use PHPMud\Application\Time\Command\TickCommandResponse;
-use PHPMud\Domain\Direction;
+use PHPMud\Domain\Location\Direction;
 
 final class CommandResponseHandler
 {

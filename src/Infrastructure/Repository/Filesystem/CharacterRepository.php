@@ -6,8 +6,8 @@ namespace PHPMud\Infrastructure\Repository\Filesystem;
 
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
-use PHPMud\Domain\Entity\Character;
-use PHPMud\Domain\Repository\CharacterRepositoryInterface;
+use PHPMud\Domain\Character\Character;
+use PHPMud\Domain\Character\CharacterRepositoryInterface;
 use Webmozart\Assert\Assert;
 
 final class CharacterRepository implements CharacterRepositoryInterface
