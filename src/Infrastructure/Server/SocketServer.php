@@ -34,7 +34,7 @@ final class SocketServer
                     $buffer = array_pop($commands);
                     foreach ($commands as $command) {
                         $command = rtrim(Telnet::stripNegotiation($command), "\r");
-                        echo $socket->getRemoteAddress().': '.$command.PHP_EOL;
+                        echo $socket->getRemoteAddress().': '.($client->isAuthenticating() ? '[password]' : $command).PHP_EOL;
                         $this->clientHandler->handleCommand($client, $command);
                     }
                 }
