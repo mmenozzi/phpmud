@@ -16,5 +16,7 @@
         </service>
 
         <service id="phpmud.behat.context.transform.direction" class="PHPMud\Tests\Behat\Context\Transform\DirectionContext" />
+
+        <service id="phpmud.behat.context.transform.day_phase" class="PHPMud\Tests\Behat\Context\Transform\DayPhaseContext" />
     </services>
 </container>

@@ -14,5 +14,8 @@
 
         <service id="phpmud.domain.repository.in_memory.character" class="PHPMud\Infrastructure\Repository\InMemory\CharacterRepository">
         </service>
+
+        <service id="phpmud.domain.repository.in_memory.world_clock" class="PHPMud\Infrastructure\Repository\InMemory\WorldClockRepository">
+        </service>
     </services>
 </container>

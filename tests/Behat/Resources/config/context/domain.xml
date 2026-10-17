@@ -26,5 +26,14 @@
                 </service>
             </argument>
         </service>
+
+        <service id="phpmud.behat.context.domain.time" class="PHPMud\Tests\Behat\Context\Domain\TimeContext">
+            <argument type="service" id="phpmud.behat.shared_storage" />
+            <argument type="service">
+                <service class="PHPMud\Application\Time\CommandExecutor\TickCommandExecutor">
+                    <argument type="service" id="phpmud.domain.repository.in_memory.world_clock" />
+                </service>
+            </argument>
+        </service>
     </services>
 </container>

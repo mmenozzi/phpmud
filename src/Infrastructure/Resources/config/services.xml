@@ -42,6 +42,10 @@
             <argument type="service" id="phpmud.domain.repository.character" />
         </service>
 
+        <service id="phpmud.application.time.command_executor.tick" class="PHPMud\Application\Time\CommandExecutor\TickCommandExecutor">
+            <argument type="service" id="phpmud.domain.repository.world_clock" />
+        </service>
+
         <service id="phpmud.application.command_router" class="PHPMud\Application\CommandRouter">
             <call method="addExecutorForCommand">
                 <argument>PHPMud\Application\Access\Command\IdentifyCharacterCommand</argument>
@@ -67,6 +71,10 @@
                 <argument>PHPMud\Application\Character\Command\WhoAmICommand</argument>
                 <argument type="service" id="phpmud.application.character.command_executor.whoami" />
             </call>
+            <call method="addExecutorForCommand">
+                <argument>PHPMud\Application\Time\Command\TickCommand</argument>
+                <argument type="service" id="phpmud.application.time.command_executor.tick" />
+            </call>
         </service>
 
         <service id="phpmud.domain.repository.filesystem.location" class="PHPMud\Infrastructure\Repository\Filesystem\LocationRepository">
@@ -78,6 +86,11 @@
             <argument>/tmp/phpmud.character</argument>
         </service>
         <service id="phpmud.domain.repository.character" alias="phpmud.domain.repository.filesystem.character" />
+
+        <service id="phpmud.domain.repository.filesystem.world_clock" class="PHPMud\Infrastructure\Repository\Filesystem\WorldClockRepository">
+            <argument>/tmp/phpmud.world_clock</argument>
+        </service>
+        <service id="phpmud.domain.repository.world_clock" alias="phpmud.domain.repository.filesystem.world_clock" />
 
         <service id="phpmud.infrastructure.server.command_resolver" class="PHPMud\Infrastructure\Server\CommandResolver">
         </service>

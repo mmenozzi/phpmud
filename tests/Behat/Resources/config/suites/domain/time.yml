@@ -1,0 +1,16 @@
+default:
+    suites:
+        domain_time:
+            contexts:
+                - phpmud.behat.context.setup.in_memory.character
+                - phpmud.behat.context.setup.in_memory.location
+                - phpmud.behat.context.setup.in_memory.world_clock
+
+                - phpmud.behat.context.transform.in_memory.location
+                - phpmud.behat.context.transform.day_phase
+
+                - phpmud.behat.context.domain.access
+                - phpmud.behat.context.domain.time
+
+            filters:
+                tags: "@time&&@domain"

@@ -16,6 +16,10 @@
             <argument type="service" id="phpmud.domain.repository.in_memory.location" />
         </service>
 
+        <service id="phpmud.behat.context.setup.in_memory.world_clock" class="PHPMud\Tests\Behat\Context\Setup\WorldClockContext">
+            <argument type="service" id="phpmud.domain.repository.in_memory.world_clock" />
+        </service>
+
         <service id="phpmud.behat.context.setup.filesystem.character" class="PHPMud\Tests\Behat\Context\Setup\CharacterContext">
             <argument type="service" id="phpmud.domain.repository.filesystem.character" />
             <argument type="service" id="phpmud.behat.shared_storage" />
