@@ -108,6 +108,20 @@ model. They live in `World` only because there is one context; when a
 second context appears, move them to a context-independent level (e.g.
 `src/Shared` or `src/Server`) instead of duplicating them per context.
 
+Expected evolution, an `Access` (identity) context: today `Character`
+holds the password and `World/Application/Access` handles login, so
+authentication and gameplay share one model. That is fine while one
+login = one character. Split it into `src/Access/{Domain,Application,Infrastructure}`
+when the identity model starts to diverge from the game one, e.g.
+accounts owning several characters, roles/permissions, bans, password
+reset. Then `Access` owns an `Account` aggregate (credentials, status),
+`World`'s `Character` keeps only gameplay state and references the
+account **by id** (cross-context references follow the same rule as
+cross-aggregate ones), and the login flow in `ClientHandler` talks to
+`Access` instead of `World`. Do not create the context before that
+pressure exists: an empty context with no distinct language is
+speculative design, not DDD.
+
 ### Layers
 
 Three layers, strict dependency direction `Infrastructure → Application → Domain`:
