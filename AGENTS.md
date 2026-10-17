@@ -42,15 +42,18 @@ vendor/bin/behat features/movement.feature:20
 
 Suites tagged `@socket` (see below) connect to a **real** socket server at
 `127.0.0.1:10666` and read/write the filesystem repositories at
-`/tmp/phpmud.location` / `/tmp/phpmud.character` (paths hardcoded in
-`src/Infrastructure/Resources/config/services.xml`). The server must
-already be running (`composer start`) before these scenarios execute — Behat
-does not start it for you. `@domain` suites do not need this; they use the
+`/tmp/phpmud.location` / `/tmp/phpmud.character` / `/tmp/phpmud.world_clock`
+(paths hardcoded in `src/Infrastructure/Resources/config/services.xml`). The
+server must already be running before these scenarios execute — Behat does
+not start it for you — and with a 1-second tick, otherwise the `@time`
+scenarios time out waiting for a day phase broadcast:
+`PHPMUD_TICK_INTERVAL=1 composer start`. `@domain` suites do not need this; they use the
 in-memory repositories and boot a fresh container per scenario.
 
 `utils/init_world.php` seeds `/tmp/phpmud.*` from `utils/locations.csv` for
-manual/local play; Behat's `PurgeContext` (`@BeforeScenario`) clears both
-repositories before each scenario regardless, and each feature's
+manual/local play; Behat's `PurgeContext` (`@BeforeScenario`) clears the
+repositories (and resets the world clock to hour 0) before each scenario
+regardless, and each feature's
 `Background:` sets up the fixtures it needs.
 
 ## Commit style
@@ -67,9 +70,10 @@ them into separate commits, each with its own subject line.
 
 Three layers, strict dependency direction `Infrastructure → Application → Domain`:
 
-- **`src/Domain`** — entities (`Character`, `Location`), value objects
-  (`LocationId`), domain services (`MovementPolicy`), domain exceptions, the
-  `Direction` enum, and repository *interfaces*. No framework/infra dependencies, with
+- **`src/Domain`** — entities (`Character`, `Location`, `WorldClock`), value
+  objects (`LocationId`), domain services (`MovementPolicy`), domain
+  exceptions, the `Direction` and `DayPhase` enums, and repository
+  *interfaces*. No framework/infra dependencies, with
   one accepted exception: third-party libraries that only provide plain
   data structures (e.g. `Doctrine\Common\Collections\Collection`,
   `Symfony\Component\Uid\Uuid`) are fine to use directly in entities — they
@@ -86,8 +90,11 @@ Three layers, strict dependency direction `Infrastructure → Application → Do
   calls `Character::relocateTo()`); `relocateTo()` is where invariants on
   the character's own state belong, and is reusable for non-walking moves
   (teleport, recall, ...).
+  `WorldClock` is a singleton aggregate holding the game hour (0..23);
+  `tick()` advances it by one hour and returns the `DayPhase` that starts
+  at the new hour, if any (`DayPhase::startingHour()`).
 - **`src/Application`** — one subdirectory per feature (`Access`, `Character`,
-  `Movement`, `Help`),
+  `Movement`, `Help`, `Time`),
   each following the same triad:
   - `Command/*Command.php` implements `CommandInterface` (marker interface,
     plain readonly DTO carrying whatever the executor needs, e.g. a
@@ -118,7 +125,17 @@ Three layers, strict dependency direction `Infrastructure → Application → Do
     config and swaps in-memory repositories in).
   - `Server/SocketServer` (built on `amphp/socket`) accepts connections,
     reads newline-delimited commands per client, and dispatches to
-    `ClientHandler`.
+    `ClientHandler`. It tracks connected clients in `ClientRegistry` and
+    starts the `Ticker` before accepting connections.
+  - `Server/Ticker` is the game time: every `phpmud.tick_interval` seconds
+    (60 = one game hour, overridable with the `PHPMUD_TICK_INTERVAL` env
+    var read by `bin/phpmud`) it executes `TickCommand` and, when a day
+    phase starts, sends the `TickCommandResponse` to every authenticated
+    client through `CommandResponseHandler` — the only messages the server
+    sends without a client command. The socket Behat trait routes these
+    blocks (`DayPhaseMessage`) to a separate `broadcasts` queue so they
+    never interleave with command responses; any new unsolicited message
+    must be routed the same way.
   - `ClientHandler` owns the per-connection login state machine (banner
     from `Resources/banner.txt` → name → password), but the decisions live
     in `Application/Access`: `IdentifyCharacterCommand` (does the name
