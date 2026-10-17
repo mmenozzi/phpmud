@@ -5,3 +5,4 @@ imports:
 
     - suites/socket/movement.yml
     - suites/socket/access.yml
+    - suites/socket/time.yml

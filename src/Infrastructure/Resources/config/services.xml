@@ -4,10 +4,9 @@
            xsi:schemaLocation="http://symfony.com/schema/dic/services
         https://symfony.com/schema/dic/services/services-1.0.xsd"
 >
-<!--    <parameters>-->
-<!--        &lt;!&ndash; ... &ndash;&gt;-->
-<!--        <parameter key="mailer.transport">sendmail</parameter>-->
-<!--    </parameters>-->
+    <parameters>
+        <parameter key="phpmud.tick_interval">60.0</parameter>
+    </parameters>
 
     <services>
         <service id="phpmud.domain.service.movement_policy" class="PHPMud\Domain\Service\MovementPolicy" />
@@ -104,9 +103,20 @@
             <argument type="service" id="phpmud.infrastructure.server.command_response_handler" />
         </service>
 
+        <service id="phpmud.server.client_registry" class="PHPMud\Infrastructure\Server\ClientRegistry" />
+
+        <service id="phpmud.server.ticker" class="PHPMud\Infrastructure\Server\Ticker">
+            <argument>%phpmud.tick_interval%</argument>
+            <argument type="service" id="phpmud.application.command_router" />
+            <argument type="service" id="phpmud.infrastructure.server.command_response_handler" />
+            <argument type="service" id="phpmud.server.client_registry" />
+        </service>
+
         <service id="phpmud.server.socket" class="PHPMud\Infrastructure\Server\SocketServer">
             <argument>127.0.0.1:10666</argument>
             <argument type="service" id="phpmud.server.client_handler" />
+            <argument type="service" id="phpmud.server.client_registry" />
+            <argument type="service" id="phpmud.server.ticker" />
         </service>
     </services>
 </container>

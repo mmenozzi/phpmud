@@ -28,5 +28,9 @@
         <service id="phpmud.behat.context.setup.filesystem.location" class="PHPMud\Tests\Behat\Context\Setup\LocationContext">
             <argument type="service" id="phpmud.domain.repository.filesystem.location" />
         </service>
+
+        <service id="phpmud.behat.context.setup.filesystem.world_clock" class="PHPMud\Tests\Behat\Context\Setup\WorldClockContext">
+            <argument type="service" id="phpmud.domain.repository.filesystem.world_clock" />
+        </service>
     </services>
 </container>

@@ -10,6 +10,7 @@
         <service id="phpmud.behat.context.hook.purge" class="PHPMud\Tests\Behat\Context\Hook\PurgeContext">
             <argument type="service" id="phpmud.domain.repository.filesystem.location" />
             <argument type="service" id="phpmud.domain.repository.filesystem.character" />
+            <argument type="service" id="phpmud.domain.repository.filesystem.world_clock" />
         </service>
     </services>
 </container>

@@ -11,6 +11,7 @@ use PHPMud\Application\Help\Command\UnknownCommandResponse;
 use PHPMud\Application\Movement\Command\LookCommandResponse;
 use PHPMud\Application\Movement\Command\MoveCommandResponse;
 use PHPMud\Application\Movement\View\LocationView;
+use PHPMud\Application\Time\Command\TickCommandResponse;
 use PHPMud\Domain\Direction;
 
 final class CommandResponseHandler
@@ -37,6 +38,12 @@ final class CommandResponseHandler
 
         if ($commandResponse instanceof WhoAmICommandResponse) {
             $this->handleWhoAmICommandResponse($client, $commandResponse);
+
+            return;
+        }
+
+        if ($commandResponse instanceof TickCommandResponse) {
+            $this->handleTickCommandResponse($client, $commandResponse);
 
             return;
         }
@@ -78,6 +85,17 @@ final class CommandResponseHandler
     private function handleWhoAmICommandResponse(Client $client, WhoAmICommandResponse $commandResponse): void
     {
         $client->getSocket()->write(sprintf('Il tuo nome è "%s".', $commandResponse->getCharacter()->getName()).PHP_EOL);
+        $this->closeResponse($client);
+    }
+
+    private function handleTickCommandResponse(Client $client, TickCommandResponse $commandResponse): void
+    {
+        $startedDayPhase = $commandResponse->getStartedDayPhase();
+        if (null === $startedDayPhase) {
+            return;
+        }
+
+        $client->getSocket()->write(DayPhaseMessage::of($startedDayPhase).PHP_EOL);
         $this->closeResponse($client);
     }
 

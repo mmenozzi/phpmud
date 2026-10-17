@@ -1,0 +1,18 @@
+default:
+    suites:
+        socket_time:
+            contexts:
+                - phpmud.behat.context.hook.purge
+
+                - phpmud.behat.context.setup.filesystem.character
+                - phpmud.behat.context.setup.filesystem.location
+                - phpmud.behat.context.setup.filesystem.world_clock
+
+                - phpmud.behat.context.transform.filesystem.location
+                - phpmud.behat.context.transform.day_phase
+
+                - phpmud.behat.context.socket.access
+                - phpmud.behat.context.socket.time
+
+            filters:
+                tags: "@time&&@socket"

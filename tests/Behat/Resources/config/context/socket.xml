@@ -14,5 +14,9 @@
         <service id="phpmud.behat.context.socket.access" class="PHPMud\Tests\Behat\Context\Socket\AccessContext">
             <argument type="service" id="phpmud.behat.shared_storage" />
         </service>
+
+        <service id="phpmud.behat.context.socket.time" class="PHPMud\Tests\Behat\Context\Socket\TimeContext">
+            <argument type="service" id="phpmud.behat.shared_storage" />
+        </service>
     </services>
 </container>

@@ -12,6 +12,10 @@ $kernel = new Kernel($_ENV['APP_ENV'] ?? $_SERVER['APP_ENV'] ?? 'dev');
 $kernel->boot();
 
 $container = $kernel->getContainer();
+$tickInterval = getenv('PHPMUD_TICK_INTERVAL');
+if (false !== $tickInterval) {
+    $container->setParameter('phpmud.tick_interval', (float) $tickInterval);
+}
 echo 'Starting PHPMud server...' . PHP_EOL;
 /** @var SocketServer $server */
 $server = $container->get('phpmud.server.socket');

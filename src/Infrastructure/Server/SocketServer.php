@@ -10,18 +10,24 @@ use function Amp\async;
 
 final class SocketServer
 {
-    public function __construct(private readonly string $uri, private readonly ClientHandler $clientHandler)
-    {
+    public function __construct(
+        private readonly string $uri,
+        private readonly ClientHandler $clientHandler,
+        private readonly ClientRegistry $clientRegistry,
+        private readonly Ticker $ticker,
+    ) {
     }
 
     public function listen(): void
     {
         $server = Socket\listen($this->uri);
         echo 'Server listening on '.$this->uri.PHP_EOL;
+        $this->ticker->start();
 
         while ($socket = $server->accept()) {
             async(function () use ($socket) {
                 $client = new Client($socket);
+                $this->clientRegistry->add($client);
                 echo 'New client connected: '.$socket->getRemoteAddress().PHP_EOL;
                 $this->clientHandler->handleConnection($client);
                 $buffer = '';
@@ -38,6 +44,7 @@ final class SocketServer
                         $this->clientHandler->handleCommand($client, $command);
                     }
                 }
+                $this->clientRegistry->remove($client);
             });
         }
     }
