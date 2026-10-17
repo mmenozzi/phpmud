@@ -34,7 +34,23 @@
         <service id="phpmud.application.character.command_executor.whoami" class="PHPMud\Application\Character\CommandExecutor\WhoAmICommandExecutor">
         </service>
 
+        <service id="phpmud.application.access.command_executor.identify_character" class="PHPMud\Application\Access\CommandExecutor\IdentifyCharacterCommandExecutor">
+            <argument type="service" id="phpmud.domain.repository.character" />
+        </service>
+
+        <service id="phpmud.application.access.command_executor.authenticate_character" class="PHPMud\Application\Access\CommandExecutor\AuthenticateCharacterCommandExecutor">
+            <argument type="service" id="phpmud.domain.repository.character" />
+        </service>
+
         <service id="phpmud.application.command_router" class="PHPMud\Application\CommandRouter">
+            <call method="addExecutorForCommand">
+                <argument>PHPMud\Application\Access\Command\IdentifyCharacterCommand</argument>
+                <argument type="service" id="phpmud.application.access.command_executor.identify_character" />
+            </call>
+            <call method="addExecutorForCommand">
+                <argument>PHPMud\Application\Access\Command\AuthenticateCharacterCommand</argument>
+                <argument type="service" id="phpmud.application.access.command_executor.authenticate_character" />
+            </call>
             <call method="addExecutorForCommand">
                 <argument>PHPMud\Application\Movement\Command\MoveCommand</argument>
                 <argument type="service" id="phpmud.application.movement.command_executor.move" />
@@ -70,7 +86,6 @@
         </service>
 
         <service id="phpmud.server.client_handler" class="PHPMud\Infrastructure\Server\ClientHandler">
-            <argument type="service" id="phpmud.domain.repository.character" />
             <argument type="service" id="phpmud.infrastructure.server.command_resolver" />
             <argument type="service" id="phpmud.application.command_router" />
             <argument type="service" id="phpmud.infrastructure.server.command_response_handler" />

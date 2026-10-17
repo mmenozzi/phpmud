@@ -1,5 +1,6 @@
 imports:
     - suites/domain/movement.yml
+    - suites/domain/access.yml
 
     - suites/socket/movement.yml
     - suites/socket/access.yml

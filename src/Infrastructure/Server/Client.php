@@ -13,6 +13,8 @@ final class Client
 
     private ?string $authenticatingCharacterName = null;
 
+    private int $failedPasswordAttempts = 0;
+
     public function __construct(
         private readonly ResourceSocket $socket,
     ) {
@@ -52,9 +54,15 @@ final class Client
         return $this->authenticatingCharacterName;
     }
 
+    public function registerFailedPasswordAttempt(): int
+    {
+        return ++$this->failedPasswordAttempts;
+    }
+
     public function stopAuthentication(): void
     {
         $this->authenticatingCharacterName = null;
+        $this->failedPasswordAttempts = 0;
     }
 
     public function authenticate(Character $character): void

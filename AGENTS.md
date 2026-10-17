@@ -82,7 +82,8 @@ Three layers, strict dependency direction `Infrastructure → Application → Do
   calls `Character::relocateTo()`); `relocateTo()` is where invariants on
   the character's own state belong, and is reusable for non-walking moves
   (teleport, recall, ...).
-- **`src/Application`** — one subdirectory per feature (`Movement`, `Help`),
+- **`src/Application`** — one subdirectory per feature (`Access`, `Character`,
+  `Movement`, `Help`),
   each following the same triad:
   - `Command/*Command.php` implements `CommandInterface` (marker interface,
     plain readonly DTO carrying whatever the executor needs, e.g. a
@@ -114,10 +115,22 @@ Three layers, strict dependency direction `Infrastructure → Application → Do
   - `Server/SocketServer` (built on `amphp/socket`) accepts connections,
     reads newline-delimited commands per client, and dispatches to
     `ClientHandler`.
-  - `ClientHandler` owns the auth handshake (name → password →
-    `password_verify` against `Character::getPasswordHash()`) state machine
-    per `Client`, then for authenticated clients delegates each raw line to
+  - `ClientHandler` owns the per-connection login state machine (banner
+    from `Resources/banner.txt` → name → password), but the decisions live
+    in `Application/Access`: `IdentifyCharacterCommand` (does the name
+    exist? if not, re-prompt name) and `AuthenticateCharacterCommand`
+    (`Character::isPasswordValid()`; on failure re-prompt password, after
+    `MAX_PASSWORD_ATTEMPTS` failures close the socket). Login responses are
+    rendered by `ClientHandler` itself, not `CommandResponseHandler`. For
+    authenticated clients it delegates each raw line to
     `CommandResolver → CommandRouter → executor → CommandResponseHandler`.
+    While the password is typed the server sends telnet `IAC WILL ECHO`
+    (`Server/Telnet`) so the client hides input, and `IAC WONT ECHO` once
+    login succeeds or the socket is closed; `SocketServer` strips incoming
+    telnet negotiation and trailing `\r` from each line, and the socket
+    Behat trait strips it from responses (tracking the echo state).
+    Every message block ends with a blank line: socket Behat contexts split
+    responses on it, so `banner.txt` must not contain empty lines.
   - `Repository/Filesystem/*` (single-file serialized storage, used by
     `dev`/socket-test config) and `Repository/InMemory/*` (from
     `webgriffe/in-memory-repository`, used by `test`/domain-test config)

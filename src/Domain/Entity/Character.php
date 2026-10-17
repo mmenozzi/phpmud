@@ -44,6 +44,11 @@ final class Character
         $this->passwordHash = $passwordHash;
     }
 
+    public function isPasswordValid(string $password): bool
+    {
+        return password_verify($password, $this->passwordHash);
+    }
+
     public function relocateTo(LocationId $locationId): void
     {
         $this->locationId = $locationId;

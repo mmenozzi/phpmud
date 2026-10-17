@@ -14,6 +14,17 @@
         </service>
 
         <service id="phpmud.behat.context.domain.access" class="PHPMud\Tests\Behat\Context\Domain\AccessContext">
+            <argument type="service" id="phpmud.behat.shared_storage" />
+            <argument type="service">
+                <service class="PHPMud\Application\Access\CommandExecutor\IdentifyCharacterCommandExecutor">
+                    <argument type="service" id="phpmud.domain.repository.in_memory.character" />
+                </service>
+            </argument>
+            <argument type="service">
+                <service class="PHPMud\Application\Access\CommandExecutor\AuthenticateCharacterCommandExecutor">
+                    <argument type="service" id="phpmud.domain.repository.in_memory.character" />
+                </service>
+            </argument>
         </service>
     </services>
 </container>

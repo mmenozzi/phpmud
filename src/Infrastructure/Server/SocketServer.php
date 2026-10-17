@@ -33,6 +33,7 @@ final class SocketServer
                     $commands = explode(PHP_EOL, $buffer);
                     $buffer = array_pop($commands);
                     foreach ($commands as $command) {
+                        $command = rtrim(Telnet::stripNegotiation($command), "\r");
                         echo $socket->getRemoteAddress().': '.$command.PHP_EOL;
                         $this->clientHandler->handleCommand($client, $command);
                     }

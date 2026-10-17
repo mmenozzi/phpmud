@@ -76,7 +76,7 @@ final class CommandResponseHandler
 
     private function handleWhoAmICommandResponse(Client $client, WhoAmICommandResponse $commandResponse): void
     {
-        $client->getSocket()->write(sprintf('Your name is "%s".', $commandResponse->getCharacter()->getName()).PHP_EOL);
+        $client->getSocket()->write(sprintf('Il tuo nome è "%s".', $commandResponse->getCharacter()->getName()).PHP_EOL);
         $this->closeResponse($client);
     }
 
@@ -85,7 +85,7 @@ final class CommandResponseHandler
         $location = $locationView->getLocation();
         $socket->write($location->getName().PHP_EOL);
         $socket->write($location->getDescription().PHP_EOL);
-        $socket->write('You can go:'.PHP_EOL);
+        $socket->write('Puoi andare:'.PHP_EOL);
         foreach ($locationView->getExits() as $direction => $neighbor) {
             $socket->write(
                 sprintf('%s: %s', ucwords($direction), $neighbor->getName()).PHP_EOL
