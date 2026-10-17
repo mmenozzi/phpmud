@@ -13,6 +13,19 @@ The codebase is mid-refactor toward DDD (see commit "WIP ddd refactor").
 Follow the Application/Command pattern below for any new
 player command.
 
+## DDD as a learning goal
+
+The owner uses this project to learn DDD hands-on, so:
+
+- Always follow DDD principles when designing or changing code (bounded
+  contexts, ubiquitous language, aggregates and their boundaries, entities
+  vs value objects, domain services, repositories, Modules, layering).
+- In every plan and every answer that proposes or makes a design choice,
+  explain how the chosen architecture adheres to DDD: name the principle
+  each choice serves and why. When a choice deliberately deviates from
+  "textbook" DDD (pragmatism, project size), say so and explain the
+  trade-off.
+
 ## Commands
 
 Requires PHP >= 8.4 (see `composer.json`). If the system default `php`
