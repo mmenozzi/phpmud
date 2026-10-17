@@ -168,26 +168,31 @@ Three layers, strict dependency direction `Infrastructure → Application → Do
   `WorldClock` is a singleton aggregate holding the game hour (0..23);
   `tick()` advances it by one hour and returns the `DayPhase` that starts
   at the new hour, if any (`DayPhase::startingHour()`).
-- **`src/World/Application`** — one subdirectory per feature (`Access`, `Character`,
-  `Movement`, `Help`, `Time`),
-  each following the same triad:
-  - `Command/*Command.php` implements `CommandInterface` (marker interface,
+- **`src/World/Application`** — one subdirectory per feature Module (`Access`, `Character`,
+  `Movement`, `Help`, `Time`), and inside it one subdirectory per use case
+  (e.g. `Movement/Move/`, `Movement/Look/`, `Access/AuthenticateCharacter/`)
+  holding that use case's triad side by side — grouped by use case, not by
+  pattern (no `Command/` / `CommandExecutor/` folders), so the files that
+  change together live together. Helpers shared by several use cases of a
+  feature sit at the feature root (e.g. `Movement/LocationViewFactory`).
+  - `<UseCase>Command` implements `CommandInterface` (marker interface,
     plain readonly DTO carrying whatever the executor needs, e.g. a
     `Character` + `Direction`).
-  - `Command/*CommandResponse.php` implements `CommandResponseInterface`
+  - `<UseCase>CommandResponse` implements `CommandResponseInterface`
     (marker interface, DTO carrying the result).
-  - `CommandExecutor/*CommandExecutor.php` implements `ExecutorInterface`
+  - `<UseCase>CommandExecutor` implements `ExecutorInterface`
     (`execute(CommandInterface): CommandResponseInterface`), asserts the
     concrete command type with `Webmozart\Assert`, does the domain work,
     persists via a repository if state changed, returns the response.
   - `CommandRouter` maps command class → executor (wired explicitly in
     `services.xml` via `addExecutorForCommand` calls); it has no
     autodiscovery.
-  - `Movement/View/LocationViewFactory` builds a `LocationView` (a location
+  - `Movement/LocationViewFactory` builds a `LocationView` (a location
     plus its exits resolved to `Location` objects, keyed by `Direction`
     value) for responses that need to render exit names, since `Location`
     only knows exit ids.
-  To add a new player command: create the Command/Response/Executor triple,
+  To add a new player command: create the Command/Response/Executor triple
+  in a new use case folder,
   register the executor + router mapping in `services.xml`, and teach
   `CommandResolver` (parses raw input into a `CommandInterface`) and
   `CommandResponseHandler` (renders a `CommandResponseInterface` back to the

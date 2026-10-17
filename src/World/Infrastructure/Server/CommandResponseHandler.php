@@ -5,13 +5,13 @@ declare(strict_types=1);
 namespace PHPMud\World\Infrastructure\Server;
 
 use Amp\Socket\ResourceSocket;
-use PHPMud\World\Application\Character\Command\WhoAmICommandResponse;
+use PHPMud\World\Application\Character\WhoAmI\WhoAmICommandResponse;
 use PHPMud\World\Application\CommandResponseInterface;
-use PHPMud\World\Application\Help\Command\UnknownCommandResponse;
-use PHPMud\World\Application\Movement\Command\LookCommandResponse;
-use PHPMud\World\Application\Movement\Command\MoveCommandResponse;
-use PHPMud\World\Application\Movement\View\LocationView;
-use PHPMud\World\Application\Time\Command\TickCommandResponse;
+use PHPMud\World\Application\Help\Unknown\UnknownCommandResponse;
+use PHPMud\World\Application\Movement\LocationView;
+use PHPMud\World\Application\Movement\Look\LookCommandResponse;
+use PHPMud\World\Application\Movement\Move\MoveCommandResponse;
+use PHPMud\World\Application\Time\Tick\TickCommandResponse;
 use PHPMud\World\Domain\Location\Direction;
 
 final class CommandResponseHandler

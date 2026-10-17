@@ -6,9 +6,9 @@ namespace PHPMud\Tests\Behat\Context\Domain;
 
 use Behat\Behat\Context\Context;
 use PHPMud\Tests\Behat\Service\SharedStorage;
-use PHPMud\World\Application\Time\Command\TickCommand;
-use PHPMud\World\Application\Time\Command\TickCommandResponse;
-use PHPMud\World\Application\Time\CommandExecutor\TickCommandExecutor;
+use PHPMud\World\Application\Time\Tick\TickCommand;
+use PHPMud\World\Application\Time\Tick\TickCommandExecutor;
+use PHPMud\World\Application\Time\Tick\TickCommandResponse;
 use PHPMud\World\Domain\Time\DayPhase;
 use Webmozart\Assert\Assert;
 

@@ -6,8 +6,8 @@ namespace PHPMud\World\Infrastructure\Server;
 
 use Amp\ByteStream\StreamException;
 use PHPMud\World\Application\CommandRouter;
-use PHPMud\World\Application\Time\Command\TickCommand;
-use PHPMud\World\Application\Time\Command\TickCommandResponse;
+use PHPMud\World\Application\Time\Tick\TickCommand;
+use PHPMud\World\Application\Time\Tick\TickCommandResponse;
 use Revolt\EventLoop;
 use Webmozart\Assert\Assert;
 

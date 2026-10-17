@@ -6,12 +6,12 @@ namespace PHPMud\Tests\Behat\Context\Domain;
 
 use Behat\Behat\Context\Context;
 use PHPMud\Tests\Behat\Service\SharedStorage;
-use PHPMud\World\Application\Access\Command\AuthenticateCharacterCommand;
-use PHPMud\World\Application\Access\Command\AuthenticateCharacterCommandResponse;
-use PHPMud\World\Application\Access\Command\IdentifyCharacterCommand;
-use PHPMud\World\Application\Access\Command\IdentifyCharacterCommandResponse;
-use PHPMud\World\Application\Access\CommandExecutor\AuthenticateCharacterCommandExecutor;
-use PHPMud\World\Application\Access\CommandExecutor\IdentifyCharacterCommandExecutor;
+use PHPMud\World\Application\Access\AuthenticateCharacter\AuthenticateCharacterCommand;
+use PHPMud\World\Application\Access\AuthenticateCharacter\AuthenticateCharacterCommandExecutor;
+use PHPMud\World\Application\Access\AuthenticateCharacter\AuthenticateCharacterCommandResponse;
+use PHPMud\World\Application\Access\IdentifyCharacter\IdentifyCharacterCommand;
+use PHPMud\World\Application\Access\IdentifyCharacter\IdentifyCharacterCommandExecutor;
+use PHPMud\World\Application\Access\IdentifyCharacter\IdentifyCharacterCommandResponse;
 use Webmozart\Assert\Assert;
 
 final class AccessContext implements Context

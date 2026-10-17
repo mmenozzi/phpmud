@@ -5,9 +5,9 @@ declare(strict_types=1);
 namespace PHPMud\World\Infrastructure\Server;
 
 use PHPMud\World\Application\CommandInterface;
-use PHPMud\World\Application\Help\Command\UnknownCommand;
-use PHPMud\World\Application\Movement\Command\LookCommand;
-use PHPMud\World\Application\Movement\Command\MoveCommand;
+use PHPMud\World\Application\Help\Unknown\UnknownCommand;
+use PHPMud\World\Application\Movement\Look\LookCommand;
+use PHPMud\World\Application\Movement\Move\MoveCommand;
 use PHPMud\World\Domain\Location\Direction;
 use Webmozart\Assert\Assert;
 

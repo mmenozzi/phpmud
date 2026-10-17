@@ -4,15 +4,15 @@ declare(strict_types=1);
 
 namespace PHPMud\World\Infrastructure\Server;
 
-use PHPMud\World\Application\Access\Command\AuthenticateCharacterCommand;
-use PHPMud\World\Application\Access\Command\AuthenticateCharacterCommandResponse;
-use PHPMud\World\Application\Access\Command\IdentifyCharacterCommand;
-use PHPMud\World\Application\Access\Command\IdentifyCharacterCommandResponse;
-use PHPMud\World\Application\Character\Command\WhoAmICommand;
+use PHPMud\World\Application\Access\AuthenticateCharacter\AuthenticateCharacterCommand;
+use PHPMud\World\Application\Access\AuthenticateCharacter\AuthenticateCharacterCommandResponse;
+use PHPMud\World\Application\Access\IdentifyCharacter\IdentifyCharacterCommand;
+use PHPMud\World\Application\Access\IdentifyCharacter\IdentifyCharacterCommandResponse;
+use PHPMud\World\Application\Character\WhoAmI\WhoAmICommand;
 use PHPMud\World\Application\CommandInterface;
 use PHPMud\World\Application\CommandResponseInterface;
 use PHPMud\World\Application\CommandRouter;
-use PHPMud\World\Application\Movement\Command\LookCommand;
+use PHPMud\World\Application\Movement\Look\LookCommand;
 use Webmozart\Assert\Assert;
 
 final readonly class ClientHandler

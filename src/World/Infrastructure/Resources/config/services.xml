@@ -11,67 +11,67 @@
     <services>
         <service id="phpmud.domain.service.movement_policy" class="PHPMud\World\Domain\Movement\MovementPolicy" />
 
-        <service id="phpmud.application.movement.view.location_view_factory" class="PHPMud\World\Application\Movement\View\LocationViewFactory">
+        <service id="phpmud.application.movement.view.location_view_factory" class="PHPMud\World\Application\Movement\LocationViewFactory">
             <argument type="service" id="phpmud.domain.repository.location" />
         </service>
 
-        <service id="phpmud.application.movement.command_executor.move" class="PHPMud\World\Application\Movement\CommandExecutor\MoveCommandExecutor">
+        <service id="phpmud.application.movement.command_executor.move" class="PHPMud\World\Application\Movement\Move\MoveCommandExecutor">
             <argument type="service" id="phpmud.domain.repository.character" />
             <argument type="service" id="phpmud.domain.repository.location" />
             <argument type="service" id="phpmud.domain.service.movement_policy" />
             <argument type="service" id="phpmud.application.movement.view.location_view_factory" />
         </service>
 
-        <service id="phpmud.application.movement.command_executor.look" class="PHPMud\World\Application\Movement\CommandExecutor\LookCommandExecutor">
+        <service id="phpmud.application.movement.command_executor.look" class="PHPMud\World\Application\Movement\Look\LookCommandExecutor">
             <argument type="service" id="phpmud.domain.repository.location" />
             <argument type="service" id="phpmud.application.movement.view.location_view_factory" />
         </service>
 
-        <service id="phpmud.application.help.command_executor.unknown" class="PHPMud\World\Application\Help\CommandExecutor\UnknownCommandExecutor">
+        <service id="phpmud.application.help.command_executor.unknown" class="PHPMud\World\Application\Help\Unknown\UnknownCommandExecutor">
         </service>
 
-        <service id="phpmud.application.character.command_executor.whoami" class="PHPMud\World\Application\Character\CommandExecutor\WhoAmICommandExecutor">
+        <service id="phpmud.application.character.command_executor.whoami" class="PHPMud\World\Application\Character\WhoAmI\WhoAmICommandExecutor">
         </service>
 
-        <service id="phpmud.application.access.command_executor.identify_character" class="PHPMud\World\Application\Access\CommandExecutor\IdentifyCharacterCommandExecutor">
+        <service id="phpmud.application.access.command_executor.identify_character" class="PHPMud\World\Application\Access\IdentifyCharacter\IdentifyCharacterCommandExecutor">
             <argument type="service" id="phpmud.domain.repository.character" />
         </service>
 
-        <service id="phpmud.application.access.command_executor.authenticate_character" class="PHPMud\World\Application\Access\CommandExecutor\AuthenticateCharacterCommandExecutor">
+        <service id="phpmud.application.access.command_executor.authenticate_character" class="PHPMud\World\Application\Access\AuthenticateCharacter\AuthenticateCharacterCommandExecutor">
             <argument type="service" id="phpmud.domain.repository.character" />
         </service>
 
-        <service id="phpmud.application.time.command_executor.tick" class="PHPMud\World\Application\Time\CommandExecutor\TickCommandExecutor">
+        <service id="phpmud.application.time.command_executor.tick" class="PHPMud\World\Application\Time\Tick\TickCommandExecutor">
             <argument type="service" id="phpmud.domain.repository.world_clock" />
         </service>
 
         <service id="phpmud.application.command_router" class="PHPMud\World\Application\CommandRouter">
             <call method="addExecutorForCommand">
-                <argument>PHPMud\World\Application\Access\Command\IdentifyCharacterCommand</argument>
+                <argument>PHPMud\World\Application\Access\IdentifyCharacter\IdentifyCharacterCommand</argument>
                 <argument type="service" id="phpmud.application.access.command_executor.identify_character" />
             </call>
             <call method="addExecutorForCommand">
-                <argument>PHPMud\World\Application\Access\Command\AuthenticateCharacterCommand</argument>
+                <argument>PHPMud\World\Application\Access\AuthenticateCharacter\AuthenticateCharacterCommand</argument>
                 <argument type="service" id="phpmud.application.access.command_executor.authenticate_character" />
             </call>
             <call method="addExecutorForCommand">
-                <argument>PHPMud\World\Application\Movement\Command\MoveCommand</argument>
+                <argument>PHPMud\World\Application\Movement\Move\MoveCommand</argument>
                 <argument type="service" id="phpmud.application.movement.command_executor.move" />
             </call>
             <call method="addExecutorForCommand">
-                <argument>PHPMud\World\Application\Movement\Command\LookCommand</argument>
+                <argument>PHPMud\World\Application\Movement\Look\LookCommand</argument>
                 <argument type="service" id="phpmud.application.movement.command_executor.look" />
             </call>
             <call method="addExecutorForCommand">
-                <argument>PHPMud\World\Application\Help\Command\UnknownCommand</argument>
+                <argument>PHPMud\World\Application\Help\Unknown\UnknownCommand</argument>
                 <argument type="service" id="phpmud.application.help.command_executor.unknown" />
             </call>
             <call method="addExecutorForCommand">
-                <argument>PHPMud\World\Application\Character\Command\WhoAmICommand</argument>
+                <argument>PHPMud\World\Application\Character\WhoAmI\WhoAmICommand</argument>
                 <argument type="service" id="phpmud.application.character.command_executor.whoami" />
             </call>
             <call method="addExecutorForCommand">
-                <argument>PHPMud\World\Application\Time\Command\TickCommand</argument>
+                <argument>PHPMud\World\Application\Time\Tick\TickCommand</argument>
                 <argument type="service" id="phpmud.application.time.command_executor.tick" />
             </call>
         </service>
