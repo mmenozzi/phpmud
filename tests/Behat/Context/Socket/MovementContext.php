@@ -7,6 +7,7 @@ namespace PHPMud\Tests\Behat\Context\Socket;
 use Behat\Behat\Context\Context;
 use PHPMud\Domain\Direction;
 use PHPMud\Domain\Entity\Location;
+use PHPMud\Infrastructure\Server\DirectionLabel;
 use PHPMud\Tests\Behat\Service\SharedStorage;
 use Webmozart\Assert\Assert;
 
@@ -43,7 +44,7 @@ final class MovementContext implements Context
     public function iShouldSeeThatThereIsALocationSouthFromLocation(Location $location, Direction $direction)
     {
         socket_write($this->sharedStorage->get('socket'), 'look'.PHP_EOL);
-        Assert::contains($this->getNextResponse(), sprintf('%s: %s', ucwords($direction->value), $location->getName()));
+        Assert::contains($this->getNextResponse(), sprintf('%s: %s', DirectionLabel::of($direction), $location->getName()));
     }
 
     /**

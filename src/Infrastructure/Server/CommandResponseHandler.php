@@ -11,6 +11,7 @@ use PHPMud\Application\Help\Command\UnknownCommandResponse;
 use PHPMud\Application\Movement\Command\LookCommandResponse;
 use PHPMud\Application\Movement\Command\MoveCommandResponse;
 use PHPMud\Application\Movement\View\LocationView;
+use PHPMud\Domain\Direction;
 
 final class CommandResponseHandler
 {
@@ -88,7 +89,7 @@ final class CommandResponseHandler
         $socket->write('Puoi andare:'.PHP_EOL);
         foreach ($locationView->getExits() as $direction => $neighbor) {
             $socket->write(
-                sprintf('%s: %s', ucwords($direction), $neighbor->getName()).PHP_EOL
+                sprintf('%s: %s', DirectionLabel::of(Direction::from($direction)), $neighbor->getName()).PHP_EOL
             );
         }
     }
