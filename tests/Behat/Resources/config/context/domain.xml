@@ -40,6 +40,7 @@
                     <argument type="service">
                         <service class="PHPMud\World\Application\Movement\LocationViewFactory">
                             <argument type="service" id="phpmud.domain.repository.in_memory.location" />
+                            <argument type="service" id="phpmud.domain.repository.in_memory.character" />
                         </service>
                     </argument>
                     <argument type="service" id="phpmud.behat.domain.domain_event_dispatcher" />

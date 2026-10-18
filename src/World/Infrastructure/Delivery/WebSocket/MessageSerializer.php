@@ -110,6 +110,7 @@ final class MessageSerializer
             'name' => $locationView->getName(),
             'description' => $locationView->getDescription(),
             'exits' => (object) $locationView->getExits(),
+            'characters' => $locationView->getCharacters(),
         ];
     }
 

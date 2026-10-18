@@ -68,6 +68,14 @@ Feature: Movement
     And I should see that there is a location "A" south from here
 
   @domain @telnet @websocket
+  Scenario: Seeing who is in the location
+    Given there is the character "Hermione" in the location "B"
+    When I move to north
+    Then I should see that I am in the location "B"
+    And I should see "Hermione" here
+    And I should not see myself here
+
+  @domain @telnet @websocket
   Scenario: Seeing another character leave
     Given there is the character "Hermione" in the location "A"
     And "Hermione" is connected to the game

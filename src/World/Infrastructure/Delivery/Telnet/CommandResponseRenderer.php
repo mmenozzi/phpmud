@@ -82,6 +82,10 @@ final class CommandResponseRenderer
         foreach ($locationView->getExits() as $direction => $neighbor) {
             $lines[] = sprintf('%s: %s', DirectionLabel::of(Direction::from($direction)), $neighbor['name']);
         }
+        $names = array_column($locationView->getCharacters(), 'name');
+        if ([] !== $names) {
+            $lines[] = sprintf('%s: %s.', 1 === count($names) ? "Qui c'è" : 'Qui ci sono', implode(', ', $names));
+        }
 
         return $lines;
     }

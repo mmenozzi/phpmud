@@ -27,6 +27,6 @@ final readonly class LookCommandExecutor implements ExecutorInterface
         $character = $this->characterRepository->get($command->getCharacterId());
         $location = $this->locationRepository->get($character->getLocationId());
 
-        return new LookCommandResponse($this->locationViewFactory->create($location));
+        return new LookCommandResponse($this->locationViewFactory->create($location, $character->getId()));
     }
 }

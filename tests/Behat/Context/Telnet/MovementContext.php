@@ -73,6 +73,37 @@ final class MovementContext implements Context
         $this->waitForBroadcast(MovementMessage::arrived($this->getMyCharacter()->getName(), $direction->opposite()), $name);
     }
 
+    /**
+     * @Then /^I should see "([^"]*)" here$/
+     */
+    public function iShouldSeeHere(string $name): void
+    {
+        Assert::inArray($name, $this->getCharacterNamesHere());
+    }
+
+    /**
+     * @Then /^I should not see myself here$/
+     */
+    public function iShouldNotSeeMyselfHere(): void
+    {
+        Assert::false(in_array($this->getMyCharacter()->getName(), $this->getCharacterNamesHere(), true));
+    }
+
+    /**
+     * @return list<string>
+     */
+    private function getCharacterNamesHere(): array
+    {
+        $this->writeLine('look');
+        foreach (explode(PHP_EOL, $this->getNextResponse()) as $line) {
+            if (1 === preg_match("/^Qui (?:c'è|ci sono): (.+)\\.$/u", $line, $matches)) {
+                return explode(', ', $matches[1]);
+            }
+        }
+
+        return [];
+    }
+
     private function getMyCharacter(): Character
     {
         $character = $this->sharedStorage->get('character');

@@ -224,9 +224,14 @@ Three layers, strict dependency direction `Infrastructure → Application → Do
     `services.xml` via `addExecutorForCommand` calls); it has no
     autodiscovery.
   - `Movement/LocationViewFactory` builds a `LocationView` (id, name,
-    description and neighbour locations `{id, name}` keyed by `Direction`
-    value) for responses that need to render exit names, since `Location`
-    only knows exit ids. The ids let clients attach presentation data
+    description, neighbour locations `{id, name}` keyed by `Direction`
+    value, and the other characters `{name}` in the location, found with
+    `findByLocation` and excluding the viewer `CharacterId`) for responses
+    that need to render exit names, since `Location` only knows exit ids.
+    Who is in a location is a fact of the model (`Character` holds its
+    `LocationId`), so it includes characters whose player is offline:
+    "online" is Infrastructure state (`ClientRegistry`) and stays out of
+    the view until a presence model is needed. The ids let clients attach presentation data
     (e.g. a graphical scene) to a location without relying on its name.
   - `Access/AuthenticateCharacter` owns the password attempts rule:
     the adapter passes the failed attempts so far (per-connection session
@@ -349,7 +354,7 @@ Three layers, strict dependency direction `Infrastructure → Application → Do
         `authentication_failed`, `too_many_attempts` (then the connection
         closes), `whoami {name}`, `day_phase {day_phase}` (sent after
         login, after `whoami` and `location`), `location {id, name, description,
-        exits: {direction: {id, name}}}`, `move_failed {direction}`,
+        exits: {direction: {id, name}}, characters: [{name}]}`, `move_failed {direction}`,
         `unknown_command` (also for game commands before login),
         `error {message}` (invalid JSON or missing fields);
       - events (unsolicited): `day_phase_started {day_phase}`,

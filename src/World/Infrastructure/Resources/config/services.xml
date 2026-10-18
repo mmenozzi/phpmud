@@ -13,6 +13,7 @@
 
         <service id="phpmud.application.movement.view.location_view_factory" class="PHPMud\World\Application\Movement\LocationViewFactory">
             <argument type="service" id="phpmud.domain.repository.location" />
+            <argument type="service" id="phpmud.domain.repository.character" />
         </service>
 
         <service id="phpmud.application.movement.command_executor.move" class="PHPMud\World\Application\Movement\Move\MoveCommandExecutor">

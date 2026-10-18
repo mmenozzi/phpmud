@@ -34,7 +34,7 @@ final readonly class MoveCommandExecutor implements ExecutorInterface
         try {
             $destination = $this->movementPolicy->move($character, $current, $direction);
         } catch (NoExitInDirectionException) {
-            return new MoveCommandResponse(false, $direction, $this->locationViewFactory->create($current));
+            return new MoveCommandResponse(false, $direction, $this->locationViewFactory->create($current, $character->getId()));
         }
 
         $events = $character->releaseEvents();
@@ -44,7 +44,7 @@ final readonly class MoveCommandExecutor implements ExecutorInterface
         return new MoveCommandResponse(
             true,
             $direction,
-            $this->locationViewFactory->create($this->locationRepository->get($destination)),
+            $this->locationViewFactory->create($this->locationRepository->get($destination), $character->getId()),
         );
     }
 }

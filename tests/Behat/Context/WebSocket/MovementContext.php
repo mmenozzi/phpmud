@@ -85,6 +85,35 @@ final class MovementContext implements Context
         );
     }
 
+    /**
+     * @Then /^I should see "([^"]*)" here$/
+     */
+    public function iShouldSeeHere(string $name): void
+    {
+        Assert::inArray($name, $this->getCharacterNamesHere());
+    }
+
+    /**
+     * @Then /^I should not see myself here$/
+     */
+    public function iShouldNotSeeMyselfHere(): void
+    {
+        Assert::false(in_array($this->getMyCharacter()->getName(), $this->getCharacterNamesHere(), true));
+    }
+
+    /**
+     * @return list<string>
+     */
+    private function getCharacterNamesHere(): array
+    {
+        $this->sendMessage(['type' => 'look']);
+        $response = $this->getNextResponse();
+        Assert::eq($response['type'], 'location');
+        Assert::isArray($response['characters']);
+
+        return array_column($response['characters'], 'name');
+    }
+
     private function getMyCharacter(): Character
     {
         $character = $this->sharedStorage->get('character');
