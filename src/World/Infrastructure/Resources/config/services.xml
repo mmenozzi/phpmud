@@ -147,7 +147,9 @@
 
         <service id="phpmud.server.game" class="PHPMud\World\Infrastructure\Server\GameServer">
             <argument type="service" id="phpmud.server.ticker" />
-            <argument type="service" id="phpmud.delivery.telnet.server" />
+            <argument type="collection">
+                <argument type="service" id="phpmud.delivery.telnet.server" />
+            </argument>
         </service>
     </services>
 </container>
