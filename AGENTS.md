@@ -64,8 +64,10 @@ scenarios time out waiting for a day phase broadcast:
 in-memory repositories and boot a fresh container per scenario.
 
 The filesystem repositories store PHP-serialized objects, so after renaming
-or moving a domain class the existing `/tmp/phpmud.*` files unserialize as
-`__PHP_Incomplete_Class` (even `PurgeContext` fails): `composer stop`,
+or moving a domain class, or changing the type of a persisted property
+(e.g. an id becoming a value object), the existing `/tmp/phpmud.*` files
+no longer unserialize correctly (e.g. `__PHP_Incomplete_Class`; even
+`PurgeContext` fails): `composer stop`,
 delete `/tmp/phpmud.location`, `/tmp/phpmud.character` and
 `/tmp/phpmud.world_clock`, then start the server again.
 
@@ -103,7 +105,9 @@ are Modules of this one context, not bounded contexts.
 
 Pragmatic deviation: `Kernel`, `Server/*`, `Delivery/*` and the shared
 `CommandInterface`/`CommandResponseInterface`/`ExecutorInterface`/
-`CommandRouter` are generic host/delivery plumbing, not part of the World
+`CommandRouter`/`DomainEventDispatcher`/`DomainEventSubscriberInterface`/
+`NotificationInterface`/`NotifierInterface` (and `Domain/DomainEvent`,
+`Domain/RecordsDomainEvents`) are generic host/delivery plumbing, not part of the World
 model. They live in `World` only because there is one context; when a
 second context appears, move them to a context-independent level (e.g.
 `src/Shared` or `src/Server`) instead of duplicating them per context.
@@ -131,13 +135,18 @@ Three layers, strict dependency direction `Infrastructure → Application → Do
   folders): each aggregate lives together with its repository interface,
   value objects and enums, so the aggregate boundary is visible in the
   tree.
-  - `Character/` — `Character` aggregate, `CharacterRepositoryInterface`.
+  - `Character/` — `Character` aggregate, `CharacterId`,
+    `CharacterRepositoryInterface` (`get(CharacterId)`,
+    `findByLocation(LocationId)`, ...), `CharacterMoved` event.
   - `Location/` — `Location` aggregate, `LocationId`, `Direction`,
     `LocationRepositoryInterface`.
   - `Movement/` — `MovementPolicy` domain service (spans `Character` and
     `Location`, so it belongs to neither) and `NoExitInDirectionException`.
   - `Time/` — `WorldClock` aggregate, `DayPhase`,
-    `WorldClockRepositoryInterface`.
+    `WorldClockRepositoryInterface`, `DayPhaseStarted` event.
+  Pragmatic exception to "no pattern folders": the `DomainEvent` marker
+  interface and the `RecordsDomainEvents` trait sit at the `Domain/` root,
+  since they are cross-cutting building blocks, not a domain concept.
   New domain code goes in the Module of the concept it belongs to; add a
   new Module for a new concept rather than a folder per pattern.
   This holds inside a Module too: no `Character/Entity/Character`, keep
@@ -164,10 +173,14 @@ Three layers, strict dependency direction `Infrastructure → Application → Do
   (throws `NoExitInDirectionException` when there is no exit, otherwise
   calls `Character::relocateTo()`); `relocateTo()` is where invariants on
   the character's own state belong, and is reusable for non-walking moves
-  (teleport, recall, ...).
+  (teleport, recall, ...); it records `CharacterMoved(characterId, from,
+  to, ?via)` (`via` is the walking `Direction`, null for non-walking moves).
   `WorldClock` is a singleton aggregate holding the game hour (0..23);
-  `tick()` advances it by one hour and returns the `DayPhase` that starts
-  at the new hour, if any (`DayPhase::startingHour()`).
+  `tick()` advances it by one hour and records `DayPhaseStarted` when a
+  `DayPhase` starts at the new hour (`DayPhase::startingHour()`).
+  Domain Events are facts of the ubiquitous language recorded by the
+  aggregate that produces them (`use RecordsDomainEvents`, `recordThat()`),
+  carry only ids and value objects, and live in their aggregate's Module.
 - **`src/World/Application`** — one subdirectory per feature Module (`Access`, `Character`,
   `Movement`, `Help`, `Time`), and inside it one subdirectory per use case
   (e.g. `Movement/Move/`, `Movement/Look/`, `Access/AuthenticateCharacter/`)
@@ -176,21 +189,40 @@ Three layers, strict dependency direction `Infrastructure → Application → Do
   change together live together. Helpers shared by several use cases of a
   feature sit at the feature root (e.g. `Movement/LocationViewFactory`).
   - `<UseCase>Command` implements `CommandInterface` (marker interface,
-    plain readonly DTO carrying whatever the executor needs, e.g. a
-    `Character` + `Direction`).
+    plain readonly DTO carrying ids and values, never aggregates, e.g. a
+    `CharacterId` + `Direction`).
   - `<UseCase>CommandResponse` implements `CommandResponseInterface`
-    (marker interface, DTO carrying the result).
+    (marker interface, DTO carrying the result as views of primitives /
+    value objects, never aggregates, e.g. `LocationView`, a character
+    name), so any adapter can serialize it without leaking aggregate
+    internals.
   - `<UseCase>CommandExecutor` implements `ExecutorInterface`
     (`execute(CommandInterface): CommandResponseInterface`), asserts the
-    concrete command type with `Webmozart\Assert`, does the domain work,
-    persists via a repository if state changed, returns the response.
+    concrete command type with `Webmozart\Assert`, loads the aggregate by
+    id, does the domain work, persists via a repository if state changed,
+    returns the response. When the aggregate records events, the order is
+    always: mutate → `$events = $aggregate->releaseEvents()` → `save()` →
+    `DomainEventDispatcher::dispatch(...$events)` — releasing before
+    `save()` keeps events out of the serialized filesystem storage, and
+    dispatching after it lets subscribers query the persisted state.
+  - `DomainEventDispatcher` maps event class → subscribers (wired
+    explicitly in `services.xml` via `addSubscriber` calls, synchronous,
+    no autodiscovery). Subscribers implement
+    `DomainEventSubscriberInterface` and live in a use case folder named
+    after the event they react to (e.g. `Movement/CharacterMoved/`,
+    `Time/DayPhaseStarted/`), next to the `*Notification` DTOs they emit.
+    They decide **who** perceives a fact (e.g. characters in the same
+    location, found with `findByLocation`) and **what** they are told, and
+    hand it to `NotifierInterface` (`notify(CharacterId, ...)`,
+    `notifyEveryone(...)`), an Application output port implemented in
+    Infrastructure.
   - `CommandRouter` maps command class → executor (wired explicitly in
     `services.xml` via `addExecutorForCommand` calls); it has no
     autodiscovery.
-  - `Movement/LocationViewFactory` builds a `LocationView` (a location
-    plus its exits resolved to `Location` objects, keyed by `Direction`
-    value) for responses that need to render exit names, since `Location`
-    only knows exit ids.
+  - `Movement/LocationViewFactory` builds a `LocationView` (name,
+    description and neighbour location names keyed by `Direction` value)
+    for responses that need to render exit names, since `Location` only
+    knows exit ids.
   To add a new player command: create the Command/Response/Executor triple
   in a new use case folder,
   register the executor + router mapping in `services.xml`, and teach
@@ -198,7 +230,8 @@ Three layers, strict dependency direction `Infrastructure → Application → Do
   `Delivery/Telnet/CommandResolver` parses raw input into a
   `CommandInterface` and `Delivery/Telnet/CommandResponseRenderer` renders
   a `CommandResponseInterface` as text) — both are hand-written `instanceof`/if-chains,
-  not polymorphic dispatch.
+  not polymorphic dispatch. A new notification likewise needs a
+  `renderNotification()` branch in each adapter.
 - **`src/World/Infrastructure`**:
   - `Kernel` boots a Symfony `ContainerBuilder` from XML configs — always
     loads `services.xml`, then optionally `services_{environment}.php`'s
@@ -207,20 +240,27 @@ Three layers, strict dependency direction `Infrastructure → Application → Do
   - `Server/` is the transport-agnostic game host (Ports & Adapters: each
     player interface is a driving adapter under `Delivery/<Adapter>`, and
     `Server/` never knows the wire format):
-    - `Client` is the port every adapter implements: `getCharacter()`,
-      `isAuthenticated()`, `send(CommandResponseInterface)` (the adapter
-      renders the response in its own format; throws
-      `ClientDisconnectedException` when the connection is gone).
-    - `ClientRegistry` tracks connected `Client`s of every adapter.
+    - `Client` is the port every adapter implements: `getCharacterId()`,
+      `isAuthenticated()`, `send(CommandResponseInterface)` and
+      `notify(NotificationInterface)` (the adapter renders in its own
+      format; both throw `ClientDisconnectedException` when the connection
+      is gone).
+    - `ClientRegistry` tracks connected `Client`s of every adapter
+      (`getAuthenticatedClient(CharacterId)`).
+    - `ClientNotifier` implements the Application `NotifierInterface`:
+      delivers a notification to the recipient's client if connected
+      (silently dropped otherwise) or to every authenticated client, and
+      unregisters clients that turn out to be disconnected.
     - `Ticker` is the game time: every `phpmud.tick_interval` seconds
       (60 = one game hour, overridable with the `PHPMUD_TICK_INTERVAL` env
-      var read by `bin/phpmud`) it executes `TickCommand` and, when a day
-      phase starts, `send()`s the `TickCommandResponse` to every
-      authenticated client — the only messages the server sends without a
-      client command. The socket Behat trait routes these blocks
-      (`DayPhaseMessage`) to a separate `broadcasts` queue so they never
-      interleave with command responses; any new unsolicited message must
-      be routed the same way.
+      var read by `bin/phpmud`) it executes `TickCommand`; day phase
+      messages reach clients via `DayPhaseStarted` → `NotifyDayPhaseStarted`
+      → `ClientNotifier`. Notifications are the only messages the server
+      sends without a client command: the socket Behat trait routes these
+      blocks (`DayPhaseMessage`, `MovementMessage`) to a separate
+      `broadcasts` queue so they never interleave with command responses;
+      any new unsolicited message must be recognized by
+      `SocketResponseTrait::isBroadcast()` the same way.
     - `GameServer` (started by `bin/phpmud`) starts the `Ticker`, then the
       adapters' listeners.
     A new player interface (e.g. WebSocket) goes in a new
@@ -233,13 +273,15 @@ Three layers, strict dependency direction `Infrastructure → Application → Do
       newline-delimited commands and dispatches them to
       `TelnetClientHandler`.
     - `CommandResolver` parses a raw line into a `CommandInterface` for
-      the authenticated `Character`; `CommandResponseRenderer` turns a
-      `CommandResponseInterface` into a text block (pure, no socket;
-      `null` when there is nothing to show). `TelnetClient::send()`
-      renders and writes it.
+      the authenticated `CharacterId`; `CommandResponseRenderer` turns a
+      `CommandResponseInterface` (`render()`) or a `NotificationInterface`
+      (`renderNotification()`, via `DayPhaseMessage` / `MovementMessage`)
+      into a text block (pure, no socket). `TelnetClient::send()` /
+      `notify()` render and write it.
     - `TelnetClientHandler` owns the per-connection login state machine
       (banner from `Delivery/Telnet/Resources/banner.txt` → name →
-      password; the login state lives in `TelnetClient`, since prompt
+      password; the login state, and then the authenticated
+      `CharacterId`, lives in `TelnetClient`, since prompt
       login is telnet-specific), but the decisions live in
       `Application/Access`: `IdentifyCharacterCommand` (does the name
       exist? if not, re-prompt name) and `AuthenticateCharacterCommand`
@@ -279,8 +321,14 @@ server; scenarios are tagged `@domain @socket` when both apply.
 
 Context classes are grouped by role under `tests/Behat/Context/`: `Setup`
 (fixture creation, filesystem or in-memory variant per suite), `Domain`
-(drives the domain layer directly), `Socket` (drives the game over a raw
-`socket_connect`/`socket_write`, see `SocketResponseTrait`), `Transform`
+(drives the executors directly, wired inline in
+`Resources/config/context/domain.xml` on the in-memory repositories with
+their own `DomainEventDispatcher` and a `Service/RecordingNotifier` that
+contexts assert notifications on), `Socket` (drives the game over a raw
+`socket_connect`/`socket_write`, see `SocketResponseTrait`; it supports
+several clients per scenario, keyed by name: `me` by default, other
+characters created with `there is the character "X" in the location "Y"`
+and logged in with `"X" is connected to the game`), `Transform`
 (Behat argument transforms), `Hook` (`PurgeContext`, wipes repos before
 each scenario). The custom `SymfonyExtension` (`tests/Behat/Extension/`)
 boots a fresh `PHPMud\World\Infrastructure\Kernel` per scenario and injects its
