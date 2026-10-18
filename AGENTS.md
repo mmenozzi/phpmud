@@ -338,10 +338,13 @@ Three layers, strict dependency direction `Infrastructure → Application → Do
       (`amphp/http-server-static-content`) serving the browser client in
       `client/` (path in the `phpmud.client_dir` parameter, set by
       `Kernel`). Serving the client's files is plumbing of this adapter;
-      the protocol does not depend on it. It uses `Rfc6455Acceptor`, which does not check
-      the `Origin` header: fine for local play, switch to
-      `AllowOriginAcceptor` before serving a browser client from a real
-      host.
+      the protocol does not depend on it.
+      The `Websocket` handler uses `AllowOriginAcceptor` with the origins
+      of the served client (`services.xml`), so other web pages cannot open a
+      WebSocket with the player's browser (cross-site WebSocket
+      hijacking); handshakes without an allowed `Origin` header get 403,
+      so `WebSocketClientTrait` sends one (add the real host's origin
+      before serving the client from it).
     - `WebSocketClientHandler` registers a `WebSocketClient` (`Client`,
       holding the per-connection login state) in `ClientRegistry`, decodes
       each text message and routes it: before login `identify` /

@@ -167,6 +167,10 @@
 
         <service id="phpmud.delivery.websocket.server" class="PHPMud\World\Infrastructure\Delivery\WebSocket\WebSocketServer">
             <argument>127.0.0.1:10667</argument>
+            <argument type="collection">
+                <argument>http://127.0.0.1:10667</argument>
+                <argument>http://localhost:10667</argument>
+            </argument>
             <argument>%phpmud.client_dir%</argument>
             <argument type="service" id="phpmud.delivery.websocket.client_handler" />
         </service>

@@ -68,3 +68,8 @@ Feature: Access
     And I enter the character name "HarryPotter"
     And I enter the password "dementor"
     Then I should be disconnected
+
+  @websocket
+  Scenario: Being refused when connecting from a foreign web page
+    When I connect to the game from a web page on "http://evil.example"
+    Then my connection should be refused

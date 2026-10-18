@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace PHPMud\Tests\Behat\Context\WebSocket;
 
+use Amp\Websocket\Client\WebsocketConnectException;
 use Behat\Behat\Context\Context;
 use PHPMud\Tests\Behat\Service\SharedStorage;
 use PHPMud\World\Domain\Character\Character;
@@ -24,6 +25,28 @@ final class AccessContext implements Context
     public function iConnectToTheGame(): void
     {
         $this->connect();
+    }
+
+    /**
+     * @When /^I connect to the game from a web page on "([^"]*)"$/
+     */
+    public function iConnectToTheGameFromAWebPageOn(string $origin): void
+    {
+        try {
+            $this->connect(origin: $origin);
+        } catch (WebsocketConnectException $exception) {
+            $this->sharedStorage->set('connect_exception', $exception);
+        }
+    }
+
+    /**
+     * @Then /^my connection should be refused$/
+     */
+    public function myConnectionShouldBeRefused(): void
+    {
+        $exception = $this->sharedStorage->get('connect_exception');
+        Assert::isInstanceOf($exception, WebsocketConnectException::class);
+        Assert::same($exception->getResponse()->getStatus(), 403);
     }
 
     /**

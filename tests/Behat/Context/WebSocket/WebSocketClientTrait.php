@@ -7,6 +7,7 @@ namespace PHPMud\Tests\Behat\Context\WebSocket;
 use Amp\CancelledException;
 use Amp\TimeoutCancellation;
 use Amp\Websocket\Client\WebsocketConnection;
+use Amp\Websocket\Client\WebsocketHandshake;
 use PHPMud\Tests\Behat\Service\SharedStorage;
 use Webmozart\Assert\Assert;
 
@@ -16,9 +17,10 @@ trait WebSocketClientTrait
 {
     private readonly SharedStorage $sharedStorage;
 
-    private function connect(string $client = 'me'): void
+    private function connect(string $client = 'me', string $origin = 'http://127.0.0.1:10667'): void
     {
-        $this->sharedStorage->set($this->clientKey('connection', $client), connect('ws://127.0.0.1:10667/ws'));
+        $handshake = (new WebsocketHandshake('ws://127.0.0.1:10667/ws'))->withHeader('Origin', $origin);
+        $this->sharedStorage->set($this->clientKey('connection', $client), connect($handshake));
     }
 
     /**
