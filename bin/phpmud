@@ -4,7 +4,7 @@
 declare(strict_types=1);
 
 use PHPMud\World\Infrastructure\Kernel;
-use PHPMud\World\Infrastructure\Server\SocketServer;
+use PHPMud\World\Infrastructure\Delivery\Telnet\TelnetServer;
 
 require_once __DIR__ . '/../vendor/autoload.php';
 
@@ -17,6 +17,6 @@ if (false !== $tickInterval) {
     $container->setParameter('phpmud.tick_interval', (float) $tickInterval);
 }
 echo 'Starting PHPMud server...' . PHP_EOL;
-/** @var SocketServer $server */
-$server = $container->get('phpmud.server.socket');
+/** @var TelnetServer $server */
+$server = $container->get('phpmud.delivery.telnet.server');
 $server->listen();

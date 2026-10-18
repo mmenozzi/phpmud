@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace PHPMud\World\Infrastructure\Server;
+namespace PHPMud\World\Infrastructure\Delivery\Telnet;
 
 use PHPMud\World\Application\CommandInterface;
 use PHPMud\World\Application\Help\Unknown\UnknownCommand;
@@ -13,7 +13,7 @@ use Webmozart\Assert\Assert;
 
 final class CommandResolver
 {
-    public function resolve(Client $client, string $commandString): CommandInterface
+    public function resolve(TelnetClient $client, string $commandString): CommandInterface
     {
         $tokens = explode(' ', strtolower(trim($commandString)));
         if ($command = $this->resolveMoveCommand($tokens, $client)) {
@@ -29,7 +29,7 @@ final class CommandResolver
     /**
      * @param array<array-key, string> $tokens
      */
-    private function resolveMoveCommand(array $tokens, Client $client): ?MoveCommand
+    private function resolveMoveCommand(array $tokens, TelnetClient $client): ?MoveCommand
     {
         Assert::notNull($client->getCharacter());
 
@@ -79,7 +79,7 @@ final class CommandResolver
     /**
      * @param array<array-key, string> $tokens
      */
-    private function resolveLookCommand(array $tokens, Client $client): ?LookCommand
+    private function resolveLookCommand(array $tokens, TelnetClient $client): ?LookCommand
     {
         Assert::notNull($client->getCharacter());
         if (1 === count($tokens) && 'look' === $tokens[0]) {

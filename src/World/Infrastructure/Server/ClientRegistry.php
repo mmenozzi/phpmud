@@ -4,10 +4,12 @@ declare(strict_types=1);
 
 namespace PHPMud\World\Infrastructure\Server;
 
+use PHPMud\World\Infrastructure\Delivery\Telnet\TelnetClient;
+
 final class ClientRegistry
 {
     /**
-     * @var \SplObjectStorage<Client, null>
+     * @var \SplObjectStorage<TelnetClient, null>
      */
     private \SplObjectStorage $clients;
 
@@ -16,21 +18,21 @@ final class ClientRegistry
         $this->clients = new \SplObjectStorage();
     }
 
-    public function add(Client $client): void
+    public function add(TelnetClient $client): void
     {
         $this->clients->attach($client);
     }
 
-    public function remove(Client $client): void
+    public function remove(TelnetClient $client): void
     {
         $this->clients->detach($client);
     }
 
     /**
-     * @return list<Client>
+     * @return list<TelnetClient>
      */
     public function getAuthenticatedClients(): array
     {
-        return array_values(array_filter(iterator_to_array($this->clients, false), static fn (Client $client): bool => $client->isAuthenticated()));
+        return array_values(array_filter(iterator_to_array($this->clients, false), static fn (TelnetClient $client): bool => $client->isAuthenticated()));
     }
 }

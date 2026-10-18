@@ -34,7 +34,7 @@ final class AccessContext implements Context
      */
     public function iShouldSeeTheMudLogo(): void
     {
-        $banner = file_get_contents(__DIR__.'/../../../../src/World/Infrastructure/Resources/banner.txt');
+        $banner = file_get_contents(__DIR__.'/../../../../src/World/Infrastructure/Delivery/Telnet/Resources/banner.txt');
         Assert::string($banner);
         Assert::eq($this->sharedStorage->get('banner'), rtrim($banner));
     }

@@ -91,16 +91,16 @@
         </service>
         <service id="phpmud.domain.repository.world_clock" alias="phpmud.domain.repository.filesystem.world_clock" />
 
-        <service id="phpmud.infrastructure.server.command_resolver" class="PHPMud\World\Infrastructure\Server\CommandResolver">
+        <service id="phpmud.delivery.telnet.command_resolver" class="PHPMud\World\Infrastructure\Delivery\Telnet\CommandResolver">
         </service>
 
-        <service id="phpmud.infrastructure.server.command_response_handler" class="PHPMud\World\Infrastructure\Server\CommandResponseHandler">
+        <service id="phpmud.delivery.telnet.command_response_handler" class="PHPMud\World\Infrastructure\Delivery\Telnet\CommandResponseHandler">
         </service>
 
-        <service id="phpmud.server.client_handler" class="PHPMud\World\Infrastructure\Server\ClientHandler">
-            <argument type="service" id="phpmud.infrastructure.server.command_resolver" />
+        <service id="phpmud.delivery.telnet.client_handler" class="PHPMud\World\Infrastructure\Delivery\Telnet\TelnetClientHandler">
+            <argument type="service" id="phpmud.delivery.telnet.command_resolver" />
             <argument type="service" id="phpmud.application.command_router" />
-            <argument type="service" id="phpmud.infrastructure.server.command_response_handler" />
+            <argument type="service" id="phpmud.delivery.telnet.command_response_handler" />
         </service>
 
         <service id="phpmud.server.client_registry" class="PHPMud\World\Infrastructure\Server\ClientRegistry" />
@@ -108,13 +108,13 @@
         <service id="phpmud.server.ticker" class="PHPMud\World\Infrastructure\Server\Ticker">
             <argument>%phpmud.tick_interval%</argument>
             <argument type="service" id="phpmud.application.command_router" />
-            <argument type="service" id="phpmud.infrastructure.server.command_response_handler" />
+            <argument type="service" id="phpmud.delivery.telnet.command_response_handler" />
             <argument type="service" id="phpmud.server.client_registry" />
         </service>
 
-        <service id="phpmud.server.socket" class="PHPMud\World\Infrastructure\Server\SocketServer">
+        <service id="phpmud.delivery.telnet.server" class="PHPMud\World\Infrastructure\Delivery\Telnet\TelnetServer">
             <argument>127.0.0.1:10666</argument>
-            <argument type="service" id="phpmud.server.client_handler" />
+            <argument type="service" id="phpmud.delivery.telnet.client_handler" />
             <argument type="service" id="phpmud.server.client_registry" />
             <argument type="service" id="phpmud.server.ticker" />
         </service>

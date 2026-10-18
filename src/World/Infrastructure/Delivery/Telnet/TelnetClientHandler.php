@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace PHPMud\World\Infrastructure\Server;
+namespace PHPMud\World\Infrastructure\Delivery\Telnet;
 
 use PHPMud\World\Application\Access\AuthenticateCharacter\AuthenticateCharacterCommand;
 use PHPMud\World\Application\Access\AuthenticateCharacter\AuthenticateCharacterCommandResponse;
@@ -15,11 +15,11 @@ use PHPMud\World\Application\CommandRouter;
 use PHPMud\World\Application\Movement\Look\LookCommand;
 use Webmozart\Assert\Assert;
 
-final readonly class ClientHandler
+final readonly class TelnetClientHandler
 {
     private const int MAX_PASSWORD_ATTEMPTS = 3;
 
-    private const string BANNER_PATH = __DIR__.'/../Resources/banner.txt';
+    private const string BANNER_PATH = __DIR__.'/Resources/banner.txt';
 
     public function __construct(
         private CommandResolver $commandResolver,
@@ -28,7 +28,7 @@ final readonly class ClientHandler
     ) {
     }
 
-    public function handleConnection(Client $client): void
+    public function handleConnection(TelnetClient $client): void
     {
         Assert::null($client->getCharacter());
         $banner = file_get_contents(self::BANNER_PATH);
@@ -37,7 +37,7 @@ final readonly class ClientHandler
         $this->promptCharacterName($client);
     }
 
-    public function handleCommand(Client $client, string $commandString): void
+    public function handleCommand(TelnetClient $client, string $commandString): void
     {
         if ($client->isAuthenticated()) {
             $this->commandResponseHandler->handle($client, $this->execute($this->commandResolver->resolve($client, $commandString)));
@@ -54,7 +54,7 @@ final readonly class ClientHandler
         $this->handleCharacterName($client, trim($commandString));
     }
 
-    private function handleCharacterName(Client $client, string $characterName): void
+    private function handleCharacterName(TelnetClient $client, string $characterName): void
     {
         $response = $this->execute(new IdentifyCharacterCommand($characterName));
         Assert::isInstanceOf($response, IdentifyCharacterCommandResponse::class);
@@ -69,7 +69,7 @@ final readonly class ClientHandler
         $this->promptPassword($client);
     }
 
-    private function handlePassword(Client $client, string $password): void
+    private function handlePassword(TelnetClient $client, string $password): void
     {
         $response = $this->execute(new AuthenticateCharacterCommand($client->getAuthenticatingCharacterName(), $password));
         Assert::isInstanceOf($response, AuthenticateCharacterCommandResponse::class);
@@ -94,18 +94,18 @@ final readonly class ClientHandler
         $this->commandResponseHandler->handle($client, $this->execute(new LookCommand($character)));
     }
 
-    private function promptCharacterName(Client $client): void
+    private function promptCharacterName(TelnetClient $client): void
     {
         $this->write($client, 'Inserisci il nome del tuo personaggio...');
     }
 
-    private function promptPassword(Client $client): void
+    private function promptPassword(TelnetClient $client): void
     {
         $client->getSocket()->write(Telnet::WILL_ECHO);
         $this->write($client, 'Inserisci la password...');
     }
 
-    private function write(Client $client, string $message): void
+    private function write(TelnetClient $client, string $message): void
     {
         $client->getSocket()->write($message.PHP_EOL.PHP_EOL);
     }

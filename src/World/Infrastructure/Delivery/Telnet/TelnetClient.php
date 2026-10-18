@@ -2,12 +2,12 @@
 
 declare(strict_types=1);
 
-namespace PHPMud\World\Infrastructure\Server;
+namespace PHPMud\World\Infrastructure\Delivery\Telnet;
 
 use Amp\Socket\ResourceSocket;
 use PHPMud\World\Domain\Character\Character;
 
-final class Client
+final class TelnetClient
 {
     private ?Character $character = null;
 

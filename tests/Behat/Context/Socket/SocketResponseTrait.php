@@ -6,8 +6,8 @@ namespace PHPMud\Tests\Behat\Context\Socket;
 
 use PHPMud\Tests\Behat\Service\SharedStorage;
 use PHPMud\World\Domain\Time\DayPhase;
-use PHPMud\World\Infrastructure\Server\DayPhaseMessage;
-use PHPMud\World\Infrastructure\Server\Telnet;
+use PHPMud\World\Infrastructure\Delivery\Telnet\DayPhaseMessage;
+use PHPMud\World\Infrastructure\Delivery\Telnet\Telnet;
 use Webmozart\Assert\Assert;
 
 trait SocketResponseTrait

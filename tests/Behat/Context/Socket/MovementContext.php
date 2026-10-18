@@ -8,7 +8,7 @@ use Behat\Behat\Context\Context;
 use PHPMud\Tests\Behat\Service\SharedStorage;
 use PHPMud\World\Domain\Location\Direction;
 use PHPMud\World\Domain\Location\Location;
-use PHPMud\World\Infrastructure\Server\DirectionLabel;
+use PHPMud\World\Infrastructure\Delivery\Telnet\DirectionLabel;
 use Webmozart\Assert\Assert;
 
 final class MovementContext implements Context

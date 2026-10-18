@@ -2,17 +2,19 @@
 
 declare(strict_types=1);
 
-namespace PHPMud\World\Infrastructure\Server;
+namespace PHPMud\World\Infrastructure\Delivery\Telnet;
 
 use Amp\Socket;
+use PHPMud\World\Infrastructure\Server\ClientRegistry;
+use PHPMud\World\Infrastructure\Server\Ticker;
 
 use function Amp\async;
 
-final class SocketServer
+final class TelnetServer
 {
     public function __construct(
         private readonly string $uri,
-        private readonly ClientHandler $clientHandler,
+        private readonly TelnetClientHandler $clientHandler,
         private readonly ClientRegistry $clientRegistry,
         private readonly Ticker $ticker,
     ) {
@@ -26,7 +28,7 @@ final class SocketServer
 
         while ($socket = $server->accept()) {
             async(function () use ($socket) {
-                $client = new Client($socket);
+                $client = new TelnetClient($socket);
                 $this->clientRegistry->add($client);
                 echo 'New client connected: '.$socket->getRemoteAddress().PHP_EOL;
                 $this->clientHandler->handleConnection($client);

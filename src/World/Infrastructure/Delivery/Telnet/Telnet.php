@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace PHPMud\World\Infrastructure\Server;
+namespace PHPMud\World\Infrastructure\Delivery\Telnet;
 
 final class Telnet
 {

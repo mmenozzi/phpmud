@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace PHPMud\World\Infrastructure\Server;
+namespace PHPMud\World\Infrastructure\Delivery\Telnet;
 
 use Amp\Socket\ResourceSocket;
 use PHPMud\World\Application\Character\WhoAmI\WhoAmICommandResponse;
@@ -16,7 +16,7 @@ use PHPMud\World\Domain\Location\Direction;
 
 final class CommandResponseHandler
 {
-    public function handle(Client $client, CommandResponseInterface $commandResponse): void
+    public function handle(TelnetClient $client, CommandResponseInterface $commandResponse): void
     {
         if ($commandResponse instanceof MoveCommandResponse) {
             $this->handleMoveCommandResponse($client, $commandResponse);
@@ -51,12 +51,12 @@ final class CommandResponseHandler
         throw new \InvalidArgumentException(sprintf('Command response of type "%s" is not supported.', get_class($commandResponse)));
     }
 
-    private function closeResponse(Client $client): void
+    private function closeResponse(TelnetClient $client): void
     {
         $client->getSocket()->write(PHP_EOL);
     }
 
-    private function handleMoveCommandResponse(Client $client, MoveCommandResponse $commandResponse): void
+    private function handleMoveCommandResponse(TelnetClient $client, MoveCommandResponse $commandResponse): void
     {
         $socket = $client->getSocket();
         if (!$commandResponse->isSuccessful()) {
@@ -70,25 +70,25 @@ final class CommandResponseHandler
         $this->closeResponse($client);
     }
 
-    private function handleUnknownCommandResponse(Client $client): void
+    private function handleUnknownCommandResponse(TelnetClient $client): void
     {
         $client->getSocket()->write('Cosa???'.PHP_EOL);
         $this->closeResponse($client);
     }
 
-    private function handleLookCommandResponse(Client $client, LookCommandResponse $commandResponse): void
+    private function handleLookCommandResponse(TelnetClient $client, LookCommandResponse $commandResponse): void
     {
         $this->writeLocation($client->getSocket(), $commandResponse->getLocationView());
         $this->closeResponse($client);
     }
 
-    private function handleWhoAmICommandResponse(Client $client, WhoAmICommandResponse $commandResponse): void
+    private function handleWhoAmICommandResponse(TelnetClient $client, WhoAmICommandResponse $commandResponse): void
     {
         $client->getSocket()->write(sprintf('Il tuo nome è "%s".', $commandResponse->getCharacter()->getName()).PHP_EOL);
         $this->closeResponse($client);
     }
 
-    private function handleTickCommandResponse(Client $client, TickCommandResponse $commandResponse): void
+    private function handleTickCommandResponse(TelnetClient $client, TickCommandResponse $commandResponse): void
     {
         $startedDayPhase = $commandResponse->getStartedDayPhase();
         if (null === $startedDayPhase) {

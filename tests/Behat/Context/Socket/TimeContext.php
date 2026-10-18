@@ -7,7 +7,7 @@ namespace PHPMud\Tests\Behat\Context\Socket;
 use Behat\Behat\Context\Context;
 use PHPMud\Tests\Behat\Service\SharedStorage;
 use PHPMud\World\Domain\Time\DayPhase;
-use PHPMud\World\Infrastructure\Server\DayPhaseMessage;
+use PHPMud\World\Infrastructure\Delivery\Telnet\DayPhaseMessage;
 
 final class TimeContext implements Context
 {
