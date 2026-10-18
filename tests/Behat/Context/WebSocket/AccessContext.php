@@ -128,6 +128,7 @@ final class AccessContext implements Context
         Assert::eq($this->getNextResponse($client), ['type' => 'authenticated']);
         Assert::eq($this->getNextResponse($client), ['type' => 'whoami', 'name' => $character->getName()]);
         Assert::eq($this->getNextResponse($client)['type'], 'location');
+        $this->sharedStorage->set(sprintf('current_day_phase.%s', $client), $this->getNextResponse($client));
     }
 
     /**

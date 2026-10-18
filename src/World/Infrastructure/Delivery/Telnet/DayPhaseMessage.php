@@ -17,4 +17,14 @@ final class DayPhaseMessage
             DayPhase::Night => 'Cala la notte.',
         };
     }
+
+    public static function current(DayPhase $dayPhase): string
+    {
+        return match ($dayPhase) {
+            DayPhase::Dawn => "È l'alba.",
+            DayPhase::Noon => 'È mezzogiorno.',
+            DayPhase::Sunset => 'È il tramonto.',
+            DayPhase::Night => 'È notte.',
+        };
+    }
 }

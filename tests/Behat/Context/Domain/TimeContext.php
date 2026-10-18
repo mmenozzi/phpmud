@@ -7,6 +7,9 @@ namespace PHPMud\Tests\Behat\Context\Domain;
 use Behat\Behat\Context\Context;
 use PHPMud\Tests\Behat\Service\RecordingNotifier;
 use PHPMud\Tests\Behat\Service\SharedStorage;
+use PHPMud\World\Application\Time\CurrentDayPhase\CurrentDayPhaseCommand;
+use PHPMud\World\Application\Time\CurrentDayPhase\CurrentDayPhaseCommandExecutor;
+use PHPMud\World\Application\Time\CurrentDayPhase\CurrentDayPhaseCommandResponse;
 use PHPMud\World\Application\Time\DayPhaseStarted\DayPhaseStartedNotification;
 use PHPMud\World\Application\Time\Tick\TickCommand;
 use PHPMud\World\Application\Time\Tick\TickCommandExecutor;
@@ -20,6 +23,7 @@ final class TimeContext implements Context
         private readonly SharedStorage $sharedStorage,
         private readonly TickCommandExecutor $tickCommandExecutor,
         private readonly RecordingNotifier $notifier,
+        private readonly CurrentDayPhaseCommandExecutor $currentDayPhaseCommandExecutor,
     ) {
     }
 
@@ -37,6 +41,16 @@ final class TimeContext implements Context
     public function iShouldBeToldThatDayPhaseBegins(DayPhase $dayPhase): void
     {
         Assert::eq($this->getStartedDayPhases(), [$dayPhase]);
+    }
+
+    /**
+     * @Then /^I should be told that it is (dawn|noon|sunset|night)$/
+     */
+    public function iShouldBeToldThatItIs(DayPhase $dayPhase): void
+    {
+        $response = $this->currentDayPhaseCommandExecutor->execute(new CurrentDayPhaseCommand());
+        Assert::isInstanceOf($response, CurrentDayPhaseCommandResponse::class);
+        Assert::eq($response->getDayPhase(), $dayPhase);
     }
 
     /**

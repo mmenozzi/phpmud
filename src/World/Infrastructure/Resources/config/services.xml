@@ -49,6 +49,10 @@
             <argument type="service" id="phpmud.application.domain_event_dispatcher" />
         </service>
 
+        <service id="phpmud.application.time.command_executor.current_day_phase" class="PHPMud\World\Application\Time\CurrentDayPhase\CurrentDayPhaseCommandExecutor">
+            <argument type="service" id="phpmud.domain.repository.world_clock" />
+        </service>
+
         <service id="phpmud.application.time.subscriber.notify_day_phase_started" class="PHPMud\World\Application\Time\DayPhaseStarted\NotifyDayPhaseStarted">
             <argument type="service" id="phpmud.application.notifier" />
         </service>
@@ -97,6 +101,10 @@
             <call method="addExecutorForCommand">
                 <argument>PHPMud\World\Application\Time\Tick\TickCommand</argument>
                 <argument type="service" id="phpmud.application.time.command_executor.tick" />
+            </call>
+            <call method="addExecutorForCommand">
+                <argument>PHPMud\World\Application\Time\CurrentDayPhase\CurrentDayPhaseCommand</argument>
+                <argument type="service" id="phpmud.application.time.command_executor.current_day_phase" />
             </call>
         </service>
 

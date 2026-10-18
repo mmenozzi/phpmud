@@ -13,6 +13,7 @@ use PHPMud\World\Application\Movement\LocationView;
 use PHPMud\World\Application\Movement\Look\LookCommandResponse;
 use PHPMud\World\Application\Movement\Move\MoveCommandResponse;
 use PHPMud\World\Application\NotificationInterface;
+use PHPMud\World\Application\Time\CurrentDayPhase\CurrentDayPhaseCommandResponse;
 use PHPMud\World\Application\Time\DayPhaseStarted\DayPhaseStartedNotification;
 use PHPMud\World\Domain\Location\Direction;
 
@@ -63,6 +64,10 @@ final class CommandResponseRenderer
 
         if ($commandResponse instanceof WhoAmICommandResponse) {
             return [sprintf('Il tuo nome è "%s".', $commandResponse->getCharacterName())];
+        }
+
+        if ($commandResponse instanceof CurrentDayPhaseCommandResponse) {
+            return [DayPhaseMessage::current($commandResponse->getDayPhase())];
         }
 
         throw new \InvalidArgumentException(sprintf('Command response of type "%s" is not supported.', get_class($commandResponse)));

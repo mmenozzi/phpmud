@@ -22,6 +22,18 @@ enum DayPhase: string
         return null;
     }
 
+    public static function at(int $hour): self
+    {
+        $dayPhase = self::Night;
+        foreach (self::cases() as $candidate) {
+            if ($candidate->startingHour() <= $hour) {
+                $dayPhase = $candidate;
+            }
+        }
+
+        return $dayPhase;
+    }
+
     public function startingHour(): int
     {
         return match ($this) {

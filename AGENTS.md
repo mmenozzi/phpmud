@@ -178,7 +178,10 @@ Three layers, strict dependency direction `Infrastructure → Application → Do
   to, ?via)` (`via` is the walking `Direction`, null for non-walking moves).
   `WorldClock` is a singleton aggregate holding the game hour (0..23);
   `tick()` advances it by one hour and records `DayPhaseStarted` when a
-  `DayPhase` starts at the new hour (`DayPhase::startingHour()`).
+  `DayPhase` starts at the new hour (`DayPhase::startingHour()`);
+  `dayPhase()` is the phase in force at the current hour (`DayPhase::at()`,
+  night wraps past midnight), so "what time of day is it" is answered by
+  the model, never derived by an adapter or client.
   Domain Events are facts of the ubiquitous language recorded by the
   aggregate that produces them (`use RecordsDomainEvents`, `recordThat()`),
   carry only ids and value objects, and live in their aggregate's Module.
@@ -309,6 +312,11 @@ Three layers, strict dependency direction `Infrastructure → Application → Do
       `CommandResponseRenderer`. For authenticated clients it delegates
       each raw line to
       `CommandResolver → CommandRouter → executor → TelnetClient::send()`.
+      Right after login both adapters send, in order, `WhoAmICommand`,
+      `LookCommand` and `Time/CurrentDayPhase` (`CurrentDayPhaseCommand`),
+      so a client knows the day phase before the next `DayPhaseStarted`;
+      telnet renders it with `DayPhaseMessage::current()`, a text distinct
+      from the `of()` broadcasts.
     - While the password is typed the server sends telnet `IAC WILL ECHO`
       (`Delivery/Telnet/Telnet`) so the client hides input, and
       `IAC WONT ECHO` once login succeeds or the socket is closed;
@@ -339,7 +347,8 @@ Three layers, strict dependency direction `Infrastructure → Application → Do
         `look`, `move {direction}`;
       - responses: `identified {name, exists}`, `authenticated`,
         `authentication_failed`, `too_many_attempts` (then the connection
-        closes), `whoami {name}`, `location {id, name, description,
+        closes), `whoami {name}`, `day_phase {day_phase}` (sent after
+        login, after `whoami` and `location`), `location {id, name, description,
         exits: {direction: {id, name}}}`, `move_failed {direction}`,
         `unknown_command` (also for game commands before login),
         `error {message}` (invalid JSON or missing fields);

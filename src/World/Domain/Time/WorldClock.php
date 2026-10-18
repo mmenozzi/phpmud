@@ -24,6 +24,11 @@ final class WorldClock
         return $this->hour;
     }
 
+    public function dayPhase(): DayPhase
+    {
+        return DayPhase::at($this->hour);
+    }
+
     public function tick(): void
     {
         $this->hour = ($this->hour + 1) % self::HOURS_PER_DAY;

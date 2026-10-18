@@ -15,6 +15,7 @@ use PHPMud\World\Application\Movement\LocationView;
 use PHPMud\World\Application\Movement\Look\LookCommandResponse;
 use PHPMud\World\Application\Movement\Move\MoveCommandResponse;
 use PHPMud\World\Application\NotificationInterface;
+use PHPMud\World\Application\Time\CurrentDayPhase\CurrentDayPhaseCommandResponse;
 use PHPMud\World\Application\Time\DayPhaseStarted\DayPhaseStartedNotification;
 
 final class MessageSerializer
@@ -65,6 +66,10 @@ final class MessageSerializer
             }
 
             return $this->normalizeLocation($commandResponse->getLocationView());
+        }
+
+        if ($commandResponse instanceof CurrentDayPhaseCommandResponse) {
+            return ['type' => 'day_phase', 'day_phase' => $commandResponse->getDayPhase()->value];
         }
 
         if ($commandResponse instanceof UnknownCommandResponse) {

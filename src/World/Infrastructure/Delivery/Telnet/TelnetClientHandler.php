@@ -13,6 +13,7 @@ use PHPMud\World\Application\CommandInterface;
 use PHPMud\World\Application\CommandResponseInterface;
 use PHPMud\World\Application\CommandRouter;
 use PHPMud\World\Application\Movement\Look\LookCommand;
+use PHPMud\World\Application\Time\CurrentDayPhase\CurrentDayPhaseCommand;
 use Webmozart\Assert\Assert;
 
 final readonly class TelnetClientHandler
@@ -95,6 +96,7 @@ final readonly class TelnetClientHandler
         $client->getSocket()->write(Telnet::WONT_ECHO);
         $client->send($this->execute(new WhoAmICommand($characterId)));
         $client->send($this->execute(new LookCommand($characterId)));
+        $client->send($this->execute(new CurrentDayPhaseCommand()));
     }
 
     private function promptCharacterName(TelnetClient $client): void

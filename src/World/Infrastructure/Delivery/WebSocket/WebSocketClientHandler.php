@@ -18,6 +18,7 @@ use PHPMud\World\Application\CommandResponseInterface;
 use PHPMud\World\Application\CommandRouter;
 use PHPMud\World\Application\Help\Unknown\UnknownCommand;
 use PHPMud\World\Application\Movement\Look\LookCommand;
+use PHPMud\World\Application\Time\CurrentDayPhase\CurrentDayPhaseCommand;
 use PHPMud\World\Infrastructure\Server\ClientDisconnectedException;
 use PHPMud\World\Infrastructure\Server\ClientRegistry;
 use Webmozart\Assert\Assert;
@@ -127,6 +128,7 @@ final readonly class WebSocketClientHandler implements AmpWebsocketClientHandler
         $client->authenticate($characterId);
         $client->send($this->execute(new WhoAmICommand($characterId)));
         $client->send($this->execute(new LookCommand($characterId)));
+        $client->send($this->execute(new CurrentDayPhaseCommand()));
     }
 
     private function execute(CommandInterface $command): CommandResponseInterface

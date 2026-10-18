@@ -76,6 +76,11 @@
                 </service>
             </argument>
             <argument type="service" id="phpmud.behat.domain.notifier" />
+            <argument type="service">
+                <service class="PHPMud\World\Application\Time\CurrentDayPhase\CurrentDayPhaseCommandExecutor">
+                    <argument type="service" id="phpmud.domain.repository.in_memory.world_clock" />
+                </service>
+            </argument>
         </service>
     </services>
 </container>

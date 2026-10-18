@@ -134,5 +134,6 @@ final class AccessContext implements Context
         $this->writeLine('p4ssw0rd', $client);
         Assert::eq($this->getNextResponse($client), sprintf('Il tuo nome è "%s".', $character->getName()));
         Assert::notEmpty($this->getNextResponse($client)); // current location description
+        $this->sharedStorage->set(sprintf('current_day_phase.%s', $client), $this->getNextResponse($client));
     }
 }
