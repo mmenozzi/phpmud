@@ -58,3 +58,13 @@ Feature: Access
     And I should be prompted for my password
     When I enter the password "dementor"
     Then I should be disconnected
+
+  @websocket
+  Scenario: Identifying again does not reset the password attempts
+    When I connect to the game
+    And I enter the character name "HarryPotter"
+    And I enter the password "muggle"
+    And I enter the password "squib"
+    And I enter the character name "HarryPotter"
+    And I enter the password "dementor"
+    Then I should be disconnected

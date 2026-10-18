@@ -64,7 +64,6 @@ final class WebSocketClient implements Client
     public function identify(?string $characterName): void
     {
         $this->identifiedCharacterName = $characterName;
-        $this->failedPasswordAttempts = 0;
     }
 
     public function getIdentifiedCharacterName(): ?string
@@ -85,7 +84,8 @@ final class WebSocketClient implements Client
     public function authenticate(CharacterId $characterId): void
     {
         $this->characterId = $characterId;
-        $this->identify(null);
+        $this->identifiedCharacterName = null;
+        $this->failedPasswordAttempts = 0;
     }
 
     private function write(string $message): void
