@@ -35,6 +35,17 @@ final class CharacterContext implements Context
     }
 
     /**
+     * @Given /^there is the character "([^"]*)" in the (location "[^"]*")$/
+     */
+    public function thereIsTheCharacterInTheLocation(string $name, Location $location): void
+    {
+        $character = new Character($name, $location->getId(), password_hash('p4ssw0rd', PASSWORD_DEFAULT));
+        $this->characterRepository->save($character);
+        $characters = $this->sharedStorage->has('characters') ? $this->sharedStorage->get('characters') : [];
+        $this->sharedStorage->set('characters', [...$characters, $name => $character]);
+    }
+
+    /**
      * @Given /^there is the character "([^"]*)" with password "([^"]*)" in the (location "[^"]*")$/
      */
     public function thereIsTheCharacterWithPasswordInTheLocation(string $name, string $password, Location $location): void

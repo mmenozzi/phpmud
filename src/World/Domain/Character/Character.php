@@ -4,10 +4,14 @@ declare(strict_types=1);
 
 namespace PHPMud\World\Domain\Character;
 
+use PHPMud\World\Domain\Location\Direction;
 use PHPMud\World\Domain\Location\LocationId;
+use PHPMud\World\Domain\RecordsDomainEvents;
 
 final class Character
 {
+    use RecordsDomainEvents;
+
     private readonly CharacterId $id;
 
     public function __construct(
@@ -48,8 +52,10 @@ final class Character
         return password_verify($password, $this->passwordHash);
     }
 
-    public function relocateTo(LocationId $locationId): void
+    public function relocateTo(LocationId $locationId, ?Direction $via = null): void
     {
+        $from = $this->locationId;
         $this->locationId = $locationId;
+        $this->recordThat(new CharacterMoved($this->id, $from, $locationId, $via));
     }
 }

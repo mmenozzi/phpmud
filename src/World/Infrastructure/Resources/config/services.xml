@@ -20,6 +20,7 @@
             <argument type="service" id="phpmud.domain.repository.location" />
             <argument type="service" id="phpmud.domain.service.movement_policy" />
             <argument type="service" id="phpmud.application.movement.view.location_view_factory" />
+            <argument type="service" id="phpmud.application.domain_event_dispatcher" />
         </service>
 
         <service id="phpmud.application.movement.command_executor.look" class="PHPMud\World\Application\Movement\Look\LookCommandExecutor">
@@ -52,10 +53,19 @@
             <argument type="service" id="phpmud.application.notifier" />
         </service>
 
+        <service id="phpmud.application.movement.subscriber.notify_character_moved" class="PHPMud\World\Application\Movement\CharacterMoved\NotifyCharacterMoved">
+            <argument type="service" id="phpmud.domain.repository.character" />
+            <argument type="service" id="phpmud.application.notifier" />
+        </service>
+
         <service id="phpmud.application.domain_event_dispatcher" class="PHPMud\World\Application\DomainEventDispatcher">
             <call method="addSubscriber">
                 <argument>PHPMud\World\Domain\Time\DayPhaseStarted</argument>
                 <argument type="service" id="phpmud.application.time.subscriber.notify_day_phase_started" />
+            </call>
+            <call method="addSubscriber">
+                <argument>PHPMud\World\Domain\Character\CharacterMoved</argument>
+                <argument type="service" id="phpmud.application.movement.subscriber.notify_character_moved" />
             </call>
         </service>
 

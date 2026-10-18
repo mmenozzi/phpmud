@@ -14,31 +14,52 @@ trait SocketResponseTrait
 {
     private readonly SharedStorage $sharedStorage;
 
-    private function getNextResponse(): string
+    private function connect(string $client = 'me'): void
     {
-        $this->readUntil(fn (): bool => [] !== $this->getQueue('responses'));
-        $responses = $this->getQueue('responses');
+        $socket = socket_create(AF_INET, SOCK_STREAM, SOL_TCP);
+        socket_connect($socket, '127.0.0.1', 10666);
+        $this->sharedStorage->set($this->clientKey('socket', $client), $socket);
+    }
+
+    private function writeLine(string $line, string $client = 'me'): void
+    {
+        socket_write($this->getSocket($client), $line.PHP_EOL);
+    }
+
+    private function getSocket(string $client = 'me'): \Socket
+    {
+        $socket = $this->sharedStorage->get($this->clientKey('socket', $client));
+        Assert::isInstanceOf($socket, \Socket::class);
+
+        return $socket;
+    }
+
+    private function getNextResponse(string $client = 'me'): string
+    {
+        $this->readUntil(fn (): bool => [] !== $this->getQueue('responses', $client), $client);
+        $responses = $this->getQueue('responses', $client);
         Assert::notEmpty($responses);
         $nextResponse = array_shift($responses);
-        $this->sharedStorage->set('responses', $responses);
+        $this->sharedStorage->set($this->clientKey('responses', $client), $responses);
 
         return $nextResponse;
     }
 
-    private function waitForBroadcast(string $message): void
+    private function waitForBroadcast(string $message, string $client = 'me'): void
     {
-        $this->readUntil(fn (): bool => in_array($message, $this->getQueue('broadcasts'), true));
-        $broadcasts = $this->getQueue('broadcasts');
+        $this->readUntil(fn (): bool => in_array($message, $this->getQueue('broadcasts', $client), true), $client);
+        $broadcasts = $this->getQueue('broadcasts', $client);
         $index = array_search($message, $broadcasts, true);
         Assert::integer($index, sprintf('Broadcast "%s" not received.', $message));
-        $this->sharedStorage->set('broadcasts', array_slice($broadcasts, $index + 1));
+        $this->sharedStorage->set($this->clientKey('broadcasts', $client), array_slice($broadcasts, $index + 1));
     }
 
-    private function readUntil(callable $condition): void
+    private function readUntil(callable $condition, string $client): void
     {
-        $socket = $this->sharedStorage->get('socket');
+        $socket = $this->getSocket($client);
         socket_set_option($socket, SOL_SOCKET, SO_RCVTIMEO, ['sec' => 1, 'usec' => 0]);
-        $buffer = $this->sharedStorage->has('buffer') ? $this->sharedStorage->get('buffer') : '';
+        $bufferKey = $this->clientKey('buffer', $client);
+        $buffer = $this->sharedStorage->has($bufferKey) ? $this->sharedStorage->get($bufferKey) : '';
         $deadline = microtime(true) + 5;
         while (!$condition() && microtime(true) < $deadline) {
             $chunk = socket_read($socket, 1024);
@@ -48,42 +69,55 @@ trait SocketResponseTrait
             if (false === $chunk) {
                 continue;
             }
-            $blocks = explode(PHP_EOL.PHP_EOL, $buffer.$this->stripTelnetNegotiation($chunk));
+            $blocks = explode(PHP_EOL.PHP_EOL, $buffer.$this->stripTelnetNegotiation($chunk, $client));
             $buffer = array_pop($blocks);
             foreach (array_filter($blocks) as $block) {
                 $queue = $this->isBroadcast($block) ? 'broadcasts' : 'responses';
-                $this->sharedStorage->set($queue, [...$this->getQueue($queue), $block]);
+                $this->sharedStorage->set($this->clientKey($queue, $client), [...$this->getQueue($queue, $client), $block]);
             }
         }
-        $this->sharedStorage->set('buffer', $buffer);
+        $this->sharedStorage->set($bufferKey, $buffer);
     }
 
     /**
      * @return list<string>
      */
-    private function getQueue(string $name): array
+    private function getQueue(string $name, string $client): array
     {
-        return $this->sharedStorage->has($name) ? $this->sharedStorage->get($name) : [];
+        $key = $this->clientKey($name, $client);
+
+        return $this->sharedStorage->has($key) ? $this->sharedStorage->get($key) : [];
     }
 
     private function isBroadcast(string $block): bool
     {
-        return in_array($block, array_map(DayPhaseMessage::of(...), DayPhase::cases()), true);
+        return in_array($block, array_map(DayPhaseMessage::of(...), DayPhase::cases()), true)
+            || 1 === preg_match('/^\S+ (va verso .+|arriva( d.+)?|se ne va)\.$/u', $block);
     }
 
-    private function stripTelnetNegotiation(string $chunk): string
+    private function stripTelnetNegotiation(string $chunk, string $client): string
     {
         $willEchoPosition = strrpos($chunk, Telnet::WILL_ECHO);
         $wontEchoPosition = strrpos($chunk, Telnet::WONT_ECHO);
         if (false !== $willEchoPosition || false !== $wontEchoPosition) {
-            $this->sharedStorage->set('server_echo', false === $wontEchoPosition || $willEchoPosition > $wontEchoPosition);
+            $this->sharedStorage->set(
+                $this->clientKey('server_echo', $client),
+                false === $wontEchoPosition || $willEchoPosition > $wontEchoPosition,
+            );
         }
 
         return Telnet::stripNegotiation($chunk);
     }
 
-    private function isInputHidden(): bool
+    private function isInputHidden(string $client = 'me'): bool
     {
-        return $this->sharedStorage->has('server_echo') && true === $this->sharedStorage->get('server_echo');
+        $key = $this->clientKey('server_echo', $client);
+
+        return $this->sharedStorage->has($key) && true === $this->sharedStorage->get($key);
+    }
+
+    private function clientKey(string $name, string $client): string
+    {
+        return sprintf('client.%s.%s', $client, $name);
     }
 }

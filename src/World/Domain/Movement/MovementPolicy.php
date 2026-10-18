@@ -26,7 +26,7 @@ final readonly class MovementPolicy
         if (null === $exit) {
             throw new NoExitInDirectionException($direction);
         }
-        $character->relocateTo($exit);
+        $character->relocateTo($exit, $direction);
 
         return $exit;
     }

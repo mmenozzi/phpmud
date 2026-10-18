@@ -7,6 +7,8 @@ namespace PHPMud\World\Infrastructure\Delivery\Telnet;
 use PHPMud\World\Application\Character\WhoAmI\WhoAmICommandResponse;
 use PHPMud\World\Application\CommandResponseInterface;
 use PHPMud\World\Application\Help\Unknown\UnknownCommandResponse;
+use PHPMud\World\Application\Movement\CharacterMoved\CharacterArrivedNotification;
+use PHPMud\World\Application\Movement\CharacterMoved\CharacterLeftNotification;
 use PHPMud\World\Application\Movement\LocationView;
 use PHPMud\World\Application\Movement\Look\LookCommandResponse;
 use PHPMud\World\Application\Movement\Move\MoveCommandResponse;
@@ -25,6 +27,14 @@ final class CommandResponseRenderer
     {
         if ($notification instanceof DayPhaseStartedNotification) {
             return $this->toBlock([DayPhaseMessage::of($notification->getDayPhase())]);
+        }
+
+        if ($notification instanceof CharacterLeftNotification) {
+            return $this->toBlock([MovementMessage::left($notification->getCharacterName(), $notification->getVia())]);
+        }
+
+        if ($notification instanceof CharacterArrivedNotification) {
+            return $this->toBlock([MovementMessage::arrived($notification->getCharacterName(), $notification->getVia())]);
         }
 
         throw new \InvalidArgumentException(sprintf('Notification of type "%s" is not supported.', get_class($notification)));

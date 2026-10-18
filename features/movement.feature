@@ -66,3 +66,19 @@ Feature: Movement
     When I move to east
     Then I should be told I cannot move there
     And I should see that there is a location "A" south from here
+
+  @domain @socket
+  Scenario: Seeing another character leave
+    Given there is the character "Hermione" in the location "A"
+    And "Hermione" is connected to the game
+    When I move to north
+    Then I should see that I am in the location "B"
+    And "Hermione" should see me leave to north
+
+  @domain @socket
+  Scenario: Seeing another character arrive
+    Given there is the character "Hermione" in the location "B"
+    And "Hermione" is connected to the game
+    When I move to north
+    Then I should see that I am in the location "B"
+    And "Hermione" should see me arrive from south

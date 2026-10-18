@@ -37,6 +37,13 @@ final class AccessContext implements Context
     }
 
     /**
+     * @Given /^"([^"]*)" is connected to the game$/
+     */
+    public function characterIsConnectedToTheGame(string $name): void
+    {
+    }
+
+    /**
      * @Then /^I should be prompted for my character name$/
      */
     public function iShouldBePromptedForMyCharacterName(): void

@@ -23,9 +23,7 @@ final class AccessContext implements Context
      */
     public function iConnectToTheGame()
     {
-        $socket = socket_create(AF_INET, SOCK_STREAM, SOL_TCP);
-        socket_connect($socket, '127.0.0.1', 10666);
-        $this->sharedStorage->set('socket', $socket);
+        $this->connect();
         $this->sharedStorage->set('banner', $this->getNextResponse());
     }
 
@@ -52,7 +50,7 @@ final class AccessContext implements Context
      */
     public function iEnterTheCharacterName(string $name)
     {
-        socket_write($this->sharedStorage->get('socket'), $name.PHP_EOL);
+        $this->writeLine($name);
     }
 
     /**
@@ -69,7 +67,7 @@ final class AccessContext implements Context
      */
     public function iEnterThePassword(string $password)
     {
-        socket_write($this->sharedStorage->get('socket'), $password.PHP_EOL);
+        $this->writeLine($password);
     }
 
     /**
@@ -103,22 +101,38 @@ final class AccessContext implements Context
     public function iShouldBeDisconnected(): void
     {
         Assert::eq($this->getNextResponse(), 'Troppi tentativi falliti. Addio!');
-        Assert::isEmpty(socket_read($this->sharedStorage->get('socket'), 1024));
+        Assert::isEmpty(socket_read($this->getSocket(), 1024));
     }
 
     /**
      * @Given /^I am connected to the game$/
      */
-    public function iAmConnectedToTheGame()
+    public function iAmConnectedToTheGame(): void
     {
         /** @var Character $character */
         $character = $this->sharedStorage->get('character');
-        $this->iConnectToTheGame();
-        Assert::eq($this->getNextResponse(), 'Inserisci il nome del tuo personaggio...');
-        $this->iEnterTheCharacterName($character->getName());
-        Assert::eq($this->getNextResponse(), 'Inserisci la password...');
-        $this->iEnterThePassword('p4ssw0rd');
-        Assert::eq($this->getNextResponse(), sprintf('Il tuo nome è "%s".', $character->getName()));
-        Assert::notEmpty($this->getNextResponse()); // This should be the current location description
+        $this->logIn($character, 'me');
+    }
+
+    /**
+     * @Given /^"([^"]*)" is connected to the game$/
+     */
+    public function characterIsConnectedToTheGame(string $name): void
+    {
+        /** @var array<string, Character> $characters */
+        $characters = $this->sharedStorage->get('characters');
+        $this->logIn($characters[$name], $name);
+    }
+
+    private function logIn(Character $character, string $client): void
+    {
+        $this->connect($client);
+        Assert::notEmpty($this->getNextResponse($client)); // banner
+        Assert::eq($this->getNextResponse($client), 'Inserisci il nome del tuo personaggio...');
+        $this->writeLine($character->getName(), $client);
+        Assert::eq($this->getNextResponse($client), 'Inserisci la password...');
+        $this->writeLine('p4ssw0rd', $client);
+        Assert::eq($this->getNextResponse($client), sprintf('Il tuo nome è "%s".', $character->getName()));
+        Assert::notEmpty($this->getNextResponse($client)); // current location description
     }
 }

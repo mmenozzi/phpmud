@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace PHPMud\World\Application\Movement\Move;
 
 use PHPMud\World\Application\CommandInterface;
+use PHPMud\World\Application\DomainEventDispatcher;
 use PHPMud\World\Application\ExecutorInterface;
 use PHPMud\World\Application\Movement\LocationViewFactory;
 use PHPMud\World\Domain\Character\CharacterRepositoryInterface;
@@ -20,6 +21,7 @@ final readonly class MoveCommandExecutor implements ExecutorInterface
         private LocationRepositoryInterface $locationRepository,
         private MovementPolicy $movementPolicy,
         private LocationViewFactory $locationViewFactory,
+        private DomainEventDispatcher $domainEventDispatcher,
     ) {
     }
 
@@ -35,8 +37,9 @@ final readonly class MoveCommandExecutor implements ExecutorInterface
             return new MoveCommandResponse(false, $direction, $this->locationViewFactory->create($current));
         }
 
-        // Add method also flushes the changes to the repository
+        $events = $character->releaseEvents();
         $this->characterRepository->save($character);
+        $this->domainEventDispatcher->dispatch(...$events);
 
         return new MoveCommandResponse(
             true,
