@@ -145,10 +145,27 @@
             <argument type="service" id="phpmud.delivery.telnet.command_response_renderer" />
         </service>
 
+        <service id="phpmud.delivery.websocket.message_parser" class="PHPMud\World\Infrastructure\Delivery\WebSocket\MessageParser" />
+
+        <service id="phpmud.delivery.websocket.message_serializer" class="PHPMud\World\Infrastructure\Delivery\WebSocket\MessageSerializer" />
+
+        <service id="phpmud.delivery.websocket.client_handler" class="PHPMud\World\Infrastructure\Delivery\WebSocket\WebSocketClientHandler">
+            <argument type="service" id="phpmud.application.command_router" />
+            <argument type="service" id="phpmud.delivery.websocket.message_parser" />
+            <argument type="service" id="phpmud.delivery.websocket.message_serializer" />
+            <argument type="service" id="phpmud.server.client_registry" />
+        </service>
+
+        <service id="phpmud.delivery.websocket.server" class="PHPMud\World\Infrastructure\Delivery\WebSocket\WebSocketServer">
+            <argument>127.0.0.1:10667</argument>
+            <argument type="service" id="phpmud.delivery.websocket.client_handler" />
+        </service>
+
         <service id="phpmud.server.game" class="PHPMud\World\Infrastructure\Server\GameServer">
             <argument type="service" id="phpmud.server.ticker" />
             <argument type="collection">
                 <argument type="service" id="phpmud.delivery.telnet.server" />
+                <argument type="service" id="phpmud.delivery.websocket.server" />
             </argument>
         </service>
     </services>

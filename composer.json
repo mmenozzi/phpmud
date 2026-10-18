@@ -21,7 +21,8 @@
         "webgriffe/in-memory-repository": "^0.3.0",
         "webmozart/assert": "^1.11",
         "symfony/dependency-injection": "^7.3",
-        "amphp/socket": "^2.3"
+        "amphp/socket": "^2.3",
+        "amphp/websocket-server": "^4"
     },
     "scripts": {
         "start": "bin/phpmud > /tmp/phpmud.log 2>&1 & echo $! > /tmp/phpmud.pid",
