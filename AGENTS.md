@@ -101,7 +101,7 @@ model shared by every feature (characters, locations, movement, time).
 The feature folders in `World/Application` (`Access`, `Movement`, ...)
 are Modules of this one context, not bounded contexts.
 
-Pragmatic deviation: `Kernel`, `Server/*` and the shared
+Pragmatic deviation: `Kernel`, `Server/*`, `Delivery/*` and the shared
 `CommandInterface`/`CommandResponseInterface`/`ExecutorInterface`/
 `CommandRouter` are generic host/delivery plumbing, not part of the World
 model. They live in `World` only because there is one context; when a
@@ -117,7 +117,7 @@ accounts owning several characters, roles/permissions, bans, password
 reset. Then `Access` owns an `Account` aggregate (credentials, status),
 `World`'s `Character` keeps only gameplay state and references the
 account **by id** (cross-context references follow the same rule as
-cross-aggregate ones), and the login flow in `ClientHandler` talks to
+cross-aggregate ones), and the adapters' login flows (e.g. `TelnetClientHandler`) talk to
 `Access` instead of `World`. Do not create the context before that
 pressure exists: an empty context with no distinct language is
 speculative design, not DDD.
@@ -194,44 +194,69 @@ Three layers, strict dependency direction `Infrastructure → Application → Do
   To add a new player command: create the Command/Response/Executor triple
   in a new use case folder,
   register the executor + router mapping in `services.xml`, and teach
-  `CommandResolver` (parses raw input into a `CommandInterface`) and
-  `CommandResponseHandler` (renders a `CommandResponseInterface` back to the
-  socket) about the new types — both are hand-written `instanceof`/if-chains,
+  each delivery adapter about the new types (for telnet,
+  `Delivery/Telnet/CommandResolver` parses raw input into a
+  `CommandInterface` and `Delivery/Telnet/CommandResponseRenderer` renders
+  a `CommandResponseInterface` as text) — both are hand-written `instanceof`/if-chains,
   not polymorphic dispatch.
 - **`src/World/Infrastructure`**:
   - `Kernel` boots a Symfony `ContainerBuilder` from XML configs — always
     loads `services.xml`, then optionally `services_{environment}.php`'s
     XML sibling (`services_test.xml` exists, imports Behat's own service
     config and swaps in-memory repositories in).
-  - `Server/SocketServer` (built on `amphp/socket`) accepts connections,
-    reads newline-delimited commands per client, and dispatches to
-    `ClientHandler`. It tracks connected clients in `ClientRegistry` and
-    starts the `Ticker` before accepting connections.
-  - `Server/Ticker` is the game time: every `phpmud.tick_interval` seconds
-    (60 = one game hour, overridable with the `PHPMUD_TICK_INTERVAL` env
-    var read by `bin/phpmud`) it executes `TickCommand` and, when a day
-    phase starts, sends the `TickCommandResponse` to every authenticated
-    client through `CommandResponseHandler` — the only messages the server
-    sends without a client command. The socket Behat trait routes these
-    blocks (`DayPhaseMessage`) to a separate `broadcasts` queue so they
-    never interleave with command responses; any new unsolicited message
-    must be routed the same way.
-  - `ClientHandler` owns the per-connection login state machine (banner
-    from `Resources/banner.txt` → name → password), but the decisions live
-    in `Application/Access`: `IdentifyCharacterCommand` (does the name
-    exist? if not, re-prompt name) and `AuthenticateCharacterCommand`
-    (`Character::isPasswordValid()`; on failure re-prompt password, after
-    `MAX_PASSWORD_ATTEMPTS` failures close the socket). Login responses are
-    rendered by `ClientHandler` itself, not `CommandResponseHandler`. For
-    authenticated clients it delegates each raw line to
-    `CommandResolver → CommandRouter → executor → CommandResponseHandler`.
-    While the password is typed the server sends telnet `IAC WILL ECHO`
-    (`Server/Telnet`) so the client hides input, and `IAC WONT ECHO` once
-    login succeeds or the socket is closed; `SocketServer` strips incoming
-    telnet negotiation and trailing `\r` from each line, and the socket
-    Behat trait strips it from responses (tracking the echo state).
-    Every message block ends with a blank line: socket Behat contexts split
-    responses on it, so `banner.txt` must not contain empty lines.
+  - `Server/` is the transport-agnostic game host (Ports & Adapters: each
+    player interface is a driving adapter under `Delivery/<Adapter>`, and
+    `Server/` never knows the wire format):
+    - `Client` is the port every adapter implements: `getCharacter()`,
+      `isAuthenticated()`, `send(CommandResponseInterface)` (the adapter
+      renders the response in its own format; throws
+      `ClientDisconnectedException` when the connection is gone).
+    - `ClientRegistry` tracks connected `Client`s of every adapter.
+    - `Ticker` is the game time: every `phpmud.tick_interval` seconds
+      (60 = one game hour, overridable with the `PHPMUD_TICK_INTERVAL` env
+      var read by `bin/phpmud`) it executes `TickCommand` and, when a day
+      phase starts, `send()`s the `TickCommandResponse` to every
+      authenticated client — the only messages the server sends without a
+      client command. The socket Behat trait routes these blocks
+      (`DayPhaseMessage`) to a separate `broadcasts` queue so they never
+      interleave with command responses; any new unsolicited message must
+      be routed the same way.
+    - `GameServer` (started by `bin/phpmud`) starts the `Ticker`, then the
+      adapters' listeners.
+    A new player interface (e.g. WebSocket) goes in a new
+    `Delivery/<Adapter>` folder with its own `Client` implementation,
+    input parsing and rendering, and is started by `GameServer`; it is a
+    delivery adapter, not a new bounded context.
+  - `Delivery/Telnet/` is the text MUD adapter:
+    - `TelnetServer` (built on `amphp/socket`) accepts connections, wraps
+      each in a `TelnetClient`, registers it in `ClientRegistry`, reads
+      newline-delimited commands and dispatches them to
+      `TelnetClientHandler`.
+    - `CommandResolver` parses a raw line into a `CommandInterface` for
+      the authenticated `Character`; `CommandResponseRenderer` turns a
+      `CommandResponseInterface` into a text block (pure, no socket;
+      `null` when there is nothing to show). `TelnetClient::send()`
+      renders and writes it.
+    - `TelnetClientHandler` owns the per-connection login state machine
+      (banner from `Delivery/Telnet/Resources/banner.txt` → name →
+      password; the login state lives in `TelnetClient`, since prompt
+      login is telnet-specific), but the decisions live in
+      `Application/Access`: `IdentifyCharacterCommand` (does the name
+      exist? if not, re-prompt name) and `AuthenticateCharacterCommand`
+      (`Character::isPasswordValid()`; on failure re-prompt password,
+      after `MAX_PASSWORD_ATTEMPTS` failures close the socket). Login
+      messages are written by `TelnetClientHandler` itself, not
+      `CommandResponseRenderer`. For authenticated clients it delegates
+      each raw line to
+      `CommandResolver → CommandRouter → executor → TelnetClient::send()`.
+    - While the password is typed the server sends telnet `IAC WILL ECHO`
+      (`Delivery/Telnet/Telnet`) so the client hides input, and
+      `IAC WONT ECHO` once login succeeds or the socket is closed;
+      `TelnetServer` strips incoming telnet negotiation and trailing `\r`
+      from each line, and the socket Behat trait strips it from responses
+      (tracking the echo state).
+    - Every message block ends with a blank line: socket Behat contexts
+      split responses on it, so `banner.txt` must not contain empty lines.
   - `Repository/Filesystem/*` (single-file serialized storage, used by
     `dev`/socket-test config) and `Repository/InMemory/*` (from
     `webgriffe/in-memory-repository`, used by `test`/domain-test config)
