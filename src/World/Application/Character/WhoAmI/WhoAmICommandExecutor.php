@@ -20,6 +20,6 @@ final readonly class WhoAmICommandExecutor implements ExecutorInterface
     {
         Assert::isInstanceOf($command, WhoAmICommand::class);
 
-        return new WhoAmICommandResponse($this->characterRepository->get($command->getCharacterId()));
+        return new WhoAmICommandResponse($this->characterRepository->get($command->getCharacterId())->getName());
     }
 }

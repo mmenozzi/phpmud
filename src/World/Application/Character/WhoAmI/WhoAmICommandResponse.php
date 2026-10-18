@@ -5,16 +5,15 @@ declare(strict_types=1);
 namespace PHPMud\World\Application\Character\WhoAmI;
 
 use PHPMud\World\Application\CommandResponseInterface;
-use PHPMud\World\Domain\Character\Character;
 
 final readonly class WhoAmICommandResponse implements CommandResponseInterface
 {
-    public function __construct(private Character $character)
+    public function __construct(private string $characterName)
     {
     }
 
-    public function getCharacter(): Character
+    public function getCharacterName(): string
     {
-        return $this->character;
+        return $this->characterName;
     }
 }

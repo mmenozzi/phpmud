@@ -4,24 +4,27 @@ declare(strict_types=1);
 
 namespace PHPMud\World\Application\Movement;
 
-use PHPMud\World\Domain\Location\Location;
-
 final readonly class LocationView
 {
     /**
-     * @param array<string, Location> $exits keyed by Direction value
+     * @param array<string, string> $exits neighbour location names keyed by Direction value
      */
-    public function __construct(private Location $location, private array $exits)
+    public function __construct(private string $name, private string $description, private array $exits)
     {
     }
 
-    public function getLocation(): Location
+    public function getName(): string
     {
-        return $this->location;
+        return $this->name;
+    }
+
+    public function getDescription(): string
+    {
+        return $this->description;
     }
 
     /**
-     * @return array<string, Location>
+     * @return array<string, string>
      */
     public function getExits(): array
     {

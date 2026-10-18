@@ -47,7 +47,7 @@ final class CommandResponseRenderer
         }
 
         if ($commandResponse instanceof WhoAmICommandResponse) {
-            return [sprintf('Il tuo nome è "%s".', $commandResponse->getCharacter()->getName())];
+            return [sprintf('Il tuo nome è "%s".', $commandResponse->getCharacterName())];
         }
 
         if ($commandResponse instanceof TickCommandResponse) {
@@ -67,10 +67,9 @@ final class CommandResponseRenderer
      */
     private function renderLocation(LocationView $locationView): array
     {
-        $location = $locationView->getLocation();
-        $lines = [$location->getName(), $location->getDescription(), 'Puoi andare:'];
-        foreach ($locationView->getExits() as $direction => $neighbor) {
-            $lines[] = sprintf('%s: %s', DirectionLabel::of(Direction::from($direction)), $neighbor->getName());
+        $lines = [$locationView->getName(), $locationView->getDescription(), 'Puoi andare:'];
+        foreach ($locationView->getExits() as $direction => $neighborName) {
+            $lines[] = sprintf('%s: %s', DirectionLabel::of(Direction::from($direction)), $neighborName);
         }
 
         return $lines;

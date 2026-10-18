@@ -106,7 +106,7 @@ final class AccessContext implements Context
         Assert::notNull($characterId);
         $response = $this->whoAmICommandExecutor->execute(new WhoAmICommand($characterId));
         Assert::isInstanceOf($response, WhoAmICommandResponse::class);
-        Assert::eq($response->getCharacter()->getName(), $name);
+        Assert::eq($response->getCharacterName(), $name);
     }
 
     private function getIdentifyResponse(): IdentifyCharacterCommandResponse
