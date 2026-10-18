@@ -2,9 +2,50 @@
 <html lang="it">
 <head>
     <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
     <title>PHPMud</title>
+    <link rel="stylesheet" href="style.css">
+    <script type="module" src="js/main.js"></script>
 </head>
 <body>
-    <h1>PHPMud</h1>
+    <header class="topbar">
+        <h1>PHPMud</h1>
+        <span id="whoami" class="whoami"></span>
+        <span id="day-phase" class="badge" hidden></span>
+    </header>
+
+    <main id="game" class="game" hidden>
+        <section class="stage">
+            <svg id="scene" role="img" aria-label="La stanza in cui ti trovi"></svg>
+        </section>
+        <aside class="panel">
+            <h2 id="room-name"></h2>
+            <p id="room-description" class="description"></p>
+            <h3>Uscite</h3>
+            <ul id="exits" class="exits-list"></ul>
+            <h3>Qui ci sono</h3>
+            <ul id="occupants" class="occupants"></ul>
+            <h3>Diario</h3>
+            <ol id="log" class="log" aria-live="polite"></ol>
+        </aside>
+    </main>
+
+    <div id="login" class="overlay">
+        <form id="login-form" class="card" autocomplete="off">
+            <h2>Entra nel mondo</h2>
+            <label>Personaggio <input id="login-name" name="name" required autofocus></label>
+            <label>Password <input id="login-password" name="password" type="password" required></label>
+            <button type="submit">Entra</button>
+            <p id="login-message" class="message" role="alert"></p>
+        </form>
+    </div>
+
+    <div id="disconnected" class="overlay" hidden>
+        <div class="card">
+            <h2>Connessione chiusa</h2>
+            <p id="disconnected-message" class="message"></p>
+            <button type="button" id="reconnect">Riconnetti</button>
+        </div>
+    </div>
 </body>
 </html>
