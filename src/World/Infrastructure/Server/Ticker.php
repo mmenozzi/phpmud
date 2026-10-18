@@ -4,11 +4,9 @@ declare(strict_types=1);
 
 namespace PHPMud\World\Infrastructure\Server;
 
-use Amp\ByteStream\StreamException;
 use PHPMud\World\Application\CommandRouter;
 use PHPMud\World\Application\Time\Tick\TickCommand;
 use PHPMud\World\Application\Time\Tick\TickCommandResponse;
-use PHPMud\World\Infrastructure\Delivery\Telnet\CommandResponseRenderer;
 use Revolt\EventLoop;
 use Webmozart\Assert\Assert;
 
@@ -19,7 +17,6 @@ final readonly class Ticker
     public function __construct(
         private float $tickInterval,
         private CommandRouter $commandRouter,
-        private CommandResponseRenderer $commandResponseRenderer,
         private ClientRegistry $clientRegistry,
     ) {
     }
@@ -42,10 +39,8 @@ final readonly class Ticker
 
         foreach ($this->clientRegistry->getAuthenticatedClients() as $client) {
             try {
-                $text = $this->commandResponseRenderer->render($response);
-                Assert::string($text);
-                $client->getSocket()->write($text);
-            } catch (StreamException) {
+                $client->send($response);
+            } catch (ClientDisconnectedException) {
                 $this->clientRegistry->remove($client);
             }
         }

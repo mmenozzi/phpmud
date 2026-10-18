@@ -100,7 +100,6 @@
         <service id="phpmud.delivery.telnet.client_handler" class="PHPMud\World\Infrastructure\Delivery\Telnet\TelnetClientHandler">
             <argument type="service" id="phpmud.delivery.telnet.command_resolver" />
             <argument type="service" id="phpmud.application.command_router" />
-            <argument type="service" id="phpmud.delivery.telnet.command_response_renderer" />
         </service>
 
         <service id="phpmud.server.client_registry" class="PHPMud\World\Infrastructure\Server\ClientRegistry" />
@@ -108,7 +107,6 @@
         <service id="phpmud.server.ticker" class="PHPMud\World\Infrastructure\Server\Ticker">
             <argument>%phpmud.tick_interval%</argument>
             <argument type="service" id="phpmud.application.command_router" />
-            <argument type="service" id="phpmud.delivery.telnet.command_response_renderer" />
             <argument type="service" id="phpmud.server.client_registry" />
         </service>
 
@@ -116,7 +114,12 @@
             <argument>127.0.0.1:10666</argument>
             <argument type="service" id="phpmud.delivery.telnet.client_handler" />
             <argument type="service" id="phpmud.server.client_registry" />
+            <argument type="service" id="phpmud.delivery.telnet.command_response_renderer" />
+        </service>
+
+        <service id="phpmud.server.game" class="PHPMud\World\Infrastructure\Server\GameServer">
             <argument type="service" id="phpmud.server.ticker" />
+            <argument type="service" id="phpmud.delivery.telnet.server" />
         </service>
     </services>
 </container>

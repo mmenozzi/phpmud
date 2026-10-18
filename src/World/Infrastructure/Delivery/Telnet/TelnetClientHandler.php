@@ -24,7 +24,6 @@ final readonly class TelnetClientHandler
     public function __construct(
         private CommandResolver $commandResolver,
         private CommandRouter $commandRouter,
-        private CommandResponseRenderer $commandResponseRenderer,
     ) {
     }
 
@@ -41,7 +40,7 @@ final readonly class TelnetClientHandler
     {
         $character = $client->getCharacter();
         if (null !== $character) {
-            $this->send($client, $this->execute($this->commandResolver->resolve($character, $commandString)));
+            $client->send($this->execute($this->commandResolver->resolve($character, $commandString)));
 
             return;
         }
@@ -91,8 +90,8 @@ final readonly class TelnetClientHandler
 
         $client->authenticate($character);
         $client->getSocket()->write(Telnet::WONT_ECHO);
-        $this->send($client, $this->execute(new WhoAmICommand($character)));
-        $this->send($client, $this->execute(new LookCommand($character)));
+        $client->send($this->execute(new WhoAmICommand($character)));
+        $client->send($this->execute(new LookCommand($character)));
     }
 
     private function promptCharacterName(TelnetClient $client): void
@@ -109,14 +108,6 @@ final readonly class TelnetClientHandler
     private function write(TelnetClient $client, string $message): void
     {
         $client->getSocket()->write($message.PHP_EOL.PHP_EOL);
-    }
-
-    private function send(TelnetClient $client, CommandResponseInterface $commandResponse): void
-    {
-        $text = $this->commandResponseRenderer->render($commandResponse);
-        if (null !== $text) {
-            $client->getSocket()->write($text);
-        }
     }
 
     private function execute(CommandInterface $command): CommandResponseInterface
