@@ -397,6 +397,47 @@ Three layers, strict dependency direction `Infrastructure → Application → Do
     (Behat); the flip side is that every loaded object is a fresh copy, so
     a mutated entity must be re-`save()`d to persist.
 
+### Browser client
+
+`client/` (repo root, outside `src/`) is the graphical client, a separate
+application that consumes the WebSocket Published Language as a
+conformist downstream: it never reaches into PHP code, only into the JSON
+messages above. It is served by the WebSocket adapter at
+`http://127.0.0.1:10667/` and connects to `/ws` on the same origin (the
+origin `AllowOriginAcceptor` allows). Vanilla JS ES modules + SVG, no
+build step and no Node toolchain:
+
+- `js/connection.js` wraps the `WebSocket` and dispatches messages by
+  `type`; `js/main.js` holds the client state (login flow `identify` →
+  `authenticate`, current location, occupants, pending move) and the
+  side panel (room text, exit buttons, who is here, event log);
+- `js/scene.js` draws the location as a top-down SVG room: doors on the
+  four sides and stairs for `up`/`down`, each clickable (also arrow keys,
+  PageUp/PageDown) and labelled with the neighbour's name; sprites for me
+  and the other characters (`location.characters`), animated in from the
+  door `opposite(via)` on `character_arrived` and out through `via` on
+  `character_left`; a tint per `DayPhase` (`day_phase`,
+  `day_phase_started`);
+- `js/themes.js` maps a scene theme to a palette and procedural
+  decorations, seeded by the `LocationId` (`js/svg.js` `hash` /
+  `seededRandom`) so a room always looks the same; the theme comes from
+  `content/scenes.json` (see the content model above), with a fallback
+  theme picked by the id's hash for unknown locations (e.g. Behat ones).
+  To add a theme: add it to `THEMES`, use it in the `Scena` column of
+  `utils/locations.csv`, run `php utils/build_scenes.php`;
+- coordinates inside a room (`js/layout.js`: doors, sprite slots) are
+  presentation only: no game rule uses them. If a rule ever needs
+  positions (distance, collisions, line of sight), they become domain
+  state and must be modelled server-side, not derived from the client.
+
+The client is not covered by Behat: verify it end-to-end in a browser
+against the running server (two characters in two tabs, plus a telnet
+session for the cross-adapter check). For manual play, `php
+utils/init_world.php` creates John (`p4ssw0rd`); add other characters
+with `CharacterRepository::save()` on `/tmp/phpmud.character`. A page in
+a background tab may not run CSS transitions, so judge animations in a
+visible tab.
+
 ## Testing
 
 Behat, not PHPUnit, is the test framework (`tests/` has no PHPUnit tests).
