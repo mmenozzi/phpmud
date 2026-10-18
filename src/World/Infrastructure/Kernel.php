@@ -21,6 +21,7 @@ final class Kernel
     public function boot(): void
     {
         $this->container = new ContainerBuilder();
+        $this->container->setParameter('phpmud.client_dir', dirname(__DIR__, 3).'/client');
         $loader = new XmlFileLoader($this->container, new FileLocator(__DIR__.'/Resources/config'));
         $loader->load('services.xml');
         try {

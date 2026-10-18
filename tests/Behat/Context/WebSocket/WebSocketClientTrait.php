@@ -18,7 +18,7 @@ trait WebSocketClientTrait
 
     private function connect(string $client = 'me'): void
     {
-        $this->sharedStorage->set($this->clientKey('connection', $client), connect('ws://127.0.0.1:10667/'));
+        $this->sharedStorage->set($this->clientKey('connection', $client), connect('ws://127.0.0.1:10667/ws'));
     }
 
     /**

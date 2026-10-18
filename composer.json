@@ -23,7 +23,9 @@
         "webmozart/assert": "^1.11",
         "symfony/dependency-injection": "^7.3",
         "amphp/socket": "^2.3",
-        "amphp/websocket-server": "^4"
+        "amphp/websocket-server": "^4",
+        "amphp/http-server-router": "^2",
+        "amphp/http-server-static-content": "^2"
     },
     "scripts": {
         "start": "bin/phpmud > /tmp/phpmud.log 2>&1 & echo $! > /tmp/phpmud.pid",

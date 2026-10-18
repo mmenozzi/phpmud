@@ -35,7 +35,7 @@ below and `composer` itself — otherwise Composer's platform check fails.
 
 ```
 composer install       # install deps
-composer start         # boot the game server (bin/phpmud: telnet on 10666, WebSocket on 10667), backgrounded, pid in /tmp/phpmud.pid, output in /tmp/phpmud.log
+composer start         # boot the game server (bin/phpmud: telnet on 10666, WebSocket on 10667/ws, browser client on http://127.0.0.1:10667/), backgrounded, pid in /tmp/phpmud.pid, output in /tmp/phpmud.log
 composer stop          # kill the backgrounded server
 composer test          # runs ecs, phpstan, behat in sequence
 composer ecs           # code style check (Symplify ECS, Symfony ruleset) — src/ and tests/
@@ -54,7 +54,7 @@ vendor/bin/behat features/movement.feature:20
 ### Running the telnet and WebSocket Behat suites
 
 Suites tagged `@telnet` / `@websocket` (see below) connect to the **real**
-game server at `127.0.0.1:10666` (telnet) / `ws://127.0.0.1:10667/`
+game server at `127.0.0.1:10666` (telnet) / `ws://127.0.0.1:10667/ws`
 (WebSocket) and read/write the filesystem repositories at
 `/tmp/phpmud.location` / `/tmp/phpmud.character` / `/tmp/phpmud.world_clock`
 (paths hardcoded in `src/World/Infrastructure/Resources/config/services.xml`). The
@@ -331,9 +331,14 @@ Three layers, strict dependency direction `Infrastructure → Application → Do
     - Every message block ends with a blank line: telnet Behat contexts
       split responses on it, so `banner.txt` must not contain empty lines.
   - `Delivery/WebSocket/` is the JSON adapter (base for a browser
-    client), on `amphp/websocket-server` at `127.0.0.1:10667`:
-    - `WebSocketServer` (`Listener`) exposes an `amphp/http-server` with a
-      `Websocket` handler. It uses `Rfc6455Acceptor`, which does not check
+    client), on `amphp/websocket-server` at `ws://127.0.0.1:10667/ws`:
+    - `WebSocketServer` (`Listener`) exposes an `amphp/http-server` with an
+      `amphp/http-server-router` `Router`: `GET /ws` is the `Websocket`
+      handler, every other path falls back to a `DocumentRoot`
+      (`amphp/http-server-static-content`) serving the browser client in
+      `client/` (path in the `phpmud.client_dir` parameter, set by
+      `Kernel`). Serving the client's files is plumbing of this adapter;
+      the protocol does not depend on it. It uses `Rfc6455Acceptor`, which does not check
       the `Origin` header: fine for local play, switch to
       `AllowOriginAcceptor` before serving a browser client from a real
       host.
