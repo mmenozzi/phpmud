@@ -353,7 +353,9 @@ Three layers, strict dependency direction `Infrastructure → Application → Do
       handler, every other path falls back to a `DocumentRoot`
       (`amphp/http-server-static-content`) serving the browser client in
       `client/` (path in the `phpmud.client_dir` parameter, set by
-      `Kernel`). Serving the client's files is plumbing of this adapter;
+      `Kernel`), with `setExpiresPeriod(0)` so browsers revalidate the
+      unversioned files (ETag) instead of caching them for a week.
+      Serving the client's files is plumbing of this adapter;
       the protocol does not depend on it.
       The `Websocket` handler uses `AllowOriginAcceptor` with the origins
       of the served client (`services.xml`), so other web pages cannot open a

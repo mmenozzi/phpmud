@@ -38,7 +38,9 @@ final readonly class WebSocketServer implements Listener
         $httpServer->expose($this->uri);
         $router = new Router($httpServer, $logger, $errorHandler);
         $router->addRoute('GET', self::WEBSOCKET_PATH, new Websocket($httpServer, $logger, new AllowOriginAcceptor($this->allowedOrigins), $this->clientHandler));
-        $router->setFallback(new DocumentRoot($httpServer, $errorHandler, $this->clientDirectory));
+        $documentRoot = new DocumentRoot($httpServer, $errorHandler, $this->clientDirectory);
+        $documentRoot->setExpiresPeriod(0);
+        $router->setFallback($documentRoot);
         $httpServer->start($router, $errorHandler);
         echo 'WebSocket server listening on ws://'.$this->uri.self::WEBSOCKET_PATH.', browser client on http://'.$this->uri.'/'.PHP_EOL;
     }
