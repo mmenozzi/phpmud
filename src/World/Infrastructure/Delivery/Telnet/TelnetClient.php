@@ -7,13 +7,13 @@ namespace PHPMud\World\Infrastructure\Delivery\Telnet;
 use Amp\ByteStream\StreamException;
 use Amp\Socket\ResourceSocket;
 use PHPMud\World\Application\CommandResponseInterface;
-use PHPMud\World\Domain\Character\Character;
+use PHPMud\World\Domain\Character\CharacterId;
 use PHPMud\World\Infrastructure\Server\Client;
 use PHPMud\World\Infrastructure\Server\ClientDisconnectedException;
 
 final class TelnetClient implements Client
 {
-    private ?Character $character = null;
+    private ?CharacterId $characterId = null;
 
     private ?string $authenticatingCharacterName = null;
 
@@ -44,14 +44,14 @@ final class TelnetClient implements Client
         }
     }
 
-    public function getCharacter(): ?Character
+    public function getCharacterId(): ?CharacterId
     {
-        return $this->character;
+        return $this->characterId;
     }
 
     public function isAuthenticated(): bool
     {
-        return null !== $this->character;
+        return null !== $this->characterId;
     }
 
     public function isAuthenticating(): bool
@@ -84,9 +84,9 @@ final class TelnetClient implements Client
         $this->failedPasswordAttempts = 0;
     }
 
-    public function authenticate(Character $character): void
+    public function authenticate(CharacterId $characterId): void
     {
-        $this->character = $character;
+        $this->characterId = $characterId;
         $this->stopAuthentication();
     }
 }

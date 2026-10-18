@@ -29,7 +29,7 @@ final readonly class TelnetClientHandler
 
     public function handleConnection(TelnetClient $client): void
     {
-        Assert::null($client->getCharacter());
+        Assert::null($client->getCharacterId());
         $banner = file_get_contents(self::BANNER_PATH);
         Assert::string($banner);
         $this->write($client, rtrim($banner));
@@ -38,9 +38,9 @@ final readonly class TelnetClientHandler
 
     public function handleCommand(TelnetClient $client, string $commandString): void
     {
-        $character = $client->getCharacter();
-        if (null !== $character) {
-            $client->send($this->execute($this->commandResolver->resolve($character, $commandString)));
+        $characterId = $client->getCharacterId();
+        if (null !== $characterId) {
+            $client->send($this->execute($this->commandResolver->resolve($characterId, $commandString)));
 
             return;
         }
@@ -73,8 +73,8 @@ final readonly class TelnetClientHandler
     {
         $response = $this->execute(new AuthenticateCharacterCommand($client->getAuthenticatingCharacterName(), $password));
         Assert::isInstanceOf($response, AuthenticateCharacterCommandResponse::class);
-        $character = $response->getCharacter();
-        if (null === $character) {
+        $characterId = $response->getCharacterId();
+        if (null === $characterId) {
             if ($client->registerFailedPasswordAttempt() >= self::MAX_PASSWORD_ATTEMPTS) {
                 $client->getSocket()->write(Telnet::WONT_ECHO);
                 $this->write($client, 'Troppi tentativi falliti. Addio!');
@@ -88,10 +88,10 @@ final readonly class TelnetClientHandler
             return;
         }
 
-        $client->authenticate($character);
+        $client->authenticate($characterId);
         $client->getSocket()->write(Telnet::WONT_ECHO);
-        $client->send($this->execute(new WhoAmICommand($character)));
-        $client->send($this->execute(new LookCommand($character)));
+        $client->send($this->execute(new WhoAmICommand($characterId)));
+        $client->send($this->execute(new LookCommand($characterId)));
     }
 
     private function promptCharacterName(TelnetClient $client): void

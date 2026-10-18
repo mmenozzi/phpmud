@@ -12,6 +12,9 @@ use PHPMud\World\Application\Access\AuthenticateCharacter\AuthenticateCharacterC
 use PHPMud\World\Application\Access\IdentifyCharacter\IdentifyCharacterCommand;
 use PHPMud\World\Application\Access\IdentifyCharacter\IdentifyCharacterCommandExecutor;
 use PHPMud\World\Application\Access\IdentifyCharacter\IdentifyCharacterCommandResponse;
+use PHPMud\World\Application\Character\WhoAmI\WhoAmICommand;
+use PHPMud\World\Application\Character\WhoAmI\WhoAmICommandExecutor;
+use PHPMud\World\Application\Character\WhoAmI\WhoAmICommandResponse;
 use Webmozart\Assert\Assert;
 
 final class AccessContext implements Context
@@ -20,6 +23,7 @@ final class AccessContext implements Context
         private readonly SharedStorage $sharedStorage,
         private readonly IdentifyCharacterCommandExecutor $identifyCharacterCommandExecutor,
         private readonly AuthenticateCharacterCommandExecutor $authenticateCharacterCommandExecutor,
+        private readonly WhoAmICommandExecutor $whoAmICommandExecutor,
     ) {
     }
 
@@ -83,9 +87,6 @@ final class AccessContext implements Context
             new AuthenticateCharacterCommand($this->getIdentifyResponse()->getCharacterName(), $password),
         );
         $this->sharedStorage->set('authenticate_response', $response);
-        if (null !== $response->getCharacter()) {
-            $this->sharedStorage->set('character', $response->getCharacter());
-        }
     }
 
     /**
@@ -101,9 +102,11 @@ final class AccessContext implements Context
      */
     public function iShouldSeeThatIAm(string $name): void
     {
-        $character = $this->getAuthenticateResponse()->getCharacter();
-        Assert::notNull($character);
-        Assert::eq($character->getName(), $name);
+        $characterId = $this->getAuthenticateResponse()->getCharacterId();
+        Assert::notNull($characterId);
+        $response = $this->whoAmICommandExecutor->execute(new WhoAmICommand($characterId));
+        Assert::isInstanceOf($response, WhoAmICommandResponse::class);
+        Assert::eq($response->getCharacter()->getName(), $name);
     }
 
     private function getIdentifyResponse(): IdentifyCharacterCommandResponse

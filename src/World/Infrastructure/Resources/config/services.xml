@@ -23,6 +23,7 @@
         </service>
 
         <service id="phpmud.application.movement.command_executor.look" class="PHPMud\World\Application\Movement\Look\LookCommandExecutor">
+            <argument type="service" id="phpmud.domain.repository.character" />
             <argument type="service" id="phpmud.domain.repository.location" />
             <argument type="service" id="phpmud.application.movement.view.location_view_factory" />
         </service>
@@ -31,6 +32,7 @@
         </service>
 
         <service id="phpmud.application.character.command_executor.whoami" class="PHPMud\World\Application\Character\WhoAmI\WhoAmICommandExecutor">
+            <argument type="service" id="phpmud.domain.repository.character" />
         </service>
 
         <service id="phpmud.application.access.command_executor.identify_character" class="PHPMud\World\Application\Access\IdentifyCharacter\IdentifyCharacterCommandExecutor">

@@ -26,7 +26,7 @@ final readonly class MoveCommandExecutor implements ExecutorInterface
     public function execute(CommandInterface $command): MoveCommandResponse
     {
         Assert::isInstanceOf($command, MoveCommand::class);
-        $character = $command->getCharacter();
+        $character = $this->characterRepository->get($command->getCharacterId());
         $direction = $command->getDirection();
         $current = $this->locationRepository->get($character->getLocationId());
         try {

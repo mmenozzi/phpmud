@@ -7,7 +7,9 @@ namespace PHPMud\World\Infrastructure\Repository\Filesystem;
 use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
 use PHPMud\World\Domain\Character\Character;
+use PHPMud\World\Domain\Character\CharacterId;
 use PHPMud\World\Domain\Character\CharacterRepositoryInterface;
+use PHPMud\World\Domain\Location\LocationId;
 use Webmozart\Assert\Assert;
 
 final class CharacterRepository implements CharacterRepositoryInterface
@@ -23,8 +25,18 @@ final class CharacterRepository implements CharacterRepositoryInterface
     public function save(Character $character): void
     {
         $characters = $this->load();
-        $characters->set($character->getId()->toRfc4122(), $character);
+        $characters->set($character->getId()->toString(), $character);
         $this->flush($characters);
+    }
+
+    public function get(CharacterId $id): Character
+    {
+        $character = $this->load()->get($id->toString());
+        if (null === $character) {
+            throw new \OutOfBoundsException(sprintf('Character "%s" not found.', $id->toString()));
+        }
+
+        return $character;
     }
 
     public function findOneByName(string $name): ?Character
@@ -44,10 +56,17 @@ final class CharacterRepository implements CharacterRepositoryInterface
         return $this->load();
     }
 
+    public function findByLocation(LocationId $locationId): array
+    {
+        return array_values($this->load()->filter(
+            static fn (Character $character): bool => $character->getLocationId()->equals($locationId),
+        )->toArray());
+    }
+
     public function remove(Character $character): void
     {
         $characters = $this->load();
-        $characters->remove($character->getId()->toRfc4122());
+        $characters->remove($character->getId()->toString());
         $this->flush($characters);
     }
 

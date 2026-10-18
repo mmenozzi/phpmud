@@ -5,21 +5,20 @@ declare(strict_types=1);
 namespace PHPMud\World\Domain\Character;
 
 use PHPMud\World\Domain\Location\LocationId;
-use Symfony\Component\Uid\Uuid;
 
 final class Character
 {
-    private readonly Uuid $id;
+    private readonly CharacterId $id;
 
     public function __construct(
         private readonly string $name,
         private LocationId $locationId,
         private string $passwordHash,
     ) {
-        $this->id = Uuid::v6();
+        $this->id = CharacterId::generate();
     }
 
-    public function getId(): Uuid
+    public function getId(): CharacterId
     {
         return $this->id;
     }

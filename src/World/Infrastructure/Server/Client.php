@@ -5,11 +5,11 @@ declare(strict_types=1);
 namespace PHPMud\World\Infrastructure\Server;
 
 use PHPMud\World\Application\CommandResponseInterface;
-use PHPMud\World\Domain\Character\Character;
+use PHPMud\World\Domain\Character\CharacterId;
 
 interface Client
 {
-    public function getCharacter(): ?Character;
+    public function getCharacterId(): ?CharacterId;
 
     public function isAuthenticated(): bool;
 

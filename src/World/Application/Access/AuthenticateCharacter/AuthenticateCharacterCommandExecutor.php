@@ -23,6 +23,6 @@ final readonly class AuthenticateCharacterCommandExecutor implements ExecutorInt
             return new AuthenticateCharacterCommandResponse(null);
         }
 
-        return new AuthenticateCharacterCommandResponse($character);
+        return new AuthenticateCharacterCommandResponse($character->getId());
     }
 }

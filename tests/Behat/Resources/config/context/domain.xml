@@ -25,6 +25,11 @@
                     <argument type="service" id="phpmud.domain.repository.in_memory.character" />
                 </service>
             </argument>
+            <argument type="service">
+                <service class="PHPMud\World\Application\Character\WhoAmI\WhoAmICommandExecutor">
+                    <argument type="service" id="phpmud.domain.repository.in_memory.character" />
+                </service>
+            </argument>
         </service>
 
         <service id="phpmud.behat.context.domain.time" class="PHPMud\Tests\Behat\Context\Domain\TimeContext">
