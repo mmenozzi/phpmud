@@ -22,9 +22,9 @@ final readonly class LocationViewFactory
             if (null === $exit) {
                 continue;
             }
-            $exits[$direction->value] = $this->locationRepository->get($exit)->getName();
+            $exits[$direction->value] = ['id' => $exit->toString(), 'name' => $this->locationRepository->get($exit)->getName()];
         }
 
-        return new LocationView($location->getName(), $location->getDescription(), $exits);
+        return new LocationView($location->getId()->toString(), $location->getName(), $location->getDescription(), $exits);
     }
 }

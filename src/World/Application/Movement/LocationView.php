@@ -7,10 +7,19 @@ namespace PHPMud\World\Application\Movement;
 final readonly class LocationView
 {
     /**
-     * @param array<string, string> $exits neighbour location names keyed by Direction value
+     * @param array<string, array{id: string, name: string}> $exits neighbour locations keyed by Direction value
      */
-    public function __construct(private string $name, private string $description, private array $exits)
+    public function __construct(
+        private string $id,
+        private string $name,
+        private string $description,
+        private array $exits,
+    ) {
+    }
+
+    public function getId(): string
     {
+        return $this->id;
     }
 
     public function getName(): string
@@ -24,7 +33,7 @@ final readonly class LocationView
     }
 
     /**
-     * @return array<string, string>
+     * @return array<string, array{id: string, name: string}>
      */
     public function getExits(): array
     {

@@ -74,8 +74,8 @@ final class CommandResponseRenderer
     private function renderLocation(LocationView $locationView): array
     {
         $lines = [$locationView->getName(), $locationView->getDescription(), 'Puoi andare:'];
-        foreach ($locationView->getExits() as $direction => $neighborName) {
-            $lines[] = sprintf('%s: %s', DirectionLabel::of(Direction::from($direction)), $neighborName);
+        foreach ($locationView->getExits() as $direction => $neighbor) {
+            $lines[] = sprintf('%s: %s', DirectionLabel::of(Direction::from($direction)), $neighbor['name']);
         }
 
         return $lines;
