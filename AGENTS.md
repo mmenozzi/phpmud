@@ -35,7 +35,7 @@ below and `composer` itself — otherwise Composer's platform check fails.
 
 ```
 composer install       # install deps
-composer start         # boot the socket server (bin/phpmud), backgrounded, pid in /tmp/phpmud.pid, output in /tmp/phpmud.log
+composer start         # boot the game server (bin/phpmud: telnet on 10666, WebSocket on 10667), backgrounded, pid in /tmp/phpmud.pid, output in /tmp/phpmud.log
 composer stop          # kill the backgrounded server
 composer test          # runs ecs, phpstan, behat in sequence
 composer ecs           # code style check (Symplify ECS, Symfony ruleset) — src/ and tests/
@@ -51,10 +51,11 @@ vendor/bin/behat features/movement.feature:20
 
 `ecs` can autofix: `vendor/bin/ecs check --fix`.
 
-### Running the telnet Behat suites
+### Running the telnet and WebSocket Behat suites
 
-Suites tagged `@telnet` (see below) connect to a **real** socket server at
-`127.0.0.1:10666` and read/write the filesystem repositories at
+Suites tagged `@telnet` / `@websocket` (see below) connect to the **real**
+game server at `127.0.0.1:10666` (telnet) / `ws://127.0.0.1:10667/`
+(WebSocket) and read/write the filesystem repositories at
 `/tmp/phpmud.location` / `/tmp/phpmud.character` / `/tmp/phpmud.world_clock`
 (paths hardcoded in `src/World/Infrastructure/Resources/config/services.xml`). The
 server must already be running before these scenarios execute — Behat does
@@ -219,19 +220,33 @@ Three layers, strict dependency direction `Infrastructure → Application → Do
   - `CommandRouter` maps command class → executor (wired explicitly in
     `services.xml` via `addExecutorForCommand` calls); it has no
     autodiscovery.
-  - `Movement/LocationViewFactory` builds a `LocationView` (name,
-    description and neighbour location names keyed by `Direction` value)
-    for responses that need to render exit names, since `Location` only
-    knows exit ids.
+  - `Movement/LocationViewFactory` builds a `LocationView` (id, name,
+    description and neighbour locations `{id, name}` keyed by `Direction`
+    value) for responses that need to render exit names, since `Location`
+    only knows exit ids. The ids let clients attach presentation data
+    (e.g. a graphical scene) to a location without relying on its name.
+  - `Access/AuthenticateCharacter` owns the password attempts rule:
+    the adapter passes the failed attempts so far (per-connection session
+    state) and the response says whether they are exhausted
+    (`MAX_FAILED_ATTEMPTS = 3`); the adapter then closes the connection.
+    It is an access/security rule, so no adapter may re-implement it.
   To add a new player command: create the Command/Response/Executor triple
   in a new use case folder,
   register the executor + router mapping in `services.xml`, and teach
-  each delivery adapter about the new types (for telnet,
-  `Delivery/Telnet/CommandResolver` parses raw input into a
-  `CommandInterface` and `Delivery/Telnet/CommandResponseRenderer` renders
-  a `CommandResponseInterface` as text) — both are hand-written `instanceof`/if-chains,
-  not polymorphic dispatch. A new notification likewise needs a
-  `renderNotification()` branch in each adapter.
+  every delivery adapter about the new types: telnet
+  (`Delivery/Telnet/CommandResolver` parses raw input into a
+  `CommandInterface`, `Delivery/Telnet/CommandResponseRenderer` renders a
+  `CommandResponseInterface` as text) and WebSocket
+  (`Delivery/WebSocket/MessageParser`, `MessageSerializer`, plus the
+  protocol table below) — all hand-written `instanceof`/if-chains, not
+  polymorphic dispatch. A new notification likewise needs a branch in
+  each adapter (`renderNotification()` / `serializeNotification()`).
+  Pragmatic shortcut: `Location`'s name and description have no
+  behavior (only exits do); they are authored content, like future
+  scene art, and stay in the aggregate only while every adapter needs
+  them as-is. Move them, with presentation assets, to a content model or
+  read model keyed by `LocationId` once content starts depending on the
+  medium or language (graphical scenes, ASCII maps, translations).
 - **`src/World/Infrastructure`**:
   - `Kernel` boots a Symfony `ContainerBuilder` from XML configs — always
     loads `services.xml`, then optionally `services_{environment}.php`'s
@@ -260,13 +275,16 @@ Three layers, strict dependency direction `Infrastructure → Application → Do
       blocks (`DayPhaseMessage`, `MovementMessage`) to a separate
       `broadcasts` queue so they never interleave with command responses;
       any new unsolicited message must be recognized by
-      `TelnetClientTrait::isBroadcast()` the same way.
-    - `GameServer` (started by `bin/phpmud`) starts the `Ticker`, then the
-      adapters' listeners.
-    A new player interface (e.g. WebSocket) goes in a new
-    `Delivery/<Adapter>` folder with its own `Client` implementation,
-    input parsing and rendering, and is started by `GameServer`; it is a
-    delivery adapter, not a new bounded context.
+      `TelnetClientTrait::isBroadcast()` and
+      `WebSocketClientTrait::isBroadcast()` the same way.
+    - `Listener` (`start()`, non-blocking) is implemented by each
+      adapter's server. `GameServer` (started by `bin/phpmud`) starts the
+      `Ticker`, then every listener wired in `services.xml`, then runs the
+      event loop.
+    A new player interface goes in a new `Delivery/<Adapter>` folder with
+    its own `Client` implementation, `Listener`, input parsing and
+    rendering, and is added to `GameServer`'s listeners; it is a delivery
+    adapter, not a new bounded context.
   - `Delivery/Telnet/` is the text MUD adapter:
     - `TelnetServer` (built on `amphp/socket`) accepts connections, wraps
       each in a `TelnetClient`, registers it in `ClientRegistry`, reads
@@ -285,8 +303,8 @@ Three layers, strict dependency direction `Infrastructure → Application → Do
       login is telnet-specific), but the decisions live in
       `Application/Access`: `IdentifyCharacterCommand` (does the name
       exist? if not, re-prompt name) and `AuthenticateCharacterCommand`
-      (`Character::isPasswordValid()`; on failure re-prompt password,
-      after `MAX_PASSWORD_ATTEMPTS` failures close the socket). Login
+      (`Character::isPasswordValid()`; on failure re-prompt password, or
+      close the socket when the response says attempts are exhausted). Login
       messages are written by `TelnetClientHandler` itself, not
       `CommandResponseRenderer`. For authenticated clients it delegates
       each raw line to
@@ -299,8 +317,38 @@ Three layers, strict dependency direction `Infrastructure → Application → Do
       (tracking the echo state).
     - Every message block ends with a blank line: telnet Behat contexts
       split responses on it, so `banner.txt` must not contain empty lines.
+  - `Delivery/WebSocket/` is the JSON adapter (base for a browser
+    client), on `amphp/websocket-server` at `127.0.0.1:10667`:
+    - `WebSocketServer` (`Listener`) exposes an `amphp/http-server` with a
+      `Websocket` handler. It uses `Rfc6455Acceptor`, which does not check
+      the `Origin` header: fine for local play, switch to
+      `AllowOriginAcceptor` before serving a browser client from a real
+      host.
+    - `WebSocketClientHandler` registers a `WebSocketClient` (`Client`,
+      holding the per-connection login state) in `ClientRegistry`, decodes
+      each text message and routes it: before login `identify` /
+      `authenticate` with the same Application commands as telnet, after
+      login `MessageParser → CommandRouter → executor →
+      WebSocketClient::send()`. `MessageSerializer` turns responses and
+      notifications into JSON.
+    - The JSON protocol is a Published Language: a public, versioned
+      contract in the ubiquitous language (enum values of `Direction` and
+      `DayPhase`), never the aggregates' internal shape. Every message is
+      an object with a `type`. v1:
+      - client → server: `identify {name}`, `authenticate {password}`,
+        `look`, `move {direction}`;
+      - responses: `identified {name, exists}`, `authenticated`,
+        `authentication_failed`, `too_many_attempts` (then the connection
+        closes), `whoami {name}`, `location {id, name, description,
+        exits: {direction: {id, name}}}`, `move_failed {direction}`,
+        `unknown_command` (also for game commands before login),
+        `error {message}` (invalid JSON or missing fields);
+      - events (unsolicited): `day_phase_started {day_phase}`,
+        `character_left {name, via}`, `character_arrived {name, via}`
+        (`via` is the walking direction or null; the client derives
+        where someone came from as `via`'s opposite).
   - `Repository/Filesystem/*` (single-file serialized storage, used by
-    `dev`/telnet-test config) and `Repository/InMemory/*` (from
+    `dev`/end-to-end test config) and `Repository/InMemory/*` (from
     `webgriffe/in-memory-repository`, used by `test`/domain-test config)
     are the two `*RepositoryInterface` implementations; which one is active
     is purely a matter of which `services*.xml` is loaded. The filesystem
@@ -313,11 +361,15 @@ Three layers, strict dependency direction `Infrastructure → Application → Do
 
 Behat, not PHPUnit, is the test framework (`tests/` has no PHPUnit tests).
 Suites are declared in `tests/Behat/Resources/config/suites.yml` (imports
-per-suite YAML under `suites/domain/` and `suites/telnet/`) and filtered by
-tag pairs like `@movement&&@domain` vs `@movement&&@telnet` — the same
-`features/*.feature` file is exercised by both a fast in-memory "domain"
-suite and an end-to-end "telnet" suite that goes through the real TCP
-server; scenarios are tagged `@domain @telnet` when both apply.
+per-suite YAML under `suites/domain/`, `suites/telnet/` and
+`suites/websocket/`) and filtered by tag pairs like `@movement&&@domain`
+vs `@movement&&@telnet` vs `@movement&&@websocket` — the same
+`features/*.feature` file is exercised by a fast in-memory "domain" suite
+and by end-to-end "telnet" and "websocket" suites that go through the
+real server; scenarios are tagged `@domain @telnet @websocket` when all
+apply (only the banner scenario is telnet-only). Three green suites on
+the same features are the proof that the model is one and the delivery
+is interchangeable, so new scenarios should cover every adapter.
 
 Context classes are grouped by role under `tests/Behat/Context/`: `Setup`
 (fixture creation, filesystem or in-memory variant per suite), `Domain`
@@ -328,7 +380,10 @@ contexts assert notifications on), `Telnet` (drives the game over a raw
 `socket_connect`/`socket_write`, see `TelnetClientTrait`; it supports
 several clients per scenario, keyed by name: `me` by default, other
 characters created with `there is the character "X" in the location "Y"`
-and logged in with `"X" is connected to the game`), `Transform`
+and logged in with `"X" is connected to the game`), `WebSocket` (same
+steps over `amphp/websocket-client`, see `WebSocketClientTrait`, also
+multi-client; step semantics follow the domain contexts, asserting on
+JSON messages), `Transform`
 (Behat argument transforms), `Hook` (`PurgeContext`, wipes repos before
 each scenario). The custom `SymfonyExtension` (`tests/Behat/Extension/`)
 boots a fresh `PHPMud\World\Infrastructure\Kernel` per scenario and injects its
