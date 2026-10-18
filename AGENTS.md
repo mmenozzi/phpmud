@@ -83,6 +83,12 @@ each one as a UUID v5 of the CSV `ID` (fixed namespace), passed to
 by `LocationId` (the browser client's scenes) survives a re-seed. Without
 an id `Location` still generates one (`LocationId::generate()`, as in
 Behat fixtures).
+`locations.csv` is the authored source of both the world and its
+presentation content: the `Scena` column (a scene theme: `cave`, `hall`,
+`garden`, ...) is not loaded by `init_world.php` into the model;
+`php utils/build_scenes.php` turns it into the client's content model
+`client/content/scenes.json` (`{locationId: {theme}}`, committed;
+re-run it after editing the CSV).
 
 ## Commit style
 
@@ -255,6 +261,10 @@ Three layers, strict dependency direction `Infrastructure → Application → Do
   protocol table below) — all hand-written `instanceof`/if-chains, not
   polymorphic dispatch. A new notification likewise needs a branch in
   each adapter (`renderNotification()` / `serializeNotification()`).
+  Presentation data per location already lives outside the model: the
+  browser client's scene themes are a content model keyed by `LocationId`
+  (`client/content/scenes.json`, generated from `utils/locations.csv`),
+  never fields of `Location` nor of the protocol.
   Pragmatic shortcut: `Location`'s name and description have no
   behavior (only exits do); they are authored content, like future
   scene art, and stay in the aggregate only while every adapter needs
