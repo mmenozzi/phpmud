@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<container xmlns="http://symfony.com/schema/dic/services"
+           xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+           xsi:schemaLocation="http://symfony.com/schema/dic/services
+        https://symfony.com/schema/dic/services/services-1.0.xsd"
+>
+    <services>
+        <defaults public="true" />
+
+        <service id="phpmud.behat.context.websocket.movement" class="PHPMud\Tests\Behat\Context\WebSocket\MovementContext">
+            <argument type="service" id="phpmud.behat.shared_storage" />
+        </service>
+
+        <service id="phpmud.behat.context.websocket.access" class="PHPMud\Tests\Behat\Context\WebSocket\AccessContext">
+            <argument type="service" id="phpmud.behat.shared_storage" />
+        </service>
+
+        <service id="phpmud.behat.context.websocket.time" class="PHPMud\Tests\Behat\Context\WebSocket\TimeContext">
+            <argument type="service" id="phpmud.behat.shared_storage" />
+        </service>
+    </services>
+</container>

@@ -14,7 +14,7 @@ Feature: Access
     Then I should see the MUD logo
     And I should be prompted for my character name
 
-  @domain @telnet
+  @domain @telnet @websocket
   Scenario: Accessing the game with correct password
     When I connect to the game
     Then I should be prompted for my character name
@@ -24,7 +24,7 @@ Feature: Access
     Then I should see that I am "HarryPotter"
     And I should see that I am in the location "A"
 
-  @domain @telnet
+  @domain @telnet @websocket
   Scenario: Entering the name of a character that does not exist
     When I connect to the game
     Then I should be prompted for my character name
@@ -32,7 +32,7 @@ Feature: Access
     Then I should be told that the character "Voldemort" does not exist
     And I should be prompted for my character name
 
-  @domain @telnet
+  @domain @telnet @websocket
   Scenario: Retrying after a wrong password
     When I connect to the game
     Then I should be prompted for my character name
@@ -44,7 +44,7 @@ Feature: Access
     When I enter the password "hogwarts"
     Then I should see that I am "HarryPotter"
 
-  @domain @telnet
+  @domain @telnet @websocket
   Scenario: Being disconnected after three wrong passwords
     When I connect to the game
     Then I should be prompted for my character name

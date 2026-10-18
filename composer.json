@@ -3,7 +3,8 @@
         "ext-sockets": "*",
         "behat/behat": "^3.23",
         "symplify/easy-coding-standard": "^12.5",
-        "phpstan/phpstan": "^2.1"
+        "phpstan/phpstan": "^2.1",
+        "amphp/websocket-client": "^2"
     },
     "autoload": {
         "psr-4": {

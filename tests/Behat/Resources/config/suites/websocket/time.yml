@@ -1,0 +1,18 @@
+default:
+    suites:
+        websocket_time:
+            contexts:
+                - phpmud.behat.context.hook.purge
+
+                - phpmud.behat.context.setup.filesystem.character
+                - phpmud.behat.context.setup.filesystem.location
+                - phpmud.behat.context.setup.filesystem.world_clock
+
+                - phpmud.behat.context.transform.filesystem.location
+                - phpmud.behat.context.transform.day_phase
+
+                - phpmud.behat.context.websocket.access
+                - phpmud.behat.context.websocket.time
+
+            filters:
+                tags: "@time&&@websocket"
