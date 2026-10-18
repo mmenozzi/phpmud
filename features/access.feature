@@ -44,7 +44,7 @@ Feature: Access
     When I enter the password "hogwarts"
     Then I should see that I am "HarryPotter"
 
-  @telnet
+  @domain @telnet
   Scenario: Being disconnected after three wrong passwords
     When I connect to the game
     Then I should be prompted for my character name

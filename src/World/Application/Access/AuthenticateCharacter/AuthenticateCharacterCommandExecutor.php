@@ -11,6 +11,8 @@ use Webmozart\Assert\Assert;
 
 final readonly class AuthenticateCharacterCommandExecutor implements ExecutorInterface
 {
+    private const int MAX_FAILED_ATTEMPTS = 3;
+
     public function __construct(private CharacterRepositoryInterface $characterRepository)
     {
     }
@@ -20,9 +22,9 @@ final readonly class AuthenticateCharacterCommandExecutor implements ExecutorInt
         Assert::isInstanceOf($command, AuthenticateCharacterCommand::class);
         $character = $this->characterRepository->findOneByName($command->getCharacterName());
         if (null === $character || !$character->isPasswordValid($command->getPassword())) {
-            return new AuthenticateCharacterCommandResponse(null);
+            return AuthenticateCharacterCommandResponse::failed($command->getFailedAttempts() + 1 >= self::MAX_FAILED_ATTEMPTS);
         }
 
-        return new AuthenticateCharacterCommandResponse($character->getId());
+        return AuthenticateCharacterCommandResponse::succeeded($character->getId());
     }
 }

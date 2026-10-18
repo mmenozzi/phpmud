@@ -82,6 +82,7 @@ final class AccessContext implements Context
         Assert::true($this->getIdentifyResponse()->exists());
         if ($this->sharedStorage->has('authenticate_response')) {
             Assert::false($this->getAuthenticateResponse()->isSuccessful());
+            Assert::false($this->getAuthenticateResponse()->areAttemptsExhausted());
         }
     }
 
@@ -90,9 +91,13 @@ final class AccessContext implements Context
      */
     public function iEnterThePassword(string $password): void
     {
+        $failedAttempts = $this->sharedStorage->has('failed_password_attempts') ? $this->sharedStorage->get('failed_password_attempts') : 0;
         $response = $this->authenticateCharacterCommandExecutor->execute(
-            new AuthenticateCharacterCommand($this->getIdentifyResponse()->getCharacterName(), $password),
+            new AuthenticateCharacterCommand($this->getIdentifyResponse()->getCharacterName(), $password, $failedAttempts),
         );
+        if (!$response->isSuccessful()) {
+            $this->sharedStorage->set('failed_password_attempts', $failedAttempts + 1);
+        }
         $this->sharedStorage->set('authenticate_response', $response);
     }
 
@@ -114,6 +119,15 @@ final class AccessContext implements Context
         $response = $this->whoAmICommandExecutor->execute(new WhoAmICommand($characterId));
         Assert::isInstanceOf($response, WhoAmICommandResponse::class);
         Assert::eq($response->getCharacterName(), $name);
+    }
+
+    /**
+     * @Then /^I should be disconnected$/
+     */
+    public function iShouldBeDisconnected(): void
+    {
+        Assert::false($this->getAuthenticateResponse()->isSuccessful());
+        Assert::true($this->getAuthenticateResponse()->areAttemptsExhausted());
     }
 
     private function getIdentifyResponse(): IdentifyCharacterCommandResponse

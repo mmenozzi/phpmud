@@ -11,6 +11,7 @@ final readonly class AuthenticateCharacterCommand implements CommandInterface
     public function __construct(
         private string $characterName,
         private string $password,
+        private int $failedAttempts,
     ) {
     }
 
@@ -22,5 +23,10 @@ final readonly class AuthenticateCharacterCommand implements CommandInterface
     public function getPassword(): string
     {
         return $this->password;
+    }
+
+    public function getFailedAttempts(): int
+    {
+        return $this->failedAttempts;
     }
 }

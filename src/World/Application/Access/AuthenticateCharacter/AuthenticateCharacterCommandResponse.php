@@ -9,8 +9,20 @@ use PHPMud\World\Domain\Character\CharacterId;
 
 final readonly class AuthenticateCharacterCommandResponse implements CommandResponseInterface
 {
-    public function __construct(private ?CharacterId $characterId)
+    private function __construct(
+        private ?CharacterId $characterId,
+        private bool $attemptsExhausted,
+    ) {
+    }
+
+    public static function succeeded(CharacterId $characterId): self
     {
+        return new self($characterId, false);
+    }
+
+    public static function failed(bool $attemptsExhausted): self
+    {
+        return new self(null, $attemptsExhausted);
     }
 
     public function isSuccessful(): bool
@@ -21,5 +33,10 @@ final readonly class AuthenticateCharacterCommandResponse implements CommandResp
     public function getCharacterId(): ?CharacterId
     {
         return $this->characterId;
+    }
+
+    public function areAttemptsExhausted(): bool
+    {
+        return $this->attemptsExhausted;
     }
 }

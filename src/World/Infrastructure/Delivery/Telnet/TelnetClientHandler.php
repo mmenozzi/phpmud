@@ -17,8 +17,6 @@ use Webmozart\Assert\Assert;
 
 final readonly class TelnetClientHandler
 {
-    private const int MAX_PASSWORD_ATTEMPTS = 3;
-
     private const string BANNER_PATH = __DIR__.'/Resources/banner.txt';
 
     public function __construct(
@@ -71,11 +69,16 @@ final readonly class TelnetClientHandler
 
     private function handlePassword(TelnetClient $client, string $password): void
     {
-        $response = $this->execute(new AuthenticateCharacterCommand($client->getAuthenticatingCharacterName(), $password));
+        $response = $this->execute(new AuthenticateCharacterCommand(
+            $client->getAuthenticatingCharacterName(),
+            $password,
+            $client->getFailedPasswordAttempts(),
+        ));
         Assert::isInstanceOf($response, AuthenticateCharacterCommandResponse::class);
         $characterId = $response->getCharacterId();
         if (null === $characterId) {
-            if ($client->registerFailedPasswordAttempt() >= self::MAX_PASSWORD_ATTEMPTS) {
+            $client->registerFailedPasswordAttempt();
+            if ($response->areAttemptsExhausted()) {
                 $client->getSocket()->write(Telnet::WONT_ECHO);
                 $this->write($client, 'Troppi tentativi falliti. Addio!');
                 $client->getSocket()->close();

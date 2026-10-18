@@ -79,9 +79,14 @@ final class TelnetClient implements Client
         return $this->authenticatingCharacterName;
     }
 
-    public function registerFailedPasswordAttempt(): int
+    public function getFailedPasswordAttempts(): int
     {
-        return ++$this->failedPasswordAttempts;
+        return $this->failedPasswordAttempts;
+    }
+
+    public function registerFailedPasswordAttempt(): void
+    {
+        ++$this->failedPasswordAttempts;
     }
 
     public function stopAuthentication(): void
