@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace PHPMud\Tests\Behat\Context\Socket;
+namespace PHPMud\Tests\Behat\Context\Telnet;
 
 use Behat\Behat\Context\Context;
 use PHPMud\Tests\Behat\Service\SharedStorage;
@@ -11,7 +11,7 @@ use PHPMud\World\Infrastructure\Delivery\Telnet\DayPhaseMessage;
 
 final class TimeContext implements Context
 {
-    use SocketResponseTrait;
+    use TelnetClientTrait;
 
     public function __construct(SharedStorage $sharedStorage)
     {

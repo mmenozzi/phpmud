@@ -7,15 +7,15 @@
     <services>
         <defaults public="true" />
 
-        <service id="phpmud.behat.context.socket.movement" class="PHPMud\Tests\Behat\Context\Socket\MovementContext">
+        <service id="phpmud.behat.context.telnet.movement" class="PHPMud\Tests\Behat\Context\Telnet\MovementContext">
             <argument type="service" id="phpmud.behat.shared_storage" />
         </service>
 
-        <service id="phpmud.behat.context.socket.access" class="PHPMud\Tests\Behat\Context\Socket\AccessContext">
+        <service id="phpmud.behat.context.telnet.access" class="PHPMud\Tests\Behat\Context\Telnet\AccessContext">
             <argument type="service" id="phpmud.behat.shared_storage" />
         </service>
 
-        <service id="phpmud.behat.context.socket.time" class="PHPMud\Tests\Behat\Context\Socket\TimeContext">
+        <service id="phpmud.behat.context.telnet.time" class="PHPMud\Tests\Behat\Context\Telnet\TimeContext">
             <argument type="service" id="phpmud.behat.shared_storage" />
         </service>
     </services>

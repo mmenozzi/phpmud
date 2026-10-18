@@ -8,7 +8,7 @@ Feature: Passing of time
     Given there is the location "A"
     And my character is in the location "A"
 
-  @domain @socket
+  @domain @telnet
   Scenario Outline: Being told that a day phase begins
     Given I am connected to the game
     And it is <hour> o'clock

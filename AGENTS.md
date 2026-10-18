@@ -51,9 +51,9 @@ vendor/bin/behat features/movement.feature:20
 
 `ecs` can autofix: `vendor/bin/ecs check --fix`.
 
-### Running the socket Behat suites
+### Running the telnet Behat suites
 
-Suites tagged `@socket` (see below) connect to a **real** socket server at
+Suites tagged `@telnet` (see below) connect to a **real** socket server at
 `127.0.0.1:10666` and read/write the filesystem repositories at
 `/tmp/phpmud.location` / `/tmp/phpmud.character` / `/tmp/phpmud.world_clock`
 (paths hardcoded in `src/World/Infrastructure/Resources/config/services.xml`). The
@@ -256,11 +256,11 @@ Three layers, strict dependency direction `Infrastructure → Application → Do
       var read by `bin/phpmud`) it executes `TickCommand`; day phase
       messages reach clients via `DayPhaseStarted` → `NotifyDayPhaseStarted`
       → `ClientNotifier`. Notifications are the only messages the server
-      sends without a client command: the socket Behat trait routes these
+      sends without a client command: the telnet Behat trait routes these
       blocks (`DayPhaseMessage`, `MovementMessage`) to a separate
       `broadcasts` queue so they never interleave with command responses;
       any new unsolicited message must be recognized by
-      `SocketResponseTrait::isBroadcast()` the same way.
+      `TelnetClientTrait::isBroadcast()` the same way.
     - `GameServer` (started by `bin/phpmud`) starts the `Ticker`, then the
       adapters' listeners.
     A new player interface (e.g. WebSocket) goes in a new
@@ -295,12 +295,12 @@ Three layers, strict dependency direction `Infrastructure → Application → Do
       (`Delivery/Telnet/Telnet`) so the client hides input, and
       `IAC WONT ECHO` once login succeeds or the socket is closed;
       `TelnetServer` strips incoming telnet negotiation and trailing `\r`
-      from each line, and the socket Behat trait strips it from responses
+      from each line, and the telnet Behat trait strips it from responses
       (tracking the echo state).
-    - Every message block ends with a blank line: socket Behat contexts
+    - Every message block ends with a blank line: telnet Behat contexts
       split responses on it, so `banner.txt` must not contain empty lines.
   - `Repository/Filesystem/*` (single-file serialized storage, used by
-    `dev`/socket-test config) and `Repository/InMemory/*` (from
+    `dev`/telnet-test config) and `Repository/InMemory/*` (from
     `webgriffe/in-memory-repository`, used by `test`/domain-test config)
     are the two `*RepositoryInterface` implementations; which one is active
     is purely a matter of which `services*.xml` is loaded. The filesystem
@@ -313,19 +313,19 @@ Three layers, strict dependency direction `Infrastructure → Application → Do
 
 Behat, not PHPUnit, is the test framework (`tests/` has no PHPUnit tests).
 Suites are declared in `tests/Behat/Resources/config/suites.yml` (imports
-per-suite YAML under `suites/domain/` and `suites/socket/`) and filtered by
-tag pairs like `@movement&&@domain` vs `@movement&&@socket` — the same
+per-suite YAML under `suites/domain/` and `suites/telnet/`) and filtered by
+tag pairs like `@movement&&@domain` vs `@movement&&@telnet` — the same
 `features/*.feature` file is exercised by both a fast in-memory "domain"
-suite and an end-to-end "socket" suite that goes through the real TCP
-server; scenarios are tagged `@domain @socket` when both apply.
+suite and an end-to-end "telnet" suite that goes through the real TCP
+server; scenarios are tagged `@domain @telnet` when both apply.
 
 Context classes are grouped by role under `tests/Behat/Context/`: `Setup`
 (fixture creation, filesystem or in-memory variant per suite), `Domain`
 (drives the executors directly, wired inline in
 `Resources/config/context/domain.xml` on the in-memory repositories with
 their own `DomainEventDispatcher` and a `Service/RecordingNotifier` that
-contexts assert notifications on), `Socket` (drives the game over a raw
-`socket_connect`/`socket_write`, see `SocketResponseTrait`; it supports
+contexts assert notifications on), `Telnet` (drives the game over a raw
+`socket_connect`/`socket_write`, see `TelnetClientTrait`; it supports
 several clients per scenario, keyed by name: `me` by default, other
 characters created with `there is the character "X" in the location "Y"`
 and logged in with `"X" is connected to the game`), `Transform`

@@ -1,6 +1,6 @@
 default:
     suites:
-        socket_access:
+        telnet_movement:
             contexts:
                 - phpmud.behat.context.hook.purge
 
@@ -10,8 +10,8 @@ default:
                 - phpmud.behat.context.transform.filesystem.location
                 - phpmud.behat.context.transform.direction
 
-                - phpmud.behat.context.socket.access
-                - phpmud.behat.context.socket.movement
+                - phpmud.behat.context.telnet.access
+                - phpmud.behat.context.telnet.movement
 
             filters:
-                tags: "@access&&@socket"
+                tags: "@movement&&@telnet"

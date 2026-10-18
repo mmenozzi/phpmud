@@ -3,6 +3,6 @@ imports:
     - suites/domain/access.yml
     - suites/domain/time.yml
 
-    - suites/socket/movement.yml
-    - suites/socket/access.yml
-    - suites/socket/time.yml
+    - suites/telnet/movement.yml
+    - suites/telnet/access.yml
+    - suites/telnet/time.yml
