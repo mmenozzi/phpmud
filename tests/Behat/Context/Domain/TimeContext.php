@@ -5,10 +5,12 @@ declare(strict_types=1);
 namespace PHPMud\Tests\Behat\Context\Domain;
 
 use Behat\Behat\Context\Context;
+use PHPMud\Tests\Behat\Service\RecordingNotifier;
 use PHPMud\Tests\Behat\Service\SharedStorage;
+use PHPMud\World\Application\Time\DayPhaseStarted\DayPhaseStartedNotification;
 use PHPMud\World\Application\Time\Tick\TickCommand;
 use PHPMud\World\Application\Time\Tick\TickCommandExecutor;
-use PHPMud\World\Application\Time\Tick\TickCommandResponse;
+use PHPMud\World\Domain\Character\Character;
 use PHPMud\World\Domain\Time\DayPhase;
 use Webmozart\Assert\Assert;
 
@@ -17,6 +19,7 @@ final class TimeContext implements Context
     public function __construct(
         private readonly SharedStorage $sharedStorage,
         private readonly TickCommandExecutor $tickCommandExecutor,
+        private readonly RecordingNotifier $notifier,
     ) {
     }
 
@@ -25,7 +28,7 @@ final class TimeContext implements Context
      */
     public function anHourPasses(): void
     {
-        $this->sharedStorage->set('tick_response', $this->tickCommandExecutor->execute(new TickCommand()));
+        $this->tickCommandExecutor->execute(new TickCommand());
     }
 
     /**
@@ -33,7 +36,7 @@ final class TimeContext implements Context
      */
     public function iShouldBeToldThatDayPhaseBegins(DayPhase $dayPhase): void
     {
-        Assert::same($this->getTickResponse()->getStartedDayPhase(), $dayPhase);
+        Assert::eq($this->getStartedDayPhases(), [$dayPhase]);
     }
 
     /**
@@ -41,14 +44,23 @@ final class TimeContext implements Context
      */
     public function iShouldNotBeToldThatADayPhaseBegins(): void
     {
-        Assert::null($this->getTickResponse()->getStartedDayPhase());
+        Assert::isEmpty($this->getStartedDayPhases());
     }
 
-    private function getTickResponse(): TickCommandResponse
+    /**
+     * @return list<DayPhase>
+     */
+    private function getStartedDayPhases(): array
     {
-        $response = $this->sharedStorage->get('tick_response');
-        Assert::isInstanceOf($response, TickCommandResponse::class);
+        /** @var Character $character */
+        $character = $this->sharedStorage->get('character');
+        $dayPhases = [];
+        foreach ($this->notifier->getNotificationsReceivedBy($character->getId()) as $notification) {
+            if ($notification instanceof DayPhaseStartedNotification) {
+                $dayPhases[] = $notification->getDayPhase();
+            }
+        }
 
-        return $response;
+        return $dayPhases;
     }
 }

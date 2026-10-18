@@ -45,6 +45,18 @@
 
         <service id="phpmud.application.time.command_executor.tick" class="PHPMud\World\Application\Time\Tick\TickCommandExecutor">
             <argument type="service" id="phpmud.domain.repository.world_clock" />
+            <argument type="service" id="phpmud.application.domain_event_dispatcher" />
+        </service>
+
+        <service id="phpmud.application.time.subscriber.notify_day_phase_started" class="PHPMud\World\Application\Time\DayPhaseStarted\NotifyDayPhaseStarted">
+            <argument type="service" id="phpmud.application.notifier" />
+        </service>
+
+        <service id="phpmud.application.domain_event_dispatcher" class="PHPMud\World\Application\DomainEventDispatcher">
+            <call method="addSubscriber">
+                <argument>PHPMud\World\Domain\Time\DayPhaseStarted</argument>
+                <argument type="service" id="phpmud.application.time.subscriber.notify_day_phase_started" />
+            </call>
         </service>
 
         <service id="phpmud.application.command_router" class="PHPMud\World\Application\CommandRouter">
@@ -106,10 +118,14 @@
 
         <service id="phpmud.server.client_registry" class="PHPMud\World\Infrastructure\Server\ClientRegistry" />
 
+        <service id="phpmud.server.client_notifier" class="PHPMud\World\Infrastructure\Server\ClientNotifier">
+            <argument type="service" id="phpmud.server.client_registry" />
+        </service>
+        <service id="phpmud.application.notifier" alias="phpmud.server.client_notifier" />
+
         <service id="phpmud.server.ticker" class="PHPMud\World\Infrastructure\Server\Ticker">
             <argument>%phpmud.tick_interval%</argument>
             <argument type="service" id="phpmud.application.command_router" />
-            <argument type="service" id="phpmud.server.client_registry" />
         </service>
 
         <service id="phpmud.delivery.telnet.server" class="PHPMud\World\Infrastructure\Delivery\Telnet\TelnetServer">

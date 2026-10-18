@@ -4,8 +4,12 @@ declare(strict_types=1);
 
 namespace PHPMud\World\Domain\Time;
 
+use PHPMud\World\Domain\RecordsDomainEvents;
+
 final class WorldClock
 {
+    use RecordsDomainEvents;
+
     private const int HOURS_PER_DAY = 24;
 
     public function __construct(private int $hour = 0)
@@ -20,10 +24,12 @@ final class WorldClock
         return $this->hour;
     }
 
-    public function tick(): ?DayPhase
+    public function tick(): void
     {
         $this->hour = ($this->hour + 1) % self::HOURS_PER_DAY;
-
-        return DayPhase::startingAt($this->hour);
+        $startedDayPhase = DayPhase::startingAt($this->hour);
+        if (null !== $startedDayPhase) {
+            $this->recordThat(new DayPhaseStarted($startedDayPhase));
+        }
     }
 }

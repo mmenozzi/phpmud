@@ -4,6 +4,8 @@ declare(strict_types=1);
 
 namespace PHPMud\World\Infrastructure\Server;
 
+use PHPMud\World\Domain\Character\CharacterId;
+
 final class ClientRegistry
 {
     /**
@@ -24,6 +26,17 @@ final class ClientRegistry
     public function remove(Client $client): void
     {
         $this->clients->detach($client);
+    }
+
+    public function getAuthenticatedClient(CharacterId $characterId): ?Client
+    {
+        foreach ($this->getAuthenticatedClients() as $client) {
+            if (true === $client->getCharacterId()?->equals($characterId)) {
+                return $client;
+            }
+        }
+
+        return null;
     }
 
     /**

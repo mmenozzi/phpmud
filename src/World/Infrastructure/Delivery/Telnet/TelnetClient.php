@@ -7,6 +7,7 @@ namespace PHPMud\World\Infrastructure\Delivery\Telnet;
 use Amp\ByteStream\StreamException;
 use Amp\Socket\ResourceSocket;
 use PHPMud\World\Application\CommandResponseInterface;
+use PHPMud\World\Application\NotificationInterface;
 use PHPMud\World\Domain\Character\CharacterId;
 use PHPMud\World\Infrastructure\Server\Client;
 use PHPMud\World\Infrastructure\Server\ClientDisconnectedException;
@@ -32,11 +33,16 @@ final class TelnetClient implements Client
 
     public function send(CommandResponseInterface $commandResponse): void
     {
-        $text = $this->commandResponseRenderer->render($commandResponse);
-        if (null === $text) {
-            return;
-        }
+        $this->write($this->commandResponseRenderer->render($commandResponse));
+    }
 
+    public function notify(NotificationInterface $notification): void
+    {
+        $this->write($this->commandResponseRenderer->renderNotification($notification));
+    }
+
+    private function write(string $text): void
+    {
         try {
             $this->socket->write($text);
         } catch (StreamException $exception) {

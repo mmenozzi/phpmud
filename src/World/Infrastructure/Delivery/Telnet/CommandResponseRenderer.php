@@ -10,25 +10,30 @@ use PHPMud\World\Application\Help\Unknown\UnknownCommandResponse;
 use PHPMud\World\Application\Movement\LocationView;
 use PHPMud\World\Application\Movement\Look\LookCommandResponse;
 use PHPMud\World\Application\Movement\Move\MoveCommandResponse;
-use PHPMud\World\Application\Time\Tick\TickCommandResponse;
+use PHPMud\World\Application\NotificationInterface;
+use PHPMud\World\Application\Time\DayPhaseStarted\DayPhaseStartedNotification;
 use PHPMud\World\Domain\Location\Direction;
 
 final class CommandResponseRenderer
 {
-    public function render(CommandResponseInterface $commandResponse): ?string
+    public function render(CommandResponseInterface $commandResponse): string
     {
-        $lines = $this->renderLines($commandResponse);
-        if (null === $lines) {
-            return null;
+        return $this->toBlock($this->renderLines($commandResponse));
+    }
+
+    public function renderNotification(NotificationInterface $notification): string
+    {
+        if ($notification instanceof DayPhaseStartedNotification) {
+            return $this->toBlock([DayPhaseMessage::of($notification->getDayPhase())]);
         }
 
-        return implode('', array_map(static fn (string $line): string => $line.PHP_EOL, $lines)).PHP_EOL;
+        throw new \InvalidArgumentException(sprintf('Notification of type "%s" is not supported.', get_class($notification)));
     }
 
     /**
-     * @return list<string>|null
+     * @return list<string>
      */
-    private function renderLines(CommandResponseInterface $commandResponse): ?array
+    private function renderLines(CommandResponseInterface $commandResponse): array
     {
         if ($commandResponse instanceof MoveCommandResponse) {
             if (!$commandResponse->isSuccessful()) {
@@ -50,15 +55,6 @@ final class CommandResponseRenderer
             return [sprintf('Il tuo nome è "%s".', $commandResponse->getCharacterName())];
         }
 
-        if ($commandResponse instanceof TickCommandResponse) {
-            $startedDayPhase = $commandResponse->getStartedDayPhase();
-            if (null === $startedDayPhase) {
-                return null;
-            }
-
-            return [DayPhaseMessage::of($startedDayPhase)];
-        }
-
         throw new \InvalidArgumentException(sprintf('Command response of type "%s" is not supported.', get_class($commandResponse)));
     }
 
@@ -73,5 +69,13 @@ final class CommandResponseRenderer
         }
 
         return $lines;
+    }
+
+    /**
+     * @param list<string> $lines
+     */
+    private function toBlock(array $lines): string
+    {
+        return implode('', array_map(static fn (string $line): string => $line.PHP_EOL, $lines)).PHP_EOL;
     }
 }

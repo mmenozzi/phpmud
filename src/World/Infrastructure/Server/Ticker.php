@@ -6,9 +6,7 @@ namespace PHPMud\World\Infrastructure\Server;
 
 use PHPMud\World\Application\CommandRouter;
 use PHPMud\World\Application\Time\Tick\TickCommand;
-use PHPMud\World\Application\Time\Tick\TickCommandResponse;
 use Revolt\EventLoop;
-use Webmozart\Assert\Assert;
 
 use function Amp\async;
 
@@ -17,7 +15,6 @@ final readonly class Ticker
     public function __construct(
         private float $tickInterval,
         private CommandRouter $commandRouter,
-        private ClientRegistry $clientRegistry,
     ) {
     }
 
@@ -31,18 +28,6 @@ final readonly class Ticker
     private function tick(): void
     {
         $command = new TickCommand();
-        $response = $this->commandRouter->resolve($command)->execute($command);
-        Assert::isInstanceOf($response, TickCommandResponse::class);
-        if (null === $response->getStartedDayPhase()) {
-            return;
-        }
-
-        foreach ($this->clientRegistry->getAuthenticatedClients() as $client) {
-            try {
-                $client->send($response);
-            } catch (ClientDisconnectedException) {
-                $this->clientRegistry->remove($client);
-            }
-        }
+        $this->commandRouter->resolve($command)->execute($command);
     }
 }
