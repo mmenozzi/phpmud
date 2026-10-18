@@ -3,6 +3,7 @@
 declare(strict_types=1);
 
 require_once __DIR__ . '/../vendor/autoload.php';
+require_once __DIR__ . '/location_ids.php';
 
 // read locations form CSV file
 function readLocationsFromCsv(string $filepath): array
@@ -50,7 +51,7 @@ $locationRepository = new \PHPMud\World\Infrastructure\Repository\Filesystem\Loc
 $alreadyAddedLocations = [];
 foreach ($locations as $id => $locationData) {
     if (!in_array($id, $alreadyAddedLocations, true)) {
-        $location = new \PHPMud\World\Domain\Location\Location($locationData['name'], $locationData['description']);
+        $location = new \PHPMud\World\Domain\Location\Location($locationData['name'], $locationData['description'], locationIdFromCsvId($id));
         $locationRepository->save($location);
         $alreadyAddedLocations[] = $id;
     } else {
@@ -67,7 +68,7 @@ foreach ($locations as $id => $locationData) {
         }
 
         $neighborData = $locations[$neighborId];
-        $neighbor = new \PHPMud\World\Domain\Location\Location($neighborData['name'], $neighborData['description']);
+        $neighbor = new \PHPMud\World\Domain\Location\Location($neighborData['name'], $neighborData['description'], locationIdFromCsvId($neighborId));
         $direction = \PHPMud\World\Domain\Location\Direction::from($directionString);
         $location->placeBorderingLocation($neighbor, \PHPMud\World\Domain\Location\Direction::from($directionString));
         $locationRepository->save($neighbor);

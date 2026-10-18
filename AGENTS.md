@@ -77,6 +77,12 @@ manual/local play; Behat's `PurgeContext` (`@BeforeScenario`) clears the
 repositories (and resets the world clock to hour 0) before each scenario
 regardless, and each feature's
 `Background:` sets up the fixtures it needs.
+The seeded `LocationId`s are stable: `utils/location_ids.php` derives
+each one as a UUID v5 of the CSV `ID` (fixed namespace), passed to
+`Location`'s optional `$id` (`LocationId::fromString()`), so content keyed
+by `LocationId` (the browser client's scenes) survives a re-seed. Without
+an id `Location` still generates one (`LocationId::generate()`, as in
+Behat fixtures).
 
 ## Commit style
 

@@ -17,6 +17,11 @@ final readonly class LocationId
         return new self(Uuid::v6());
     }
 
+    public static function fromString(string $id): self
+    {
+        return new self(Uuid::fromString($id));
+    }
+
     public function equals(self $other): bool
     {
         return $this->uuid->equals($other->uuid);

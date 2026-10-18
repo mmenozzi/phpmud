@@ -14,9 +14,12 @@ final class Location
     /** @var Collection<string, LocationId> */
     private Collection $exits;
 
-    public function __construct(private readonly string $name, private readonly string $description)
-    {
-        $this->id = LocationId::generate();
+    public function __construct(
+        private readonly string $name,
+        private readonly string $description,
+        ?LocationId $id = null,
+    ) {
+        $this->id = $id ?? LocationId::generate();
         $this->exits = new ArrayCollection();
     }
 
