@@ -48,36 +48,32 @@ function readLocationsFromCsv(string $filepath): array
 $locations = readLocationsFromCsv(__DIR__ . '/locations.csv');
 @unlink('/tmp/phpmud.location');
 $locationRepository = new \PHPMud\World\Infrastructure\Repository\Filesystem\LocationRepository('/tmp/phpmud.location');
-$alreadyAddedLocations = [];
+$worldLocations = [];
 foreach ($locations as $id => $locationData) {
-    if (!in_array($id, $alreadyAddedLocations, true)) {
-        $location = new \PHPMud\World\Domain\Location\Location($locationData['name'], $locationData['description'], locationIdFromCsvId($id));
-        $locationRepository->save($location);
-        $alreadyAddedLocations[] = $id;
-    } else {
-        $location = $locationRepository->findByName($locationData['name'])->first();
-    }
+    $worldLocations[$id] = new \PHPMud\World\Domain\Location\Location($locationData['name'], $locationData['description'], locationIdFromCsvId($id));
+}
 
-    foreach (['north', 'east', 'south', 'west', 'up', 'down'] as $directionString) {
-        if (empty($locationData[$directionString])) {
+foreach ($locations as $id => $locationData) {
+    foreach (\PHPMud\World\Domain\Location\Direction::cases() as $direction) {
+        if (empty($locationData[$direction->value])) {
             continue;
         }
-        $neighborId = (int) $locationData[$directionString];
-        if (in_array($neighborId, $alreadyAddedLocations, true)) {
-            continue; // Skip already added locations
+        $neighborId = (int) $locationData[$direction->value];
+        if (!isset($locations[$neighborId])) {
+            throw new \RuntimeException("Location $id has an exit {$direction->value} to the unknown location $neighborId");
         }
-
-        $neighborData = $locations[$neighborId];
-        $neighbor = new \PHPMud\World\Domain\Location\Location($neighborData['name'], $neighborData['description'], locationIdFromCsvId($neighborId));
-        $direction = \PHPMud\World\Domain\Location\Direction::from($directionString);
-        $location->placeBorderingLocation($neighbor, \PHPMud\World\Domain\Location\Direction::from($directionString));
-        $locationRepository->save($neighbor);
-        $locationRepository->save($location);
-        $alreadyAddedLocations[] = $neighborId;
+        if ((int) $locations[$neighborId][$direction->opposite()->value] !== $id) {
+            throw new \RuntimeException("Location $id has an exit {$direction->value} to $neighborId, but $neighborId has no exit {$direction->opposite()->value} back to $id");
+        }
+        $worldLocations[$id]->placeBorderingLocation($worldLocations[$neighborId], $direction);
     }
 }
 
-$character = new \PHPMud\World\Domain\Character\Character('John', $locationRepository->findAll()->first()->getId(), password_hash('p4ssw0rd', PASSWORD_DEFAULT));
+foreach ($worldLocations as $location) {
+    $locationRepository->save($location);
+}
+
+$character = new \PHPMud\World\Domain\Character\Character('John', $worldLocations[1]->getId(), password_hash('p4ssw0rd', PASSWORD_DEFAULT));
 @unlink('/tmp/phpmud.character');
 $characterRepository = new \PHPMud\World\Infrastructure\Repository\Filesystem\CharacterRepository('/tmp/phpmud.character');
 $characterRepository->save($character);
