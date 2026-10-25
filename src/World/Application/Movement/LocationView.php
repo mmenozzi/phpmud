@@ -4,11 +4,13 @@ declare(strict_types=1);
 
 namespace PHPMud\World\Application\Movement;
 
+use PHPMud\World\Domain\Character\CharacterName;
+
 final readonly class LocationView
 {
     /**
      * @param array<string, array{id: string, name: string}> $exits      neighbour locations keyed by Direction value
-     * @param list<array{name: string}>                      $characters other characters in the location
+     * @param list<array{name: CharacterName}>               $characters other characters in the location
      */
     public function __construct(
         private string $id,
@@ -43,7 +45,7 @@ final readonly class LocationView
     }
 
     /**
-     * @return list<array{name: string}>
+     * @return list<array{name: CharacterName}>
      */
     public function getCharacters(): array
     {

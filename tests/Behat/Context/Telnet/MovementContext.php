@@ -62,7 +62,7 @@ final class MovementContext implements Context
      */
     public function characterShouldSeeMeLeaveTo(string $name, Direction $direction): void
     {
-        $this->waitForBroadcast(MovementMessage::left($this->getMyCharacter()->getName(), $direction), $name);
+        $this->waitForBroadcast(MovementMessage::left($this->getMyCharacter()->getName()->toString(), $direction), $name);
     }
 
     /**
@@ -70,7 +70,7 @@ final class MovementContext implements Context
      */
     public function characterShouldSeeMeArriveFrom(string $name, Direction $direction): void
     {
-        $this->waitForBroadcast(MovementMessage::arrived($this->getMyCharacter()->getName(), $direction->opposite()), $name);
+        $this->waitForBroadcast(MovementMessage::arrived($this->getMyCharacter()->getName()->toString(), $direction->opposite()), $name);
     }
 
     /**
@@ -86,7 +86,7 @@ final class MovementContext implements Context
      */
     public function iShouldNotSeeMyselfHere(): void
     {
-        Assert::false(in_array($this->getMyCharacter()->getName(), $this->getCharacterNamesHere(), true));
+        Assert::false(in_array($this->getMyCharacter()->getName()->toString(), $this->getCharacterNamesHere(), true));
     }
 
     /**

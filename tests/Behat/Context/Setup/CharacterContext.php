@@ -7,6 +7,7 @@ namespace PHPMud\Tests\Behat\Context\Setup;
 use Behat\Behat\Context\Context;
 use PHPMud\Tests\Behat\Service\SharedStorage;
 use PHPMud\World\Domain\Character\Character;
+use PHPMud\World\Domain\Character\CharacterName;
 use PHPMud\World\Domain\Character\CharacterRepositoryInterface;
 use PHPMud\World\Domain\Location\Location;
 
@@ -26,7 +27,7 @@ final class CharacterContext implements Context
     public function myCharacterIsInTheLocation(Location $location): void
     {
         $character = new Character(
-            self::DEFAULT_CHARACTER_NAME,
+            CharacterName::fromString(self::DEFAULT_CHARACTER_NAME),
             $location->getId(),
             password_hash('p4ssw0rd', PASSWORD_DEFAULT),
         );
@@ -39,7 +40,7 @@ final class CharacterContext implements Context
      */
     public function thereIsTheCharacterInTheLocation(string $name, Location $location): void
     {
-        $character = new Character($name, $location->getId(), password_hash('p4ssw0rd', PASSWORD_DEFAULT));
+        $character = new Character(CharacterName::fromString($name), $location->getId(), password_hash('p4ssw0rd', PASSWORD_DEFAULT));
         $this->characterRepository->save($character);
         $characters = $this->sharedStorage->has('characters') ? $this->sharedStorage->get('characters') : [];
         $this->sharedStorage->set('characters', [...$characters, $name => $character]);
@@ -50,7 +51,7 @@ final class CharacterContext implements Context
      */
     public function thereIsTheCharacterWithPasswordInTheLocation(string $name, string $password, Location $location): void
     {
-        $character = new Character($name, $location->getId(), password_hash($password, PASSWORD_DEFAULT));
+        $character = new Character(CharacterName::fromString($name), $location->getId(), password_hash($password, PASSWORD_DEFAULT));
         $this->characterRepository->save($character);
         $this->sharedStorage->set('character', $character);
     }

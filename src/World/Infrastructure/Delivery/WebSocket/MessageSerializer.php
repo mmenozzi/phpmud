@@ -41,7 +41,12 @@ final class MessageSerializer
     private function normalize(CommandResponseInterface $commandResponse): array
     {
         if ($commandResponse instanceof IdentifyCharacterCommandResponse) {
-            return ['type' => 'identified', 'name' => $commandResponse->getCharacterName(), 'exists' => $commandResponse->exists()];
+            return [
+                'type' => 'identified',
+                'name' => $commandResponse->getCharacterName()?->toString(),
+                'exists' => $commandResponse->exists(),
+                'allowed' => $commandResponse->isNameAllowed(),
+            ];
         }
 
         if ($commandResponse instanceof AuthenticateCharacterCommandResponse) {
@@ -53,7 +58,7 @@ final class MessageSerializer
         }
 
         if ($commandResponse instanceof WhoAmICommandResponse) {
-            return ['type' => 'whoami', 'name' => $commandResponse->getCharacterName()];
+            return ['type' => 'whoami', 'name' => $commandResponse->getCharacterName()->toString()];
         }
 
         if ($commandResponse instanceof LookCommandResponse) {
@@ -89,11 +94,11 @@ final class MessageSerializer
         }
 
         if ($notification instanceof CharacterLeftNotification) {
-            return ['type' => 'character_left', 'name' => $notification->getCharacterName(), 'via' => $notification->getVia()?->value];
+            return ['type' => 'character_left', 'name' => $notification->getCharacterName()->toString(), 'via' => $notification->getVia()?->value];
         }
 
         if ($notification instanceof CharacterArrivedNotification) {
-            return ['type' => 'character_arrived', 'name' => $notification->getCharacterName(), 'via' => $notification->getVia()?->value];
+            return ['type' => 'character_arrived', 'name' => $notification->getCharacterName()->toString(), 'via' => $notification->getVia()?->value];
         }
 
         throw new \InvalidArgumentException(sprintf('Notification of type "%s" is not supported.', get_class($notification)));
@@ -110,7 +115,10 @@ final class MessageSerializer
             'name' => $locationView->getName(),
             'description' => $locationView->getDescription(),
             'exits' => (object) $locationView->getExits(),
-            'characters' => $locationView->getCharacters(),
+            'characters' => array_map(
+                static fn (array $character): array => ['name' => $character['name']->toString()],
+                $locationView->getCharacters(),
+            ),
         ];
     }
 

@@ -13,7 +13,7 @@ interface CharacterRepositoryInterface
 
     public function get(CharacterId $id): Character;
 
-    public function findOneByName(string $name): ?Character;
+    public function findOneByName(CharacterName $name): ?Character;
 
     /**
      * @return Collection<array-key, Character>

@@ -15,7 +15,7 @@ final class Character
     private readonly CharacterId $id;
 
     public function __construct(
-        private readonly string $name,
+        private readonly CharacterName $name,
         private LocationId $locationId,
         private string $passwordHash,
     ) {
@@ -27,7 +27,7 @@ final class Character
         return $this->id;
     }
 
-    public function getName(): string
+    public function getName(): CharacterName
     {
         return $this->name;
     }

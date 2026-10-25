@@ -9,6 +9,7 @@ use Amp\Websocket\WebsocketClosedException;
 use PHPMud\World\Application\CommandResponseInterface;
 use PHPMud\World\Application\NotificationInterface;
 use PHPMud\World\Domain\Character\CharacterId;
+use PHPMud\World\Domain\Character\CharacterName;
 use PHPMud\World\Infrastructure\Server\Client;
 use PHPMud\World\Infrastructure\Server\ClientDisconnectedException;
 
@@ -16,7 +17,7 @@ final class WebSocketClient implements Client
 {
     private ?CharacterId $characterId = null;
 
-    private ?string $identifiedCharacterName = null;
+    private ?CharacterName $identifiedCharacterName = null;
 
     private int $failedPasswordAttempts = 0;
 
@@ -61,12 +62,12 @@ final class WebSocketClient implements Client
         return $this->websocketClient->getRemoteAddress()->toString();
     }
 
-    public function identify(?string $characterName): void
+    public function identify(?CharacterName $characterName): void
     {
         $this->identifiedCharacterName = $characterName;
     }
 
-    public function getIdentifiedCharacterName(): ?string
+    public function getIdentifiedCharacterName(): ?CharacterName
     {
         return $this->identifiedCharacterName;
     }

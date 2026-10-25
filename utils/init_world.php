@@ -73,7 +73,7 @@ foreach ($worldLocations as $location) {
     $locationRepository->save($location);
 }
 
-$character = new \PHPMud\World\Domain\Character\Character('John', $worldLocations[1]->getId(), password_hash('p4ssw0rd', PASSWORD_DEFAULT));
+$character = new \PHPMud\World\Domain\Character\Character(\PHPMud\World\Domain\Character\CharacterName::fromString('John'), $worldLocations[1]->getId(), password_hash('p4ssw0rd', PASSWORD_DEFAULT));
 @unlink('/tmp/phpmud.character');
 $characterRepository = new \PHPMud\World\Infrastructure\Repository\Filesystem\CharacterRepository('/tmp/phpmud.character');
 $characterRepository->save($character);

@@ -57,14 +57,21 @@ final readonly class TelnetClientHandler
     {
         $response = $this->execute(new IdentifyCharacterCommand($characterName));
         Assert::isInstanceOf($response, IdentifyCharacterCommandResponse::class);
+        $identifiedName = $response->getCharacterName();
+        if (null === $identifiedName) {
+            $this->write($client, 'Nome non ammesso: solo lettere, da 3 a 15.');
+            $this->promptCharacterName($client);
+
+            return;
+        }
         if (!$response->exists()) {
-            $this->write($client, sprintf('Il personaggio "%s" non esiste.', $characterName));
+            $this->write($client, sprintf('Il personaggio "%s" non esiste.', $identifiedName->toString()));
             $this->promptCharacterName($client);
 
             return;
         }
 
-        $client->beginAuthenticationWithCharacterName($response->getCharacterName());
+        $client->beginAuthenticationWithCharacterName($identifiedName);
         $this->promptPassword($client);
     }
 

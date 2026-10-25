@@ -73,7 +73,15 @@ final class AccessContext implements Context
      */
     public function iShouldBeToldThatTheCharacterDoesNotExist(string $name): void
     {
-        Assert::eq($this->getIdentifyResponse(), ['type' => 'identified', 'name' => $name, 'exists' => false]);
+        Assert::eq($this->getIdentifyResponse(), ['type' => 'identified', 'name' => $name, 'exists' => false, 'allowed' => true]);
+    }
+
+    /**
+     * @Then /^I should be told that the character name is not allowed$/
+     */
+    public function iShouldBeToldThatTheCharacterNameIsNotAllowed(): void
+    {
+        Assert::eq($this->getIdentifyResponse(), ['type' => 'identified', 'name' => null, 'exists' => false, 'allowed' => false]);
     }
 
     /**
@@ -145,11 +153,11 @@ final class AccessContext implements Context
     private function logIn(Character $character, string $client): void
     {
         $this->connect($client);
-        $this->sendMessage(['type' => 'identify', 'name' => $character->getName()], $client);
-        Assert::eq($this->getNextResponse($client), ['type' => 'identified', 'name' => $character->getName(), 'exists' => true]);
+        $this->sendMessage(['type' => 'identify', 'name' => $character->getName()->toString()], $client);
+        Assert::eq($this->getNextResponse($client), ['type' => 'identified', 'name' => $character->getName()->toString(), 'exists' => true, 'allowed' => true]);
         $this->sendMessage(['type' => 'authenticate', 'password' => 'p4ssw0rd'], $client);
         Assert::eq($this->getNextResponse($client), ['type' => 'authenticated']);
-        Assert::eq($this->getNextResponse($client), ['type' => 'whoami', 'name' => $character->getName()]);
+        Assert::eq($this->getNextResponse($client), ['type' => 'whoami', 'name' => $character->getName()->toString()]);
         Assert::eq($this->getNextResponse($client)['type'], 'location');
         $this->sharedStorage->set(sprintf('current_day_phase.%s', $client), $this->getNextResponse($client));
     }

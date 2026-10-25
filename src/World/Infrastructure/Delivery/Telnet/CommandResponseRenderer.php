@@ -31,11 +31,11 @@ final class CommandResponseRenderer
         }
 
         if ($notification instanceof CharacterLeftNotification) {
-            return $this->toBlock([MovementMessage::left($notification->getCharacterName(), $notification->getVia())]);
+            return $this->toBlock([MovementMessage::left($notification->getCharacterName()->toString(), $notification->getVia())]);
         }
 
         if ($notification instanceof CharacterArrivedNotification) {
-            return $this->toBlock([MovementMessage::arrived($notification->getCharacterName(), $notification->getVia())]);
+            return $this->toBlock([MovementMessage::arrived($notification->getCharacterName()->toString(), $notification->getVia())]);
         }
 
         throw new \InvalidArgumentException(sprintf('Notification of type "%s" is not supported.', get_class($notification)));
@@ -63,7 +63,7 @@ final class CommandResponseRenderer
         }
 
         if ($commandResponse instanceof WhoAmICommandResponse) {
-            return [sprintf('Il tuo nome è "%s".', $commandResponse->getCharacterName())];
+            return [sprintf('Il tuo nome è "%s".', $commandResponse->getCharacterName()->toString())];
         }
 
         if ($commandResponse instanceof CurrentDayPhaseCommandResponse) {
@@ -82,7 +82,10 @@ final class CommandResponseRenderer
         foreach ($locationView->getExits() as $direction => $neighbor) {
             $lines[] = sprintf('%s: %s', DirectionLabel::of(Direction::from($direction)), $neighbor['name']);
         }
-        $names = array_column($locationView->getCharacters(), 'name');
+        $names = array_map(
+            static fn (array $character): string => $character['name']->toString(),
+            $locationView->getCharacters(),
+        );
         if ([] !== $names) {
             $lines[] = sprintf('%s: %s.', 1 === count($names) ? "Qui c'è" : 'Qui ci sono', implode(', ', $names));
         }

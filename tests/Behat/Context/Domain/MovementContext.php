@@ -100,7 +100,7 @@ final class MovementContext implements Context
      */
     public function iShouldNotSeeMyselfHere(): void
     {
-        Assert::false(in_array($this->getMyCharacter()->getName(), $this->getCharacterNamesHere(), true));
+        Assert::false(in_array($this->getMyCharacter()->getName()->toString(), $this->getCharacterNamesHere(), true));
     }
 
     /**
@@ -111,7 +111,10 @@ final class MovementContext implements Context
         $response = $this->sharedStorage->get('move_response');
         Assert::isInstanceOf($response, MoveCommandResponse::class);
 
-        return array_column($response->getLocationView()->getCharacters(), 'name');
+        return array_map(
+            static fn (array $character): string => $character['name']->toString(),
+            $response->getLocationView()->getCharacters(),
+        );
     }
 
     private function assertNotified(string $name, NotificationInterface $expected): void

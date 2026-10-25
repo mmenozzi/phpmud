@@ -6,6 +6,7 @@ namespace PHPMud\World\Infrastructure\Repository\InMemory;
 
 use PHPMud\World\Domain\Character\Character;
 use PHPMud\World\Domain\Character\CharacterId;
+use PHPMud\World\Domain\Character\CharacterName;
 use PHPMud\World\Domain\Character\CharacterRepositoryInterface;
 use PHPMud\World\Domain\Location\LocationId;
 use Webgriffe\InMemoryRepository\ObjectRepository;
@@ -40,9 +41,11 @@ final class CharacterRepository extends ObjectRepository implements CharacterRep
         return $character;
     }
 
-    public function findOneByName(string $name): ?Character
+    public function findOneByName(CharacterName $name): ?Character
     {
-        return $this->findOneBy(['name' => $name]);
+        return $this->objectCollection->findFirst(
+            static fn (int|string $key, Character $character): bool => $character->getName()->equals($name),
+        );
     }
 
     public function findByLocation(LocationId $locationId): array

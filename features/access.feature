@@ -33,6 +33,23 @@ Feature: Access
     And I should be prompted for my character name
 
   @domain @telnet @websocket
+  Scenario: Entering a character name that is not allowed
+    When I connect to the game
+    Then I should be prompted for my character name
+    When I enter the character name "V0ldemort"
+    Then I should be told that the character name is not allowed
+    And I should be prompted for my character name
+
+  @domain @telnet @websocket
+  Scenario: Entering the character name in a different case
+    When I connect to the game
+    Then I should be prompted for my character name
+    When I enter the character name "harrypotter"
+    Then I should be prompted for my password
+    When I enter the password "hogwarts"
+    Then I should see that I am "HarryPotter"
+
+  @domain @telnet @websocket
   Scenario: Retrying after a wrong password
     When I connect to the game
     Then I should be prompted for my character name

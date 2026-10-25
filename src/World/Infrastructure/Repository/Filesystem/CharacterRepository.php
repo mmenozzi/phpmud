@@ -8,6 +8,7 @@ use Doctrine\Common\Collections\ArrayCollection;
 use Doctrine\Common\Collections\Collection;
 use PHPMud\World\Domain\Character\Character;
 use PHPMud\World\Domain\Character\CharacterId;
+use PHPMud\World\Domain\Character\CharacterName;
 use PHPMud\World\Domain\Character\CharacterRepositoryInterface;
 use PHPMud\World\Domain\Location\LocationId;
 use Webmozart\Assert\Assert;
@@ -39,10 +40,10 @@ final class CharacterRepository implements CharacterRepositoryInterface
         return $character;
     }
 
-    public function findOneByName(string $name): ?Character
+    public function findOneByName(CharacterName $name): ?Character
     {
         $result = $this->load()->filter(function (Character $character) use ($name) {
-            return $character->getName() === $name;
+            return $character->getName()->equals($name);
         });
         if ($result->isEmpty()) {
             return null;

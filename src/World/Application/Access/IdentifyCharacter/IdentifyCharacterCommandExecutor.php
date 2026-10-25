@@ -6,7 +6,9 @@ namespace PHPMud\World\Application\Access\IdentifyCharacter;
 
 use PHPMud\World\Application\CommandInterface;
 use PHPMud\World\Application\ExecutorInterface;
+use PHPMud\World\Domain\Character\CharacterName;
 use PHPMud\World\Domain\Character\CharacterRepositoryInterface;
+use PHPMud\World\Domain\Character\InvalidCharacterNameException;
 use Webmozart\Assert\Assert;
 
 final readonly class IdentifyCharacterCommandExecutor implements ExecutorInterface
@@ -18,11 +20,17 @@ final readonly class IdentifyCharacterCommandExecutor implements ExecutorInterfa
     public function execute(CommandInterface $command): IdentifyCharacterCommandResponse
     {
         Assert::isInstanceOf($command, IdentifyCharacterCommand::class);
-        $characterName = $command->getCharacterName();
+        try {
+            $characterName = CharacterName::fromString($command->getCharacterName());
+        } catch (InvalidCharacterNameException) {
+            return IdentifyCharacterCommandResponse::notAllowed();
+        }
 
-        return new IdentifyCharacterCommandResponse(
-            $characterName,
-            null !== $this->characterRepository->findOneByName($characterName),
-        );
+        $character = $this->characterRepository->findOneByName($characterName);
+        if (null === $character) {
+            return IdentifyCharacterCommandResponse::unknown($characterName);
+        }
+
+        return IdentifyCharacterCommandResponse::existing($character->getName());
     }
 }

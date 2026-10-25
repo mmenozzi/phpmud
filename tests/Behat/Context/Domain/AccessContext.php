@@ -71,7 +71,15 @@ final class AccessContext implements Context
     {
         $response = $this->getIdentifyResponse();
         Assert::false($response->exists());
-        Assert::eq($response->getCharacterName(), $name);
+        Assert::eq($response->getCharacterName()?->toString(), $name);
+    }
+
+    /**
+     * @Then /^I should be told that the character name is not allowed$/
+     */
+    public function iShouldBeToldThatTheCharacterNameIsNotAllowed(): void
+    {
+        Assert::false($this->getIdentifyResponse()->isNameAllowed());
     }
 
     /**
@@ -92,8 +100,10 @@ final class AccessContext implements Context
     public function iEnterThePassword(string $password): void
     {
         $failedAttempts = $this->sharedStorage->has('failed_password_attempts') ? $this->sharedStorage->get('failed_password_attempts') : 0;
+        $characterName = $this->getIdentifyResponse()->getCharacterName();
+        Assert::notNull($characterName);
         $response = $this->authenticateCharacterCommandExecutor->execute(
-            new AuthenticateCharacterCommand($this->getIdentifyResponse()->getCharacterName(), $password, $failedAttempts),
+            new AuthenticateCharacterCommand($characterName, $password, $failedAttempts),
         );
         if (!$response->isSuccessful()) {
             $this->sharedStorage->set('failed_password_attempts', $failedAttempts + 1);
@@ -118,7 +128,7 @@ final class AccessContext implements Context
         Assert::notNull($characterId);
         $response = $this->whoAmICommandExecutor->execute(new WhoAmICommand($characterId));
         Assert::isInstanceOf($response, WhoAmICommandResponse::class);
-        Assert::eq($response->getCharacterName(), $name);
+        Assert::eq($response->getCharacterName()->toString(), $name);
     }
 
     /**

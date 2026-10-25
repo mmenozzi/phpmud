@@ -88,6 +88,14 @@ final class AccessContext implements Context
     }
 
     /**
+     * @Then /^I should be told that the character name is not allowed$/
+     */
+    public function iShouldBeToldThatTheCharacterNameIsNotAllowed(): void
+    {
+        Assert::eq($this->getNextResponse(), 'Nome non ammesso: solo lettere, da 3 a 15.');
+    }
+
+    /**
      * @Then /^I should be told that the password is wrong$/
      */
     public function iShouldBeToldThatThePasswordIsWrong(): void
@@ -129,10 +137,10 @@ final class AccessContext implements Context
         $this->connect($client);
         Assert::notEmpty($this->getNextResponse($client)); // banner
         Assert::eq($this->getNextResponse($client), 'Inserisci il nome del tuo personaggio...');
-        $this->writeLine($character->getName(), $client);
+        $this->writeLine($character->getName()->toString(), $client);
         Assert::eq($this->getNextResponse($client), 'Inserisci la password...');
         $this->writeLine('p4ssw0rd', $client);
-        Assert::eq($this->getNextResponse($client), sprintf('Il tuo nome è "%s".', $character->getName()));
+        Assert::eq($this->getNextResponse($client), sprintf('Il tuo nome è "%s".', $character->getName()->toString()));
         Assert::notEmpty($this->getNextResponse($client)); // current location description
         $this->sharedStorage->set(sprintf('current_day_phase.%s', $client), $this->getNextResponse($client));
     }

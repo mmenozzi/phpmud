@@ -5,17 +5,18 @@ declare(strict_types=1);
 namespace PHPMud\World\Application\Access\AuthenticateCharacter;
 
 use PHPMud\World\Application\CommandInterface;
+use PHPMud\World\Domain\Character\CharacterName;
 
 final readonly class AuthenticateCharacterCommand implements CommandInterface
 {
     public function __construct(
-        private string $characterName,
+        private CharacterName $characterName,
         private string $password,
         private int $failedAttempts,
     ) {
     }
 
-    public function getCharacterName(): string
+    public function getCharacterName(): CharacterName
     {
         return $this->characterName;
     }

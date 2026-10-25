@@ -9,6 +9,7 @@ use Amp\Socket\ResourceSocket;
 use PHPMud\World\Application\CommandResponseInterface;
 use PHPMud\World\Application\NotificationInterface;
 use PHPMud\World\Domain\Character\CharacterId;
+use PHPMud\World\Domain\Character\CharacterName;
 use PHPMud\World\Infrastructure\Server\Client;
 use PHPMud\World\Infrastructure\Server\ClientDisconnectedException;
 
@@ -16,7 +17,7 @@ final class TelnetClient implements Client
 {
     private ?CharacterId $characterId = null;
 
-    private ?string $authenticatingCharacterName = null;
+    private ?CharacterName $authenticatingCharacterName = null;
 
     private int $failedPasswordAttempts = 0;
 
@@ -65,12 +66,12 @@ final class TelnetClient implements Client
         return null !== $this->authenticatingCharacterName;
     }
 
-    public function beginAuthenticationWithCharacterName(string $characterName): void
+    public function beginAuthenticationWithCharacterName(CharacterName $characterName): void
     {
         $this->authenticatingCharacterName = $characterName;
     }
 
-    public function getAuthenticatingCharacterName(): string
+    public function getAuthenticatingCharacterName(): CharacterName
     {
         if (null === $this->authenticatingCharacterName) {
             throw new \LogicException('No character name is being authenticated.');

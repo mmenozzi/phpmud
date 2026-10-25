@@ -114,7 +114,7 @@ $('login-form').addEventListener('submit', (event) => {
     const name = $('login-name').value.trim();
     const password = $('login-password').value;
     loginMessage('');
-    if (state.identifiedName !== name) {
+    if (state.identifiedName?.toLowerCase() !== name.toLowerCase()) {
         state.pendingPassword = password;
         connection.send({ type: 'identify', name });
 
@@ -134,7 +134,14 @@ document.addEventListener('keydown', (event) => {
 });
 
 connection
-    .on('identified', ({ name, exists }) => {
+    .on('identified', ({ name, exists, allowed }) => {
+        if (!allowed) {
+            state.identifiedName = null;
+            state.pendingPassword = null;
+            loginMessage('Nome non ammesso: solo lettere, da 3 a 15.');
+
+            return;
+        }
         if (!exists) {
             state.identifiedName = null;
             state.pendingPassword = null;
