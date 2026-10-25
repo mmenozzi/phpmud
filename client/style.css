@@ -195,6 +195,12 @@ button:hover, button:focus-visible {
     color: var(--ink);
 }
 
+.card .hint {
+    margin-top: -8px;
+    font-size: 0.85em;
+    color: var(--muted);
+}
+
 .card .actions {
     display: flex;
     justify-content: flex-end;

@@ -76,8 +76,8 @@ Then play with:
 
 ### Browser
 
-Open <http://127.0.0.1:10667/> and log in with the same credentials, or enter a
-new name to get the character creation form. The
+Open <http://127.0.0.1:10667/> and choose whether to log in with an existing
+character or create a new one (name, sex, password typed twice). The
 location is drawn as a top-down room: click a door or the stairs (or use the
 arrow keys, PageUp/PageDown) to move. The side panel shows the room
 description, the exits, who is here and an event log.

@@ -31,16 +31,26 @@
     </main>
 
     <div id="login" class="overlay">
-        <form id="login-form" class="card" autocomplete="off">
+        <div id="welcome" class="card">
+            <h2>Benvenuto in PHPMud</h2>
+            <p>Hai già un personaggio o vuoi crearne uno nuovo?</p>
+            <button type="button" id="choose-login">Entra con il tuo personaggio</button>
+            <button type="button" id="choose-create" class="secondary">Crea un nuovo personaggio</button>
+        </div>
+        <form id="login-form" class="card" autocomplete="off" hidden>
             <h2>Entra nel mondo</h2>
-            <label>Personaggio <input id="login-name" name="name" required autofocus></label>
+            <label>Personaggio <input id="login-name" name="name" required></label>
             <label>Password <input id="login-password" name="password" type="password" required></label>
-            <button type="submit">Entra</button>
+            <div class="actions">
+                <button type="button" class="secondary back">Indietro</button>
+                <button type="submit">Entra</button>
+            </div>
             <p id="login-message" class="message" role="alert"></p>
         </form>
         <form id="create-form" class="card" autocomplete="off" hidden>
             <h2>Nuovo personaggio</h2>
-            <p>Il personaggio <strong id="create-name"></strong> non esiste ancora. Vuoi crearlo?</p>
+            <label>Nome <input id="create-name" name="name" required minlength="3" maxlength="15"></label>
+            <p class="hint">Da 3 a 15 lettere.</p>
             <fieldset class="choice">
                 <legend>Sesso</legend>
                 <label><input type="radio" name="sex" value="male" required> Maschio</label>
@@ -49,7 +59,7 @@
             <label>Password <input id="create-password" name="password" type="password" required></label>
             <label>Ripeti la password <input id="create-password-repeat" name="password-repeat" type="password" required></label>
             <div class="actions">
-                <button type="button" id="create-cancel" class="secondary">Indietro</button>
+                <button type="button" class="secondary back">Indietro</button>
                 <button type="submit">Crea</button>
             </div>
             <p id="create-message" class="message" role="alert"></p>

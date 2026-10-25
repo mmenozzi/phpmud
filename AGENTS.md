@@ -414,8 +414,8 @@ Three layers, strict dependency direction `Infrastructure → Application → Do
       `DayPhase`), never the aggregates' internal shape. Every message is
       an object with a `type`. v1:
       - client → server: `identify {name}`, `authenticate {password}`,
-        `create {name, password, sex}` (`sex`: `male`|`female`; the
-        client confirms the name and the repeated password itself),
+        `create {name, password, sex}` (`sex`: `male`|`female`; needs no
+        `identify` first; the client checks the repeated password itself),
         `look`, `move {direction}`;
       - responses: `identified {name, exists, allowed}` (`name` is the
         canonical one, null when not allowed), `authenticated`,
@@ -455,8 +455,9 @@ origin `AllowOriginAcceptor` allows). Vanilla JS ES modules + SVG, no
 build step and no Node toolchain:
 
 - `js/connection.js` wraps the `WebSocket` and dispatches messages by
-  `type`; `js/main.js` holds the client state (login flow `identify` →
-  `authenticate`, or the creation form → `create` for an unknown name,
+  `type`; `js/main.js` holds the client state (a welcome card to choose
+  between logging in, `identify` → `authenticate`, and creating a
+  character, a form that checks the repeated password and sends `create`,
   current location, occupants, pending move) and the
   side panel (room text, exit buttons, who is here, event log);
 - `js/scene.js` draws the location as a top-down SVG room: doors on the
