@@ -29,7 +29,9 @@ final class WorldClockRepository implements WorldClockRepositoryInterface
 
     public function save(WorldClock $worldClock): void
     {
-        file_put_contents($this->filepath.'.tmp', serialize($worldClock));
-        rename($this->filepath.'.tmp', $this->filepath);
+        $tmpFilepath = tempnam(\dirname($this->filepath), basename($this->filepath));
+        Assert::string($tmpFilepath);
+        file_put_contents($tmpFilepath, serialize($worldClock));
+        rename($tmpFilepath, $this->filepath);
     }
 }
