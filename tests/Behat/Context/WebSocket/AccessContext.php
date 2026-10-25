@@ -130,6 +130,14 @@ final class AccessContext implements Context
     }
 
     /**
+     * @Then /^"([^"]*)" should see "([^"]*)" appear as (male|female)$/
+     */
+    public function characterShouldSeeAppearAs(string $observer, string $name, string $sex): void
+    {
+        $this->waitForBroadcast(['type' => 'character_appeared', 'name' => $name, 'sex' => $sex], $observer);
+    }
+
+    /**
      * @Then /^I should be told that the password is too short$/
      */
     public function iShouldBeToldThatThePasswordIsTooShort(): void

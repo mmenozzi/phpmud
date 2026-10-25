@@ -7,6 +7,8 @@ namespace PHPMud\Tests\Behat\Context\Telnet;
 use Behat\Behat\Context\Context;
 use PHPMud\Tests\Behat\Service\SharedStorage;
 use PHPMud\World\Domain\Character\Character;
+use PHPMud\World\Domain\Character\Sex;
+use PHPMud\World\Infrastructure\Delivery\Telnet\MovementMessage;
 use Webmozart\Assert\Assert;
 
 final class AccessContext implements Context
@@ -160,6 +162,14 @@ final class AccessContext implements Context
     public function iShouldBeToldThatThePasswordsDoNotMatch(): void
     {
         Assert::eq($this->getNextResponse(), 'Le password non coincidono.');
+    }
+
+    /**
+     * @Then /^"([^"]*)" should see "([^"]*)" appear as (male|female)$/
+     */
+    public function characterShouldSeeAppearAs(string $observer, string $name, string $sex): void
+    {
+        $this->waitForBroadcast(MovementMessage::appeared($name, Sex::from($sex)), $observer);
     }
 
     /**

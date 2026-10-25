@@ -92,7 +92,7 @@ trait WebSocketClientTrait
      */
     private function isBroadcast(array $message): bool
     {
-        return in_array($message['type'], ['day_phase_started', 'character_left', 'character_arrived'], true);
+        return in_array($message['type'], ['day_phase_started', 'character_left', 'character_arrived', 'character_appeared'], true);
     }
 
     /**

@@ -7,6 +7,7 @@ namespace PHPMud\World\Infrastructure\Delivery\WebSocket;
 use PHPMud\World\Application\Access\AuthenticateCharacter\AuthenticateCharacterCommandResponse;
 use PHPMud\World\Application\Access\CreateCharacter\CreateCharacterCommandResponse;
 use PHPMud\World\Application\Access\IdentifyCharacter\IdentifyCharacterCommandResponse;
+use PHPMud\World\Application\Character\CharacterCreated\CharacterAppearedNotification;
 use PHPMud\World\Application\Character\WhoAmI\WhoAmICommandResponse;
 use PHPMud\World\Application\CommandResponseInterface;
 use PHPMud\World\Application\Help\Unknown\UnknownCommandResponse;
@@ -108,6 +109,10 @@ final class MessageSerializer
 
         if ($notification instanceof CharacterArrivedNotification) {
             return ['type' => 'character_arrived', 'name' => $notification->getCharacterName()->toString(), 'via' => $notification->getVia()?->value];
+        }
+
+        if ($notification instanceof CharacterAppearedNotification) {
+            return ['type' => 'character_appeared', 'name' => $notification->getCharacterName()->toString(), 'sex' => $notification->getSex()->value];
         }
 
         throw new \InvalidArgumentException(sprintf('Notification of type "%s" is not supported.', get_class($notification)));

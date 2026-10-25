@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace PHPMud\Tests\Behat\Context\Domain;
 
 use Behat\Behat\Context\Context;
+use PHPMud\Tests\Behat\Service\RecordingNotifier;
 use PHPMud\Tests\Behat\Service\SharedStorage;
 use PHPMud\World\Application\Access\AuthenticateCharacter\AuthenticateCharacterCommand;
 use PHPMud\World\Application\Access\AuthenticateCharacter\AuthenticateCharacterCommandExecutor;
@@ -16,10 +17,13 @@ use PHPMud\World\Application\Access\CreateCharacter\CreationFailure;
 use PHPMud\World\Application\Access\IdentifyCharacter\IdentifyCharacterCommand;
 use PHPMud\World\Application\Access\IdentifyCharacter\IdentifyCharacterCommandExecutor;
 use PHPMud\World\Application\Access\IdentifyCharacter\IdentifyCharacterCommandResponse;
+use PHPMud\World\Application\Character\CharacterCreated\CharacterAppearedNotification;
 use PHPMud\World\Application\Character\WhoAmI\WhoAmICommand;
 use PHPMud\World\Application\Character\WhoAmI\WhoAmICommandExecutor;
 use PHPMud\World\Application\Character\WhoAmI\WhoAmICommandResponse;
+use PHPMud\World\Domain\Character\Character;
 use PHPMud\World\Domain\Character\CharacterId;
+use PHPMud\World\Domain\Character\CharacterName;
 use PHPMud\World\Domain\Character\CharacterRepositoryInterface;
 use PHPMud\World\Domain\Character\Sex;
 use Webmozart\Assert\Assert;
@@ -33,6 +37,7 @@ final class AccessContext implements Context
         private readonly WhoAmICommandExecutor $whoAmICommandExecutor,
         private readonly CreateCharacterCommandExecutor $createCharacterCommandExecutor,
         private readonly CharacterRepositoryInterface $characterRepository,
+        private readonly RecordingNotifier $notifier,
     ) {
     }
 
@@ -155,6 +160,20 @@ final class AccessContext implements Context
     {
         $this->createCharacter($name, $password, Sex::Male);
         Assert::true($this->getCreateResponse()->isSuccessful());
+    }
+
+    /**
+     * @Then /^"([^"]*)" should see "([^"]*)" appear as (male|female)$/
+     */
+    public function characterShouldSeeAppearAs(string $observer, string $name, string $sex): void
+    {
+        /** @var array<string, Character> $characters */
+        $characters = $this->sharedStorage->get('characters');
+        Assert::true(in_array(
+            new CharacterAppearedNotification(CharacterName::fromString($name), Sex::from($sex)),
+            $this->notifier->getNotificationsReceivedBy($characters[$observer]->getId()),
+            false,
+        ));
     }
 
     /**

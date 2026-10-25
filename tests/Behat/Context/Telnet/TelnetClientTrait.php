@@ -92,7 +92,7 @@ trait TelnetClientTrait
     private function isBroadcast(string $block): bool
     {
         return in_array($block, array_map(DayPhaseMessage::of(...), DayPhase::cases()), true)
-            || 1 === preg_match('/^\S+ (va verso .+|arriva( d.+)?|se ne va)\.$/u', $block);
+            || 1 === preg_match('/^\S+ (va verso .+|arriva( d.+)?|se ne va|è appars[oa] dal nulla)\.$/u', $block);
     }
 
     private function stripTelnetNegotiation(string $chunk, string $client): string

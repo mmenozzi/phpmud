@@ -241,6 +241,14 @@ connection
         scene.arrive(name, via);
         log(arrivedMessage(name, via));
     })
+    .on('character_appeared', ({ name, sex }) => {
+        if (!state.occupants.includes(name)) {
+            state.occupants.push(name);
+        }
+        renderOccupants();
+        scene.arrive(name, null);
+        log(`${name} è ${sex === 'female' ? 'apparsa' : 'apparso'} dal nulla.`);
+    })
     .on('character_left', ({ name, via }) => {
         state.occupants = state.occupants.filter((occupant) => occupant !== name);
         renderOccupants();

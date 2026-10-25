@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace PHPMud\World\Infrastructure\Delivery\Telnet;
 
+use PHPMud\World\Application\Character\CharacterCreated\CharacterAppearedNotification;
 use PHPMud\World\Application\Character\WhoAmI\WhoAmICommandResponse;
 use PHPMud\World\Application\CommandResponseInterface;
 use PHPMud\World\Application\Help\Unknown\UnknownCommandResponse;
@@ -36,6 +37,10 @@ final class CommandResponseRenderer
 
         if ($notification instanceof CharacterArrivedNotification) {
             return $this->toBlock([MovementMessage::arrived($notification->getCharacterName()->toString(), $notification->getVia())]);
+        }
+
+        if ($notification instanceof CharacterAppearedNotification) {
+            return $this->toBlock([MovementMessage::appeared($notification->getCharacterName()->toString(), $notification->getSex())]);
         }
 
         throw new \InvalidArgumentException(sprintf('Notification of type "%s" is not supported.', get_class($notification)));

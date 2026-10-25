@@ -69,6 +69,11 @@
             <argument type="service" id="phpmud.application.notifier" />
         </service>
 
+        <service id="phpmud.application.character.subscriber.notify_character_created" class="PHPMud\World\Application\Character\CharacterCreated\NotifyCharacterCreated">
+            <argument type="service" id="phpmud.domain.repository.character" />
+            <argument type="service" id="phpmud.application.notifier" />
+        </service>
+
         <service id="phpmud.application.domain_event_dispatcher" class="PHPMud\World\Application\DomainEventDispatcher">
             <call method="addSubscriber">
                 <argument>PHPMud\World\Domain\Time\DayPhaseStarted</argument>
@@ -77,6 +82,10 @@
             <call method="addSubscriber">
                 <argument>PHPMud\World\Domain\Character\CharacterMoved</argument>
                 <argument type="service" id="phpmud.application.movement.subscriber.notify_character_moved" />
+            </call>
+            <call method="addSubscriber">
+                <argument>PHPMud\World\Domain\Character\CharacterCreated</argument>
+                <argument type="service" id="phpmud.application.character.subscriber.notify_character_created" />
             </call>
         </service>
 

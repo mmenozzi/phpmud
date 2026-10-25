@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace PHPMud\World\Infrastructure\Delivery\Telnet;
 
+use PHPMud\World\Domain\Character\Sex;
 use PHPMud\World\Domain\Location\Direction;
 
 final class MovementMessage
@@ -26,5 +27,10 @@ final class MovementMessage
             Direction::Down => sprintf('%s arriva dal basso.', $characterName),
             default => sprintf('%s arriva da %s.', $characterName, mb_strtolower(DirectionLabel::of($via->opposite()))),
         };
+    }
+
+    public static function appeared(string $characterName, Sex $sex): string
+    {
+        return sprintf('%s è %s dal nulla.', $characterName, Sex::Female === $sex ? 'apparsa' : 'apparso');
     }
 }
