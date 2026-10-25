@@ -23,7 +23,8 @@ composer install
 ```
 
 Initialize the world: this seeds the locations from `utils/locations.csv` and
-creates the character **John** (password `p4ssw0rd`) in the first location.
+creates the character **John** (password `p4ssw0rd`) in the starting location,
+the inn (marked by the `Partenza` column).
 It overwrites `/tmp/phpmud.location` and `/tmp/phpmud.character`.
 
 ```
@@ -60,7 +61,13 @@ renamed), stop it, delete `/tmp/phpmud.location`, `/tmp/phpmud.character` and
 telnet 127.0.0.1 10666
 ```
 
-After the banner, type the character name and password, then play with:
+After the banner, type the character name and password. A name that does not
+exist yet creates a new character: confirm the name (`si`/`no`), choose its sex
+(`m`/`f`) and a password (at least 4 characters, typed twice). Names are 3 to
+15 letters, capitalized automatically and unique regardless of case. New
+characters wake up in the inn, where whoever is there sees them appear.
+
+Then play with:
 
 - `look` to describe the current location, its exits and who is here;
 - a direction to move: `north`, `east`, `south`, `west`, `up`, `down`, or
@@ -69,7 +76,8 @@ After the banner, type the character name and password, then play with:
 
 ### Browser
 
-Open <http://127.0.0.1:10667/> and log in with the same credentials. The
+Open <http://127.0.0.1:10667/> and log in with the same credentials, or enter a
+new name to get the character creation form. The
 location is drawn as a top-down room: click a door or the stairs (or use the
 arrow keys, PageUp/PageDown) to move. The side panel shows the room
 description, the exits, who is here and an event log.

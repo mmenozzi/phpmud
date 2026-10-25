@@ -89,6 +89,10 @@ presentation content: the `Scena` column (a scene theme: `cave`, `hall`,
 `php utils/build_scenes.php` turns it into the client's content model
 `client/content/scenes.json` (`{locationId: {theme}}`, committed;
 re-run it after editing the CSV).
+The `Partenza` column (`si` on exactly one row, checked by
+`init_world.php`) marks the starting location where new characters are
+born (today the inn, `Locanda del Viandante`); it is loaded into the
+model as `Location::isStartingLocation()`.
 
 ## Commit style
 
@@ -148,11 +152,15 @@ Three layers, strict dependency direction `Infrastructure → Application → Do
   folders): each aggregate lives together with its repository interface,
   value objects and enums, so the aggregate boundary is visible in the
   tree.
-  - `Character/` — `Character` aggregate, `CharacterId`,
+  - `Character/` — `Character` aggregate, `CharacterId`, `CharacterName`
+    (value object: 3–15 letters, `mb_ucfirst`-normalized, case-insensitive
+    `equals()`; throws `InvalidCharacterNameException`), `Sex`,
     `CharacterRepositoryInterface` (`get(CharacterId)`,
-    `findByLocation(LocationId)`, ...), `CharacterMoved` event.
+    `findOneByName(CharacterName)` (case-insensitive),
+    `findByLocation(LocationId)`, ...), `CharacterCreated` and
+    `CharacterMoved` events.
   - `Location/` — `Location` aggregate, `LocationId`, `Direction`,
-    `LocationRepositoryInterface`.
+    `LocationRepositoryInterface` (`getStartingLocation()`).
   - `Movement/` — `MovementPolicy` domain service (spans `Character` and
     `Location`, so it belongs to neither) and `NoExitInDirectionException`.
   - `Time/` — `WorldClock` aggregate, `DayPhase`,
@@ -188,6 +196,16 @@ Three layers, strict dependency direction `Infrastructure → Application → Do
   the character's own state belong, and is reusable for non-walking moves
   (teleport, recall, ...); it records `CharacterMoved(characterId, from,
   to, ?via)` (`via` is the walking `Direction`, null for non-walking moves).
+  A new character is born with the named constructor `Character::create()`,
+  which records `CharacterCreated(characterId, locationId)`; the plain
+  constructor reconstitutes a character (seed, fixtures) without events.
+  Value objects like `CharacterName` travel through Application DTOs as
+  they are (no primitive obsession) and become strings only in the
+  adapters (`toString()`), like `Direction` becomes `->value`.
+  The starting location is a flag on `Location`: a pragmatic shortcut,
+  since "where characters are born" is a fact of the world, not of one
+  room, and no aggregate can enforce that exactly one exists; promote it
+  to its own concept when there are several (e.g. hometowns to choose).
   `WorldClock` is a singleton aggregate holding the game hour (0..23);
   `tick()` advances it by one hour and records `DayPhaseStarted` when a
   `DayPhase` starts at the new hour (`DayPhase::startingHour()`);
@@ -250,6 +268,21 @@ Three layers, strict dependency direction `Infrastructure → Application → Do
     state) and the response says whether they are exhausted
     (`MAX_FAILED_ATTEMPTS = 3`); the adapter then closes the connection.
     It is an access/security rule, so no adapter may re-implement it.
+  - `Access/IdentifyCharacter` answers with the canonical name (the
+    stored one for an existing character, the normalized one for an
+    unknown one, null when the name is not allowed), so adapters never
+    keep the name as typed.
+  - `Access/CreateCharacter` creates a character in the starting location:
+    it validates the name, checks it is not taken (a cross-aggregate
+    invariant, so it lives in the use case; executors run one at a time on
+    the event loop, so there is no race) and the password policy
+    (`MIN_PASSWORD_LENGTH`), then `Character::create()`; the response
+    carries a `CreationFailure` on failure. Confirming the name and
+    repeating the password are adapter dialogue, not use case steps.
+  - `Character/CharacterCreated/NotifyCharacterCreated` tells the
+    characters in the starting location (not the newcomer) that someone
+    appeared (`CharacterAppearedNotification {name, sex}`, the sex agrees
+    the Italian text: "è apparso/apparsa").
   To add a new player command: create the Command/Response/Executor triple
   in a new use case folder,
   register the executor + router mapping in `services.xml`, and teach
@@ -322,13 +355,17 @@ Three layers, strict dependency direction `Infrastructure → Application → Do
       `notify()` render and write it.
     - `TelnetClientHandler` owns the per-connection login state machine
       (banner from `Delivery/Telnet/Resources/banner.txt` → name →
-      password; the login state, and then the authenticated
-      `CharacterId`, lives in `TelnetClient`, since prompt
+      password, or for an unknown name the creation dialogue: confirm the
+      name (si/no) → sex (m/f) → new password → repeat it; the
+      `LoginState` enum, the pending name/sex/password and then the
+      authenticated `CharacterId` live in `TelnetClient`, since prompt
       login is telnet-specific), but the decisions live in
-      `Application/Access`: `IdentifyCharacterCommand` (does the name
-      exist? if not, re-prompt name) and `AuthenticateCharacterCommand`
+      `Application/Access`: `IdentifyCharacterCommand` (is the name
+      allowed? does it exist?), `AuthenticateCharacterCommand`
       (`Character::isPasswordValid()`; on failure re-prompt password, or
-      close the socket when the response says attempts are exhausted). Login
+      close the socket when the response says attempts are exhausted) and
+      `CreateCharacterCommand` (sent once the repeated password matches;
+      a too short password re-prompts it). Login
       messages are written by `TelnetClientHandler` itself, not
       `CommandResponseRenderer`. For authenticated clients it delegates
       each raw line to
@@ -375,8 +412,14 @@ Three layers, strict dependency direction `Infrastructure → Application → Do
       `DayPhase`), never the aggregates' internal shape. Every message is
       an object with a `type`. v1:
       - client → server: `identify {name}`, `authenticate {password}`,
+        `create {name, password, sex}` (`sex`: `male`|`female`; the
+        client confirms the name and the repeated password itself),
         `look`, `move {direction}`;
-      - responses: `identified {name, exists}`, `authenticated`,
+      - responses: `identified {name, exists, allowed}` (`name` is the
+        canonical one, null when not allowed), `authenticated`,
+        `character_created` (then `whoami`, `location`, `day_phase` as
+        after `authenticated`), `creation_failed {reason}`
+        (`name_not_allowed`|`name_taken`|`password_too_short`),
         `authentication_failed`, `too_many_attempts` (then the connection
         closes), `whoami {name}`, `day_phase {day_phase}` (sent after
         login, after `whoami` and `location`), `location {id, name, description,
@@ -386,7 +429,9 @@ Three layers, strict dependency direction `Infrastructure → Application → Do
       - events (unsolicited): `day_phase_started {day_phase}`,
         `character_left {name, via}`, `character_arrived {name, via}`
         (`via` is the walking direction or null; the client derives
-        where someone came from as `via`'s opposite).
+        where someone came from as `via`'s opposite),
+        `character_appeared {name, sex}` (a new character was born here).
+      Additive changes (new fields, new message types) keep v1.
   - `Repository/Filesystem/*` (single-file serialized storage, used by
     `dev`/end-to-end test config) and `Repository/InMemory/*` (from
     `webgriffe/in-memory-repository`, used by `test`/domain-test config)
@@ -409,14 +454,15 @@ build step and no Node toolchain:
 
 - `js/connection.js` wraps the `WebSocket` and dispatches messages by
   `type`; `js/main.js` holds the client state (login flow `identify` →
-  `authenticate`, current location, occupants, pending move) and the
+  `authenticate`, or the creation form → `create` for an unknown name,
+  current location, occupants, pending move) and the
   side panel (room text, exit buttons, who is here, event log);
 - `js/scene.js` draws the location as a top-down SVG room: doors on the
   four sides and stairs for `up`/`down`, each clickable (also arrow keys,
   PageUp/PageDown) and labelled with the neighbour's name; sprites for me
   and the other characters (`location.characters`), animated in from the
   door `opposite(via)` on `character_arrived` and out through `via` on
-  `character_left`; a tint per `DayPhase` (`day_phase`,
+  `character_left`, faded in on `character_appeared`; a tint per `DayPhase` (`day_phase`,
   `day_phase_started`);
 - `js/themes.js` maps a scene theme to a palette and procedural
   decorations, seeded by the `LocationId` (`js/svg.js` `hash` /
@@ -430,11 +476,14 @@ build step and no Node toolchain:
   positions (distance, collisions, line of sight), they become domain
   state and must be modelled server-side, not derived from the client.
 
+`DocumentRoot` caches file metadata for 10 seconds: after editing
+`client/`, wait that long (or force-refresh) before reloading the page.
+
 The client is not covered by Behat: verify it end-to-end in a browser
 against the running server (two characters in two tabs, plus a telnet
 session for the cross-adapter check). For manual play, `php
-utils/init_world.php` creates John (`p4ssw0rd`); add other characters
-with `CharacterRepository::save()` on `/tmp/phpmud.character`. A page in
+utils/init_world.php` creates John (`p4ssw0rd`) in the inn; create other
+characters by logging in with a new name (telnet or browser). A page in
 a background tab may not run CSS transitions, so judge animations in a
 visible tab.
 
@@ -448,7 +497,12 @@ vs `@movement&&@telnet` vs `@movement&&@websocket` — the same
 `features/*.feature` file is exercised by a fast in-memory "domain" suite
 and by end-to-end "telnet" and "websocket" suites that go through the
 real server; scenarios are tagged `@domain @telnet @websocket` when all
-apply (only the banner scenario is telnet-only). Three green suites on
+apply. Exceptions are adapter-specific: the banner, confirming a new
+name and repeating its password are telnet-only (the browser does the
+last two client-side), the WebSocket origin check is websocket-only.
+`features/character_creation.feature` (`@creation`) also has a
+`@domain @websocket` scenario for a taken name, reachable only by
+sending `create` directly. Three green suites on
 the same features are the proof that the model is one and the delivery
 is interchangeable, so new scenarios should cover every adapter.
 
