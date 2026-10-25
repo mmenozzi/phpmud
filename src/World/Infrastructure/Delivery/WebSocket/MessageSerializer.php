@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace PHPMud\World\Infrastructure\Delivery\WebSocket;
 
 use PHPMud\World\Application\Access\AuthenticateCharacter\AuthenticateCharacterCommandResponse;
+use PHPMud\World\Application\Access\CreateCharacter\CreateCharacterCommandResponse;
 use PHPMud\World\Application\Access\IdentifyCharacter\IdentifyCharacterCommandResponse;
 use PHPMud\World\Application\Character\WhoAmI\WhoAmICommandResponse;
 use PHPMud\World\Application\CommandResponseInterface;
@@ -55,6 +56,14 @@ final class MessageSerializer
             }
 
             return ['type' => $commandResponse->areAttemptsExhausted() ? 'too_many_attempts' : 'authentication_failed'];
+        }
+
+        if ($commandResponse instanceof CreateCharacterCommandResponse) {
+            if ($commandResponse->isSuccessful()) {
+                return ['type' => 'character_created'];
+            }
+
+            return ['type' => 'creation_failed', 'reason' => $commandResponse->getFailure()?->value];
         }
 
         if ($commandResponse instanceof WhoAmICommandResponse) {

@@ -10,6 +10,8 @@ use Amp\Websocket\Server\WebsocketClientHandler as AmpWebsocketClientHandler;
 use Amp\Websocket\WebsocketClient as AmpWebsocketClient;
 use PHPMud\World\Application\Access\AuthenticateCharacter\AuthenticateCharacterCommand;
 use PHPMud\World\Application\Access\AuthenticateCharacter\AuthenticateCharacterCommandResponse;
+use PHPMud\World\Application\Access\CreateCharacter\CreateCharacterCommand;
+use PHPMud\World\Application\Access\CreateCharacter\CreateCharacterCommandResponse;
 use PHPMud\World\Application\Access\IdentifyCharacter\IdentifyCharacterCommand;
 use PHPMud\World\Application\Access\IdentifyCharacter\IdentifyCharacterCommandResponse;
 use PHPMud\World\Application\Character\WhoAmI\WhoAmICommand;
@@ -19,6 +21,8 @@ use PHPMud\World\Application\CommandRouter;
 use PHPMud\World\Application\Help\Unknown\UnknownCommand;
 use PHPMud\World\Application\Movement\Look\LookCommand;
 use PHPMud\World\Application\Time\CurrentDayPhase\CurrentDayPhaseCommand;
+use PHPMud\World\Domain\Character\CharacterId;
+use PHPMud\World\Domain\Character\Sex;
 use PHPMud\World\Infrastructure\Server\ClientDisconnectedException;
 use PHPMud\World\Infrastructure\Server\ClientRegistry;
 use Webmozart\Assert\Assert;
@@ -70,6 +74,7 @@ final readonly class WebSocketClientHandler implements AmpWebsocketClientHandler
         match ($message['type']) {
             'identify' => $this->handleIdentify($client, $message),
             'authenticate' => $this->handleAuthenticate($client, $message),
+            'create' => $this->handleCreate($client, $message),
             default => $client->send($this->execute(new UnknownCommand())),
         };
     }
@@ -125,6 +130,37 @@ final readonly class WebSocketClientHandler implements AmpWebsocketClientHandler
             return;
         }
 
+        $this->enterTheGame($client, $characterId);
+    }
+
+    /**
+     * @param array<array-key, mixed> $message
+     */
+    private function handleCreate(WebSocketClient $client, array $message): void
+    {
+        if (!is_string($message['name'] ?? null) || !is_string($message['password'] ?? null)) {
+            $client->sendError('Missing character name or password.');
+
+            return;
+        }
+        $sex = is_string($message['sex'] ?? null) ? Sex::tryFrom($message['sex']) : null;
+        if (null === $sex) {
+            $client->sendError('Missing or invalid sex.');
+
+            return;
+        }
+
+        $response = $this->execute(new CreateCharacterCommand(trim($message['name']), $message['password'], $sex));
+        Assert::isInstanceOf($response, CreateCharacterCommandResponse::class);
+        $client->send($response);
+        $characterId = $response->getCharacterId();
+        if (null !== $characterId) {
+            $this->enterTheGame($client, $characterId);
+        }
+    }
+
+    private function enterTheGame(WebSocketClient $client, CharacterId $characterId): void
+    {
         $client->authenticate($characterId);
         $client->send($this->execute(new WhoAmICommand($characterId)));
         $client->send($this->execute(new LookCommand($characterId)));

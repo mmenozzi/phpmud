@@ -77,3 +77,9 @@ Feature: Character creation
     When I choose the password "tomriddle" but repeat "riddle"
     Then I should be told that the passwords do not match
     And I should be prompted for a new password
+
+  @domain @websocket
+  Scenario: Creating a character whose name is taken
+    When I connect to the game
+    And I try to create the character "harrypotter" with password "muggle"
+    Then I should be told that the character name is taken

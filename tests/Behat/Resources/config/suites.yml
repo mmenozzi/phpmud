@@ -12,3 +12,4 @@ imports:
     - suites/websocket/movement.yml
     - suites/websocket/access.yml
     - suites/websocket/time.yml
+    - suites/websocket/creation.yml

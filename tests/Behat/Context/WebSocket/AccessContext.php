@@ -77,6 +77,94 @@ final class AccessContext implements Context
     }
 
     /**
+     * @Then /^I should be offered to create the character "([^"]*)"$/
+     */
+    public function iShouldBeOfferedToCreateTheCharacter(string $name): void
+    {
+        Assert::eq($this->getIdentifyResponse(), ['type' => 'identified', 'name' => $name, 'exists' => false, 'allowed' => true]);
+    }
+
+    /**
+     * Confirming the name and repeating the password happen in the browser client, not in the protocol.
+     *
+     * @When /^I confirm the new character name$/
+     *
+     * @Then /^I should be asked for the sex of my character$/
+     */
+    public function nothingToDoInTheProtocol(): void
+    {
+    }
+
+    /**
+     * @When /^I choose that my character is (male|female)$/
+     */
+    public function iChooseThatMyCharacterIs(string $sex): void
+    {
+        $this->sharedStorage->set('sex', $sex);
+    }
+
+    /**
+     * @Then /^I should be prompted for a new password$/
+     */
+    public function iShouldBePromptedForANewPassword(): void
+    {
+        if ($this->sharedStorage->has('create_response')) {
+            Assert::eq($this->sharedStorage->get('create_response')['type'], 'creation_failed');
+        }
+    }
+
+    /**
+     * @When /^I choose the password "([^"]*)"$/
+     */
+    public function iChooseThePassword(string $password): void
+    {
+        $this->sendMessage([
+            'type' => 'create',
+            'name' => $this->getIdentifyResponse()['name'],
+            'password' => $password,
+            'sex' => $this->sharedStorage->get('sex'),
+        ]);
+        $response = $this->getNextResponse();
+        $this->sharedStorage->set('create_response', $response);
+        $this->sharedStorage->set('login_response', $response);
+    }
+
+    /**
+     * @Then /^I should be told that the password is too short$/
+     */
+    public function iShouldBeToldThatThePasswordIsTooShort(): void
+    {
+        Assert::eq($this->sharedStorage->get('create_response'), ['type' => 'creation_failed', 'reason' => 'password_too_short']);
+    }
+
+    /**
+     * @When /^I try to create the character "([^"]*)" with password "([^"]*)"$/
+     */
+    public function iTryToCreateTheCharacterWithPassword(string $name, string $password): void
+    {
+        $this->sendMessage(['type' => 'create', 'name' => $name, 'password' => $password, 'sex' => 'male']);
+        $this->sharedStorage->set('create_response', $this->getNextResponse());
+    }
+
+    /**
+     * @Then /^I should be told that the character name is taken$/
+     */
+    public function iShouldBeToldThatTheCharacterNameIsTaken(): void
+    {
+        Assert::eq($this->sharedStorage->get('create_response'), ['type' => 'creation_failed', 'reason' => 'name_taken']);
+    }
+
+    /**
+     * @Given /^I have created the character "([^"]*)" with password "([^"]*)"$/
+     */
+    public function iHaveCreatedTheCharacterWithPassword(string $name, string $password): void
+    {
+        $this->connect('creator');
+        $this->sendMessage(['type' => 'create', 'name' => $name, 'password' => $password, 'sex' => 'male'], 'creator');
+        Assert::eq($this->getNextResponse('creator'), ['type' => 'character_created']);
+    }
+
+    /**
      * @Then /^I should be prompted for my password$/
      */
     public function iShouldBePromptedForMyPassword(): void
@@ -93,7 +181,9 @@ final class AccessContext implements Context
     public function iEnterThePassword(string $password): void
     {
         $this->sendMessage(['type' => 'authenticate', 'password' => $password]);
-        $this->sharedStorage->set('authenticate_response', $this->getNextResponse());
+        $response = $this->getNextResponse();
+        $this->sharedStorage->set('authenticate_response', $response);
+        $this->sharedStorage->set('login_response', $response);
     }
 
     /**
@@ -109,7 +199,9 @@ final class AccessContext implements Context
      */
     public function iShouldSeeThatIAm(string $name): void
     {
-        Assert::eq($this->getAuthenticateResponse()['type'], 'authenticated');
+        $loginResponse = $this->sharedStorage->get('login_response');
+        Assert::isArray($loginResponse);
+        Assert::inArray($loginResponse['type'] ?? null, ['authenticated', 'character_created']);
         Assert::eq($this->getNextResponse(), ['type' => 'whoami', 'name' => $name]);
     }
 

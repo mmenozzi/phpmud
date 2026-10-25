@@ -133,6 +133,22 @@ final class AccessContext implements Context
     }
 
     /**
+     * @When /^I try to create the character "([^"]*)" with password "([^"]*)"$/
+     */
+    public function iTryToCreateTheCharacterWithPassword(string $name, string $password): void
+    {
+        $this->createCharacter($name, $password, Sex::Male);
+    }
+
+    /**
+     * @Then /^I should be told that the character name is taken$/
+     */
+    public function iShouldBeToldThatTheCharacterNameIsTaken(): void
+    {
+        Assert::same($this->getCreateResponse()->getFailure(), CreationFailure::NameTaken);
+    }
+
+    /**
      * @Given /^I have created the character "([^"]*)" with password "([^"]*)"$/
      */
     public function iHaveCreatedTheCharacterWithPassword(string $name, string $password): void
