@@ -7,6 +7,7 @@ imports:
     - suites/telnet/movement.yml
     - suites/telnet/access.yml
     - suites/telnet/time.yml
+    - suites/telnet/creation.yml
 
     - suites/websocket/movement.yml
     - suites/websocket/access.yml

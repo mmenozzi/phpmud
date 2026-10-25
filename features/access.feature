@@ -25,14 +25,6 @@ Feature: Access
     And I should see that I am in the location "A"
 
   @domain @telnet @websocket
-  Scenario: Entering the name of a character that does not exist
-    When I connect to the game
-    Then I should be prompted for my character name
-    When I enter the character name "Voldemort"
-    Then I should be told that the character "Voldemort" does not exist
-    And I should be prompted for my character name
-
-  @domain @telnet @websocket
   Scenario: Entering a character name that is not allowed
     When I connect to the game
     Then I should be prompted for my character name

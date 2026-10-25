@@ -48,7 +48,7 @@ final class TelnetServer implements Listener
             $buffer = array_pop($commands);
             foreach ($commands as $command) {
                 $command = rtrim(Telnet::stripNegotiation($command), "\r");
-                echo $socket->getRemoteAddress().': '.($client->isAuthenticating() ? '[password]' : $command).PHP_EOL;
+                echo $socket->getRemoteAddress().': '.($client->getLoginState()->expectsPassword() ? '[password]' : $command).PHP_EOL;
                 $this->clientHandler->handleCommand($client, $command);
             }
         }

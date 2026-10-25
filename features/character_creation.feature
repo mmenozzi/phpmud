@@ -26,7 +26,8 @@ Feature: Character creation
   Scenario: Logging in with a newly created character
     Given I have created the character "Voldemort" with password "tomriddle"
     When I connect to the game
-    And I enter the character name "Voldemort"
+    Then I should be prompted for my character name
+    When I enter the character name "Voldemort"
     Then I should be prompted for my password
     When I enter the password "tomriddle"
     Then I should see that I am "Voldemort"
@@ -34,16 +35,21 @@ Feature: Character creation
   @domain @telnet @websocket
   Scenario: Capitalizing the name of a new character
     When I connect to the game
-    And I enter the character name "voldemort"
+    Then I should be prompted for my character name
+    When I enter the character name "voldemort"
     Then I should be offered to create the character "Voldemort"
 
   @domain @telnet @websocket
   Scenario: Choosing a password that is too short
     When I connect to the game
-    And I enter the character name "Voldemort"
-    And I confirm the new character name
-    And I choose that my character is female
-    And I choose the password "tom"
+    Then I should be prompted for my character name
+    When I enter the character name "Voldemort"
+    Then I should be offered to create the character "Voldemort"
+    When I confirm the new character name
+    Then I should be asked for the sex of my character
+    When I choose that my character is female
+    Then I should be prompted for a new password
+    When I choose the password "tom"
     Then I should be told that the password is too short
     And I should be prompted for a new password
     When I choose the password "tomriddle"
@@ -52,7 +58,8 @@ Feature: Character creation
   @telnet
   Scenario: Declining the name of a new character
     When I connect to the game
-    And I enter the character name "Voldemort"
+    Then I should be prompted for my character name
+    When I enter the character name "Voldemort"
     Then I should be offered to create the character "Voldemort"
     When I decline the new character name
     Then I should be prompted for my character name
@@ -60,9 +67,13 @@ Feature: Character creation
   @telnet
   Scenario: Repeating a different password
     When I connect to the game
-    And I enter the character name "Voldemort"
-    And I confirm the new character name
-    And I choose that my character is male
-    And I choose the password "tomriddle" but repeat "riddle"
+    Then I should be prompted for my character name
+    When I enter the character name "Voldemort"
+    Then I should be offered to create the character "Voldemort"
+    When I confirm the new character name
+    Then I should be asked for the sex of my character
+    When I choose that my character is male
+    Then I should be prompted for a new password
+    When I choose the password "tomriddle" but repeat "riddle"
     Then I should be told that the passwords do not match
     And I should be prompted for a new password

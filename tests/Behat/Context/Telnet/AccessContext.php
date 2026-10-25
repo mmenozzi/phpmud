@@ -80,19 +80,112 @@ final class AccessContext implements Context
     }
 
     /**
-     * @Then /^I should be told that the character "([^"]*)" does not exist$/
-     */
-    public function iShouldBeToldThatTheCharacterDoesNotExist(string $name): void
-    {
-        Assert::eq($this->getNextResponse(), sprintf('Il personaggio "%s" non esiste.', $name));
-    }
-
-    /**
      * @Then /^I should be told that the character name is not allowed$/
      */
     public function iShouldBeToldThatTheCharacterNameIsNotAllowed(): void
     {
         Assert::eq($this->getNextResponse(), 'Nome non ammesso: solo lettere, da 3 a 15.');
+    }
+
+    /**
+     * @Then /^I should be offered to create the character "([^"]*)"$/
+     */
+    public function iShouldBeOfferedToCreateTheCharacter(string $name): void
+    {
+        Assert::eq($this->getNextResponse(), sprintf('Nuovo personaggio. È davvero "%s" il nome che vuoi? (si/no)', $name));
+    }
+
+    /**
+     * @When /^I confirm the new character name$/
+     */
+    public function iConfirmTheNewCharacterName(): void
+    {
+        $this->writeLine('si');
+    }
+
+    /**
+     * @When /^I decline the new character name$/
+     */
+    public function iDeclineTheNewCharacterName(): void
+    {
+        $this->writeLine('no');
+    }
+
+    /**
+     * @Then /^I should be asked for the sex of my character$/
+     */
+    public function iShouldBeAskedForTheSexOfMyCharacter(): void
+    {
+        Assert::regex($this->getNextResponse(), '/^\S+ è maschio o femmina\? \(m\/f\)$/u');
+    }
+
+    /**
+     * @When /^I choose that my character is (male|female)$/
+     */
+    public function iChooseThatMyCharacterIs(string $sex): void
+    {
+        $this->writeLine('male' === $sex ? 'm' : 'f');
+    }
+
+    /**
+     * @Then /^I should be prompted for a new password$/
+     */
+    public function iShouldBePromptedForANewPassword(): void
+    {
+        Assert::regex($this->getNextResponse(), '/^Scegli una password per \S+\.\.\.$/u');
+        Assert::true($this->isInputHidden());
+    }
+
+    /**
+     * @When /^I choose the password "([^"]*)"$/
+     */
+    public function iChooseThePassword(string $password): void
+    {
+        $this->iChooseThePasswordButRepeat($password, $password);
+    }
+
+    /**
+     * @When /^I choose the password "([^"]*)" but repeat "([^"]*)"$/
+     */
+    public function iChooseThePasswordButRepeat(string $password, string $repeatedPassword, string $client = 'me'): void
+    {
+        $this->writeLine($password, $client);
+        Assert::eq($this->getNextResponse($client), 'Reinserisci la password...');
+        $this->writeLine($repeatedPassword, $client);
+    }
+
+    /**
+     * @Then /^I should be told that the passwords do not match$/
+     */
+    public function iShouldBeToldThatThePasswordsDoNotMatch(): void
+    {
+        Assert::eq($this->getNextResponse(), 'Le password non coincidono.');
+    }
+
+    /**
+     * @Then /^I should be told that the password is too short$/
+     */
+    public function iShouldBeToldThatThePasswordIsTooShort(): void
+    {
+        Assert::eq($this->getNextResponse(), 'La password è troppo corta: almeno 4 caratteri.');
+    }
+
+    /**
+     * @Given /^I have created the character "([^"]*)" with password "([^"]*)"$/
+     */
+    public function iHaveCreatedTheCharacterWithPassword(string $name, string $password): void
+    {
+        $this->connect('creator');
+        Assert::notEmpty($this->getNextResponse('creator')); // banner
+        Assert::eq($this->getNextResponse('creator'), 'Inserisci il nome del tuo personaggio...');
+        $this->writeLine($name, 'creator');
+        Assert::notEmpty($this->getNextResponse('creator')); // name confirmation
+        $this->writeLine('si', 'creator');
+        Assert::notEmpty($this->getNextResponse('creator')); // sex
+        $this->writeLine('m', 'creator');
+        Assert::notEmpty($this->getNextResponse('creator')); // new password
+        $this->iChooseThePasswordButRepeat($password, $password, 'creator');
+        Assert::eq($this->getNextResponse('creator'), sprintf('Il tuo nome è "%s".', $name));
     }
 
     /**

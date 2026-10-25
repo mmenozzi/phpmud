@@ -74,16 +74,6 @@ final class AccessContext implements Context
     }
 
     /**
-     * @Then /^I should be told that the character "([^"]*)" does not exist$/
-     */
-    public function iShouldBeToldThatTheCharacterDoesNotExist(string $name): void
-    {
-        $response = $this->getIdentifyResponse();
-        Assert::false($response->exists());
-        Assert::eq($response->getCharacterName()?->toString(), $name);
-    }
-
-    /**
      * @Then /^I should be told that the character name is not allowed$/
      */
     public function iShouldBeToldThatTheCharacterNameIsNotAllowed(): void
