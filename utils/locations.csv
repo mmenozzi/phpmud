@@ -1,5 +1,5 @@
 ID,Nome,Descrizione,Nord,Est,Sud,Ovest,Sopra,Sotto,Scena,Partenza
-1,Ingresso della Caverna,"Un'ampia apertura nella montagna segna l'ingresso di questa antica caverna. Stalattiti pendono dal soffitto e l'aria è umida e fredda.",2,3,,,,,cave,si
+1,Ingresso della Caverna,"Un'ampia apertura nella montagna segna l'ingresso di questa antica caverna. Stalattiti pendono dal soffitto e l'aria è umida e fredda.",2,3,101,,,,cave,
 2,Corridoio di Pietra,"Un corridoio scavato nella pietra, illuminato debolmente da cristalli luminosi incastonati nelle pareti.",4,,1,,,,corridor,
 3,Sala delle Torce,"Una sala circolare con torce che bruciano eternamente. Le loro fiamme danzano creando ombre inquietanti sulle pareti.",5,6,7,1,,,hall,
 4,Tempio Abbandonato,"Un antico tempio in rovina. Statue di divinità dimenticate osservano con sguardi vuoti.",8,9,2,,,,temple,
@@ -99,3 +99,4 @@ ID,Nome,Descrizione,Nord,Est,Sud,Ovest,Sopra,Sotto,Scena,Partenza
 98,Corridoio dei Sussurri,"Un corridoio dove si sentono continuamente sussurri e bisbigli. Sembrano provenire dalle pareti stesse.",93,,,94,,,corridor,
 99,Giardino dell'Eden,"Un paradiso sotterraneo con ogni tipo di pianta e fiore. Una luce mistica nutre questa vita impossibile.",94,,,,100,,garden,
 100,Sala del Trono Finale,"Un'imponente sala del trono. Il trono stesso è fatto di un materiale sconosciuto che emana potere.",95,97,,96,,99,hall,
+101,Locanda del Viandante,"Una locanda calda e fumosa, scavata ai piedi della montagna. Un fuoco scoppietta nel focolare, tavoli di legno consumato sono sparsi per la sala e l'aria profuma di stufato e birra. Qui si risvegliano gli avventurieri appena giunti nel mondo.",1,,,,,,inn,si

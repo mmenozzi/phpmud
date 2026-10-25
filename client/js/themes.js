@@ -42,6 +42,31 @@ function pillar({ x, y }, fill, stroke) {
     ]);
 }
 
+function planks(group, stroke) {
+    for (let y = ROOM.top + 28; y < ROOM.bottom; y += 28) {
+        group.append(svg('line', { x1: ROOM.left, y1: y, x2: ROOM.right, y2: y, stroke, 'stroke-width': 2 }));
+    }
+}
+
+function table({ x, y }) {
+    return svg('g', {}, [
+        svg('ellipse', { cx: x + 5, cy: y + 8, rx: 34, ry: 22, fill: '#000', opacity: 0.25 }),
+        ...[[-44, 0], [44, 0], [0, -36], [0, 36]].map(([dx, dy]) => svg('circle', {
+            cx: x + dx, cy: y + dy, r: 9, fill: '#6b4a2b', stroke: '#3d2a17', 'stroke-width': 2,
+        })),
+        svg('circle', { cx: x, cy: y, r: 28, fill: '#8a5f36', stroke: '#5a3d22', 'stroke-width': 3 }),
+        svg('circle', { cx: x - 8, cy: y - 4, r: 5, fill: '#d9c27a' }),
+    ]);
+}
+
+function hearth({ x, y }) {
+    return svg('g', {}, [
+        svg('circle', { class: 'glow', cx: x, cy: y - 20, r: 60, fill: '#ff8c3a', opacity: 0.2 }),
+        svg('rect', { x: x - 50, y: y - 34, width: 100, height: 34, rx: 4, fill: '#5a514a', stroke: '#3a332e', 'stroke-width': 3 }),
+        svg('path', { d: `M ${x - 18} ${y - 4} Q ${x - 10} ${y - 34} ${x} ${y - 14} Q ${x + 10} ${y - 34} ${x + 18} ${y - 4} Z`, fill: '#ffb347' }),
+    ]);
+}
+
 const WALL_TORCHES = [
     { x: ROOM.left + 120, y: ROOM.top + 8 }, { x: ROOM.right - 120, y: ROOM.top + 8 },
     { x: ROOM.left + 120, y: ROOM.bottom - 8 }, { x: ROOM.right - 120, y: ROOM.bottom - 8 },
@@ -192,6 +217,15 @@ export const THEMES = {
                 svg('rect', { x: telescope.x - 30, y: telescope.y - 8, width: 70, height: 16, rx: 6, fill: '#b08d57' }),
                 svg('circle', { cx: telescope.x, cy: telescope.y + 14, r: 6, fill: '#3a3540' }),
             ]));
+        },
+    },
+    inn: {
+        label: 'Locanda',
+        floor: '#7a5434', wall: '#3b2717', accent: '#ffb347',
+        decorate(group) {
+            planks(group, '#5f4027');
+            CORNERS.forEach((point) => group.append(table(point)));
+            group.append(hearth({ x: ROOM.right - 240, y: ROOM.bottom }));
         },
     },
 };
