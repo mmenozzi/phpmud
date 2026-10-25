@@ -9,12 +9,19 @@ use PHPMud\Tests\Behat\Service\SharedStorage;
 use PHPMud\World\Application\Access\AuthenticateCharacter\AuthenticateCharacterCommand;
 use PHPMud\World\Application\Access\AuthenticateCharacter\AuthenticateCharacterCommandExecutor;
 use PHPMud\World\Application\Access\AuthenticateCharacter\AuthenticateCharacterCommandResponse;
+use PHPMud\World\Application\Access\CreateCharacter\CreateCharacterCommand;
+use PHPMud\World\Application\Access\CreateCharacter\CreateCharacterCommandExecutor;
+use PHPMud\World\Application\Access\CreateCharacter\CreateCharacterCommandResponse;
+use PHPMud\World\Application\Access\CreateCharacter\CreationFailure;
 use PHPMud\World\Application\Access\IdentifyCharacter\IdentifyCharacterCommand;
 use PHPMud\World\Application\Access\IdentifyCharacter\IdentifyCharacterCommandExecutor;
 use PHPMud\World\Application\Access\IdentifyCharacter\IdentifyCharacterCommandResponse;
 use PHPMud\World\Application\Character\WhoAmI\WhoAmICommand;
 use PHPMud\World\Application\Character\WhoAmI\WhoAmICommandExecutor;
 use PHPMud\World\Application\Character\WhoAmI\WhoAmICommandResponse;
+use PHPMud\World\Domain\Character\CharacterId;
+use PHPMud\World\Domain\Character\CharacterRepositoryInterface;
+use PHPMud\World\Domain\Character\Sex;
 use Webmozart\Assert\Assert;
 
 final class AccessContext implements Context
@@ -24,6 +31,8 @@ final class AccessContext implements Context
         private readonly IdentifyCharacterCommandExecutor $identifyCharacterCommandExecutor,
         private readonly AuthenticateCharacterCommandExecutor $authenticateCharacterCommandExecutor,
         private readonly WhoAmICommandExecutor $whoAmICommandExecutor,
+        private readonly CreateCharacterCommandExecutor $createCharacterCommandExecutor,
+        private readonly CharacterRepositoryInterface $characterRepository,
     ) {
     }
 
@@ -83,6 +92,74 @@ final class AccessContext implements Context
     }
 
     /**
+     * @Then /^I should be offered to create the character "([^"]*)"$/
+     */
+    public function iShouldBeOfferedToCreateTheCharacter(string $name): void
+    {
+        $response = $this->getIdentifyResponse();
+        Assert::false($response->exists());
+        Assert::eq($response->getCharacterName()?->toString(), $name);
+    }
+
+    /**
+     * The confirmation of the name is a dialogue of the telnet adapter, not a step of the use case.
+     *
+     * @When /^I confirm the new character name$/
+     *
+     * @Then /^I should be asked for the sex of my character$/
+     */
+    public function nothingToDoInTheDomain(): void
+    {
+    }
+
+    /**
+     * @When /^I choose that my character is (male|female)$/
+     */
+    public function iChooseThatMyCharacterIs(string $sex): void
+    {
+        $this->sharedStorage->set('sex', Sex::from($sex));
+    }
+
+    /**
+     * @Then /^I should be prompted for a new password$/
+     */
+    public function iShouldBePromptedForANewPassword(): void
+    {
+        if ($this->sharedStorage->has('create_response')) {
+            Assert::false($this->getCreateResponse()->isSuccessful());
+        }
+    }
+
+    /**
+     * @When /^I choose the password "([^"]*)"$/
+     */
+    public function iChooseThePassword(string $password): void
+    {
+        $characterName = $this->getIdentifyResponse()->getCharacterName();
+        Assert::notNull($characterName);
+        $sex = $this->sharedStorage->get('sex');
+        Assert::isInstanceOf($sex, Sex::class);
+        $this->createCharacter($characterName->toString(), $password, $sex);
+    }
+
+    /**
+     * @Given /^I have created the character "([^"]*)" with password "([^"]*)"$/
+     */
+    public function iHaveCreatedTheCharacterWithPassword(string $name, string $password): void
+    {
+        $this->createCharacter($name, $password, Sex::Male);
+        Assert::true($this->getCreateResponse()->isSuccessful());
+    }
+
+    /**
+     * @Then /^I should be told that the password is too short$/
+     */
+    public function iShouldBeToldThatThePasswordIsTooShort(): void
+    {
+        Assert::same($this->getCreateResponse()->getFailure(), CreationFailure::PasswordTooShort);
+    }
+
+    /**
      * @Then /^I should be prompted for my password$/
      */
     public function iShouldBePromptedForMyPassword(): void
@@ -109,6 +186,7 @@ final class AccessContext implements Context
             $this->sharedStorage->set('failed_password_attempts', $failedAttempts + 1);
         }
         $this->sharedStorage->set('authenticate_response', $response);
+        $this->sharedStorage->set('logged_in_character_id', $response->getCharacterId());
     }
 
     /**
@@ -124,8 +202,8 @@ final class AccessContext implements Context
      */
     public function iShouldSeeThatIAm(string $name): void
     {
-        $characterId = $this->getAuthenticateResponse()->getCharacterId();
-        Assert::notNull($characterId);
+        $characterId = $this->sharedStorage->get('logged_in_character_id');
+        Assert::isInstanceOf($characterId, CharacterId::class);
         $response = $this->whoAmICommandExecutor->execute(new WhoAmICommand($characterId));
         Assert::isInstanceOf($response, WhoAmICommandResponse::class);
         Assert::eq($response->getCharacterName()->toString(), $name);
@@ -138,6 +216,26 @@ final class AccessContext implements Context
     {
         Assert::false($this->getAuthenticateResponse()->isSuccessful());
         Assert::true($this->getAuthenticateResponse()->areAttemptsExhausted());
+    }
+
+    private function createCharacter(string $name, string $password, Sex $sex): void
+    {
+        $response = $this->createCharacterCommandExecutor->execute(new CreateCharacterCommand($name, $password, $sex));
+        $this->sharedStorage->set('create_response', $response);
+        $characterId = $response->getCharacterId();
+        if (null === $characterId) {
+            return;
+        }
+        $this->sharedStorage->set('logged_in_character_id', $characterId);
+        $this->sharedStorage->set('character', $this->characterRepository->get($characterId));
+    }
+
+    private function getCreateResponse(): CreateCharacterCommandResponse
+    {
+        $response = $this->sharedStorage->get('create_response');
+        Assert::isInstanceOf($response, CreateCharacterCommandResponse::class);
+
+        return $response;
     }
 
     private function getIdentifyResponse(): IdentifyCharacterCommandResponse

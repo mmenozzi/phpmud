@@ -45,6 +45,12 @@
             <argument type="service" id="phpmud.domain.repository.character" />
         </service>
 
+        <service id="phpmud.application.access.command_executor.create_character" class="PHPMud\World\Application\Access\CreateCharacter\CreateCharacterCommandExecutor">
+            <argument type="service" id="phpmud.domain.repository.character" />
+            <argument type="service" id="phpmud.domain.repository.location" />
+            <argument type="service" id="phpmud.application.domain_event_dispatcher" />
+        </service>
+
         <service id="phpmud.application.time.command_executor.tick" class="PHPMud\World\Application\Time\Tick\TickCommandExecutor">
             <argument type="service" id="phpmud.domain.repository.world_clock" />
             <argument type="service" id="phpmud.application.domain_event_dispatcher" />
@@ -82,6 +88,10 @@
             <call method="addExecutorForCommand">
                 <argument>PHPMud\World\Application\Access\AuthenticateCharacter\AuthenticateCharacterCommand</argument>
                 <argument type="service" id="phpmud.application.access.command_executor.authenticate_character" />
+            </call>
+            <call method="addExecutorForCommand">
+                <argument>PHPMud\World\Application\Access\CreateCharacter\CreateCharacterCommand</argument>
+                <argument type="service" id="phpmud.application.access.command_executor.create_character" />
             </call>
             <call method="addExecutorForCommand">
                 <argument>PHPMud\World\Application\Movement\Move\MoveCommand</argument>

@@ -66,6 +66,14 @@
                     <argument type="service" id="phpmud.domain.repository.in_memory.character" />
                 </service>
             </argument>
+            <argument type="service">
+                <service class="PHPMud\World\Application\Access\CreateCharacter\CreateCharacterCommandExecutor">
+                    <argument type="service" id="phpmud.domain.repository.in_memory.character" />
+                    <argument type="service" id="phpmud.domain.repository.in_memory.location" />
+                    <argument type="service" id="phpmud.behat.domain.domain_event_dispatcher" />
+                </service>
+            </argument>
+            <argument type="service" id="phpmud.domain.repository.in_memory.character" />
         </service>
 
         <service id="phpmud.behat.context.domain.time" class="PHPMud\Tests\Behat\Context\Domain\TimeContext">

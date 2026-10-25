@@ -23,6 +23,14 @@ final class Character
         $this->id = CharacterId::generate();
     }
 
+    public static function create(CharacterName $name, Sex $sex, LocationId $locationId, string $passwordHash): self
+    {
+        $character = new self($name, $sex, $locationId, $passwordHash);
+        $character->recordThat(new CharacterCreated($character->id, $locationId));
+
+        return $character;
+    }
+
     public function getId(): CharacterId
     {
         return $this->id;

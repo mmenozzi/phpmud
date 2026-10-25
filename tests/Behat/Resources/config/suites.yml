@@ -2,6 +2,7 @@ imports:
     - suites/domain/movement.yml
     - suites/domain/access.yml
     - suites/domain/time.yml
+    - suites/domain/creation.yml
 
     - suites/telnet/movement.yml
     - suites/telnet/access.yml

@@ -1,0 +1,15 @@
+default:
+    suites:
+        domain_creation:
+            contexts:
+                - phpmud.behat.context.setup.in_memory.character
+                - phpmud.behat.context.setup.in_memory.location
+
+                - phpmud.behat.context.transform.in_memory.location
+                - phpmud.behat.context.transform.direction
+
+                - phpmud.behat.context.domain.access
+                - phpmud.behat.context.domain.movement
+
+            filters:
+                tags: "@creation&&@domain"
