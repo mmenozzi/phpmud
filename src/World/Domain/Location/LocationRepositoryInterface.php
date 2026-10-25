@@ -22,5 +22,7 @@ interface LocationRepositoryInterface
      */
     public function findAll(): Collection;
 
+    public function getStartingLocation(): Location;
+
     public function remove(Location $location): void;
 }

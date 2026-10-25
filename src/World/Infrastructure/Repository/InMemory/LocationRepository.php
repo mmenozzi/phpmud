@@ -35,6 +35,18 @@ final class LocationRepository extends ObjectRepository implements LocationRepos
         return $location;
     }
 
+    public function getStartingLocation(): Location
+    {
+        $location = $this->objectCollection->findFirst(
+            static fn (int|string $key, Location $location): bool => $location->isStartingLocation(),
+        );
+        if (null === $location) {
+            throw new \OutOfBoundsException('There is no starting location.');
+        }
+
+        return $location;
+    }
+
     public function getClassName(): string
     {
         return Location::class;

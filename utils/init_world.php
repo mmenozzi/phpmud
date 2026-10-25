@@ -14,7 +14,11 @@ function readLocationsFromCsv(string $filepath): array
 
     $locations = [];
     if (($handle = fopen($filepath, 'r')) !== false) {
-        fgetcsv($handle, 1000); // Skip header line
+        $header = fgetcsv($handle, 1000);
+        $startingColumn = array_search('Partenza', $header, true);
+        if (false === $startingColumn) {
+            throw new \RuntimeException('Missing "Partenza" column in locations.csv');
+        }
         while (($data = fgetcsv($handle, 1000)) !== false) {
             if (count($data) < 2) {
                 continue; // Skip invalid lines
@@ -36,7 +40,8 @@ function readLocationsFromCsv(string $filepath): array
                 'south' => $sud,
                 'west' => $ovest,
                 'up' => $sopra,
-                'down' => $sotto
+                'down' => $sotto,
+                'starting' => 'si' === trim($data[$startingColumn] ?? ''),
             ];
         }
         fclose($handle);
@@ -46,11 +51,15 @@ function readLocationsFromCsv(string $filepath): array
 }
 
 $locations = readLocationsFromCsv(__DIR__ . '/locations.csv');
+$startingLocationIds = array_keys(array_filter($locations, static fn (array $location): bool => $location['starting']));
+if (1 !== count($startingLocationIds)) {
+    throw new \RuntimeException(sprintf('Exactly one location must be marked as "Partenza", found %d', count($startingLocationIds)));
+}
 @unlink('/tmp/phpmud.location');
 $locationRepository = new \PHPMud\World\Infrastructure\Repository\Filesystem\LocationRepository('/tmp/phpmud.location');
 $worldLocations = [];
 foreach ($locations as $id => $locationData) {
-    $worldLocations[$id] = new \PHPMud\World\Domain\Location\Location($locationData['name'], $locationData['description'], locationIdFromCsvId($id));
+    $worldLocations[$id] = new \PHPMud\World\Domain\Location\Location($locationData['name'], $locationData['description'], locationIdFromCsvId($id), $locationData['starting']);
 }
 
 foreach ($locations as $id => $locationData) {
@@ -73,7 +82,7 @@ foreach ($worldLocations as $location) {
     $locationRepository->save($location);
 }
 
-$character = new \PHPMud\World\Domain\Character\Character(\PHPMud\World\Domain\Character\CharacterName::fromString('John'), $worldLocations[1]->getId(), password_hash('p4ssw0rd', PASSWORD_DEFAULT));
+$character = new \PHPMud\World\Domain\Character\Character(\PHPMud\World\Domain\Character\CharacterName::fromString('John'), $worldLocations[$startingLocationIds[0]]->getId(), password_hash('p4ssw0rd', PASSWORD_DEFAULT));
 @unlink('/tmp/phpmud.character');
 $characterRepository = new \PHPMud\World\Infrastructure\Repository\Filesystem\CharacterRepository('/tmp/phpmud.character');
 $characterRepository->save($character);

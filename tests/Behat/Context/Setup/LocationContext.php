@@ -25,6 +25,15 @@ final class LocationContext implements Context
     }
 
     /**
+     * @Given /^there is the starting location "([^"]*)"$/
+     */
+    public function thereIsTheStartingLocation(string $locationName): void
+    {
+        $location = new Location($locationName, 'Description of '.$locationName, startingLocation: true);
+        $this->locationRepository->save($location);
+    }
+
+    /**
      * @Given /^there is the location "([^"]*)" (north|east|south|west|up|down) from (location "([^"]*)")$/
      */
     public function thereIsTheLocationFromLocation(

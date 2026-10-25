@@ -18,6 +18,7 @@ final class Location
         private readonly string $name,
         private readonly string $description,
         ?LocationId $id = null,
+        private readonly bool $startingLocation = false,
     ) {
         $this->id = $id ?? LocationId::generate();
         $this->exits = new ArrayCollection();
@@ -36,6 +37,11 @@ final class Location
     public function getDescription(): string
     {
         return $this->description;
+    }
+
+    public function isStartingLocation(): bool
+    {
+        return $this->startingLocation;
     }
 
     public function placeBorderingLocation(Location $newLocation, Direction $direction): void

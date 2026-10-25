@@ -38,6 +38,18 @@ final class LocationRepository implements LocationRepositoryInterface
         return $location;
     }
 
+    public function getStartingLocation(): Location
+    {
+        $location = $this->load()->findFirst(
+            static fn (int|string $key, Location $location): bool => $location->isStartingLocation(),
+        );
+        if (null === $location) {
+            throw new \OutOfBoundsException('There is no starting location.');
+        }
+
+        return $location;
+    }
+
     /**
      * @return Collection<array-key, Location>
      */
