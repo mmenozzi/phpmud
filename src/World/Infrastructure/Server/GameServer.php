@@ -19,6 +19,9 @@ final readonly class GameServer
 
     public function run(): void
     {
+        EventLoop::setErrorHandler(static function (\Throwable $error): void {
+            UnexpectedErrorLogger::log('Event loop', $error);
+        });
         $this->ticker->start();
         foreach ($this->listeners as $listener) {
             $listener->start();

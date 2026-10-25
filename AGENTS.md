@@ -337,7 +337,10 @@ Three layers, strict dependency direction `Infrastructure → Application → Do
     - `Listener` (`start()`, non-blocking) is implemented by each
       adapter's server. `GameServer` (started by `bin/phpmud`) starts the
       `Ticker`, then every listener wired in `services.xml`, then runs the
-      event loop.
+      event loop, with an `EventLoop::setErrorHandler()` that logs
+      (`UnexpectedErrorLogger`) whatever still escapes a fiber (e.g. a
+      failing tick) instead of stopping the loop: a last-resort net, since
+      by then the failing connection is already gone.
     A new player interface goes in a new `Delivery/<Adapter>` folder with
     its own `Client` implementation, `Listener`, input parsing and
     rendering, and is added to `GameServer`'s listeners; it is a delivery
