@@ -38,6 +38,22 @@
             <button type="submit">Entra</button>
             <p id="login-message" class="message" role="alert"></p>
         </form>
+        <form id="create-form" class="card" autocomplete="off" hidden>
+            <h2>Nuovo personaggio</h2>
+            <p>Il personaggio <strong id="create-name"></strong> non esiste ancora. Vuoi crearlo?</p>
+            <fieldset class="choice">
+                <legend>Sesso</legend>
+                <label><input type="radio" name="sex" value="male" required> Maschio</label>
+                <label><input type="radio" name="sex" value="female"> Femmina</label>
+            </fieldset>
+            <label>Password <input id="create-password" name="password" type="password" required></label>
+            <label>Ripeti la password <input id="create-password-repeat" name="password-repeat" type="password" required></label>
+            <div class="actions">
+                <button type="button" id="create-cancel" class="secondary">Indietro</button>
+                <button type="submit">Crea</button>
+            </div>
+            <p id="create-message" class="message" role="alert"></p>
+        </form>
     </div>
 
     <div id="disconnected" class="overlay" hidden>

@@ -50,6 +50,37 @@ function loginMessage(text) {
     $('login-message').textContent = text;
 }
 
+function showLoginForm(message = '') {
+    state.identifiedName = null;
+    state.pendingPassword = null;
+    $('create-form').hidden = true;
+    $('login-form').hidden = false;
+    loginMessage(message);
+    $('login-name').focus();
+}
+
+function showCreateForm(name) {
+    state.identifiedName = name;
+    $('create-name').textContent = name;
+    $('create-form').reset();
+    $('create-password').value = state.pendingPassword ?? '';
+    state.pendingPassword = null;
+    $('create-message').textContent = '';
+    $('login-form').hidden = true;
+    $('create-form').hidden = false;
+    $('create-form').querySelector('input[name="sex"]').focus();
+}
+
+function enterTheGame() {
+    $('login').hidden = true;
+    $('game').hidden = false;
+}
+
+const CREATION_FAILURES = {
+    name_not_allowed: 'Nome non ammesso: solo lettere, da 3 a 15.',
+    name_taken: 'Questo nome è già stato preso.',
+};
+
 function renderOccupants() {
     $('occupants').replaceChildren(...state.occupants.map((name) => {
         const item = document.createElement('li');
@@ -123,6 +154,22 @@ $('login-form').addEventListener('submit', (event) => {
     connection.send({ type: 'authenticate', password });
 });
 
+$('create-form').addEventListener('submit', (event) => {
+    event.preventDefault();
+    const password = $('create-password').value;
+    if (password !== $('create-password-repeat').value) {
+        $('create-password-repeat').value = '';
+        $('create-message').textContent = 'Le password non coincidono.';
+
+        return;
+    }
+    $('create-message').textContent = '';
+    const sex = new FormData($('create-form')).get('sex');
+    connection.send({ type: 'create', name: state.identifiedName, password, sex });
+});
+
+$('create-cancel').addEventListener('click', () => showLoginForm());
+
 $('reconnect').addEventListener('click', () => window.location.reload());
 
 document.addEventListener('keydown', (event) => {
@@ -136,16 +183,12 @@ document.addEventListener('keydown', (event) => {
 connection
     .on('identified', ({ name, exists, allowed }) => {
         if (!allowed) {
-            state.identifiedName = null;
-            state.pendingPassword = null;
-            loginMessage('Nome non ammesso: solo lettere, da 3 a 15.');
+            showLoginForm('Nome non ammesso: solo lettere, da 3 a 15.');
 
             return;
         }
         if (!exists) {
-            state.identifiedName = null;
-            state.pendingPassword = null;
-            loginMessage(`Il personaggio "${name}" non esiste.`);
+            showCreateForm(name);
 
             return;
         }
@@ -162,9 +205,17 @@ connection
     .on('too_many_attempts', () => {
         $('disconnected-message').textContent = 'Troppi tentativi falliti. Addio!';
     })
-    .on('authenticated', () => {
-        $('login').hidden = true;
-        $('game').hidden = false;
+    .on('authenticated', enterTheGame)
+    .on('character_created', enterTheGame)
+    .on('creation_failed', ({ reason }) => {
+        if (reason === 'password_too_short') {
+            $('create-password').value = '';
+            $('create-password-repeat').value = '';
+            $('create-message').textContent = 'La password è troppo corta.';
+
+            return;
+        }
+        showLoginForm(CREATION_FAILURES[reason] ?? reason);
     })
     .on('whoami', ({ name }) => {
         state.myName = name;
