@@ -375,9 +375,11 @@ Three layers, strict dependency direction `Infrastructure → Application → Do
       so a client knows the day phase before the next `DayPhaseStarted`;
       telnet renders it with `DayPhaseMessage::current()`, a text distinct
       from the `of()` broadcasts.
-    - While the password is typed the server sends telnet `IAC WILL ECHO`
-      (`Delivery/Telnet/Telnet`) so the client hides input, and
-      `IAC WONT ECHO` once login succeeds or the socket is closed;
+    - Every password prompt (login, new, repeated) is preceded by telnet
+      `IAC WILL ECHO` (`Delivery/Telnet/Telnet`) so the client hides input,
+      and every line received while a password is expected is answered
+      first with `IAC WONT ECHO`, as DikuMUD's nanny does: Mudlet keeps the
+      masked text in its input box until echo is turned back on;
       `TelnetServer` strips incoming telnet negotiation and trailing `\r`
       from each line, and the telnet Behat trait strips it from responses
       (tracking the echo state).

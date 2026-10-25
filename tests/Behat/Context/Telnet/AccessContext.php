@@ -153,6 +153,7 @@ final class AccessContext implements Context
     {
         $this->writeLine($password, $client);
         Assert::eq($this->getNextResponse($client), 'Reinserisci la password...');
+        Assert::true($this->isInputHidden($client));
         $this->writeLine($repeatedPassword, $client);
     }
 

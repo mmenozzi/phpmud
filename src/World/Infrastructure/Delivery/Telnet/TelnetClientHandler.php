@@ -50,6 +50,12 @@ final readonly class TelnetClientHandler
             return;
         }
 
+        // Like DikuMUD's nanny, echo is turned back on after every password line and off again by the next password
+        // prompt: clients such as Mudlet keep the masked line in the input box until the server stops hiding it.
+        if ($client->getLoginState()->expectsPassword()) {
+            $client->getSocket()->write(Telnet::WONT_ECHO);
+        }
+
         match ($client->getLoginState()) {
             LoginState::AwaitingName => $this->handleCharacterName($client, trim($commandString)),
             LoginState::AwaitingPassword => $this->handlePassword($client, $commandString),
@@ -94,7 +100,6 @@ final readonly class TelnetClientHandler
         if (null === $characterId) {
             $client->registerFailedPasswordAttempt();
             if ($response->areAttemptsExhausted()) {
-                $client->getSocket()->write(Telnet::WONT_ECHO);
                 $this->write($client, 'Troppi tentativi falliti. Addio!');
                 $client->getSocket()->close();
 
@@ -144,6 +149,7 @@ final readonly class TelnetClientHandler
     private function handleNewPassword(TelnetClient $client, string $password): void
     {
         $client->chooseNewPassword($password);
+        $client->getSocket()->write(Telnet::WILL_ECHO);
         $this->write($client, 'Reinserisci la password...');
     }
 
@@ -178,7 +184,6 @@ final readonly class TelnetClientHandler
             return;
         }
 
-        $client->getSocket()->write(Telnet::WONT_ECHO);
         $this->write($client, sprintf('Non è più possibile creare il personaggio "%s".', $client->getCharacterName()->toString()));
         $this->restartLogin($client);
     }
@@ -186,7 +191,6 @@ final readonly class TelnetClientHandler
     private function enterTheGame(TelnetClient $client, CharacterId $characterId): void
     {
         $client->authenticate($characterId);
-        $client->getSocket()->write(Telnet::WONT_ECHO);
         $client->send($this->execute(new WhoAmICommand($characterId)));
         $client->send($this->execute(new LookCommand($characterId)));
         $client->send($this->execute(new CurrentDayPhaseCommand()));
