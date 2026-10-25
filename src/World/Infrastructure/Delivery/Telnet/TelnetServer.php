@@ -4,8 +4,10 @@ declare(strict_types=1);
 
 namespace PHPMud\World\Infrastructure\Delivery\Telnet;
 
+use Amp\ByteStream\StreamException;
 use Amp\Socket;
 use Amp\Socket\ResourceSocket;
+use PHPMud\World\Infrastructure\Server\ClientDisconnectedException;
 use PHPMud\World\Infrastructure\Server\ClientRegistry;
 use PHPMud\World\Infrastructure\Server\Listener;
 
@@ -37,21 +39,25 @@ final class TelnetServer implements Listener
         $client = new TelnetClient($socket, $this->commandResponseRenderer);
         $this->clientRegistry->add($client);
         echo 'New client connected: '.$socket->getRemoteAddress().PHP_EOL;
-        $this->clientHandler->handleConnection($client);
-        $buffer = '';
-        while (null !== $chunk = $socket->read()) {
-            $buffer .= $chunk;
-            if (!str_contains($buffer, PHP_EOL)) {
-                continue;
+        try {
+            $this->clientHandler->handleConnection($client);
+            $buffer = '';
+            while (null !== $chunk = $socket->read()) {
+                $buffer .= $chunk;
+                if (!str_contains($buffer, PHP_EOL)) {
+                    continue;
+                }
+                $commands = explode(PHP_EOL, $buffer);
+                $buffer = array_pop($commands);
+                foreach ($commands as $command) {
+                    $command = rtrim(Telnet::stripNegotiation($command), "\r");
+                    echo $socket->getRemoteAddress().': '.($client->getLoginState()->expectsPassword() ? '[password]' : $command).PHP_EOL;
+                    $this->clientHandler->handleCommand($client, $command);
+                }
             }
-            $commands = explode(PHP_EOL, $buffer);
-            $buffer = array_pop($commands);
-            foreach ($commands as $command) {
-                $command = rtrim(Telnet::stripNegotiation($command), "\r");
-                echo $socket->getRemoteAddress().': '.($client->getLoginState()->expectsPassword() ? '[password]' : $command).PHP_EOL;
-                $this->clientHandler->handleCommand($client, $command);
-            }
+        } catch (ClientDisconnectedException|StreamException) {
+        } finally {
+            $this->clientRegistry->remove($client);
         }
-        $this->clientRegistry->remove($client);
     }
 }
