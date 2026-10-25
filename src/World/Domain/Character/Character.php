@@ -16,6 +16,7 @@ final class Character
 
     public function __construct(
         private readonly CharacterName $name,
+        private readonly Sex $sex,
         private LocationId $locationId,
         private string $passwordHash,
     ) {
@@ -30,6 +31,11 @@ final class Character
     public function getName(): CharacterName
     {
         return $this->name;
+    }
+
+    public function getSex(): Sex
+    {
+        return $this->sex;
     }
 
     public function getLocationId(): LocationId
