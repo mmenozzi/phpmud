@@ -25,6 +25,7 @@ use PHPMud\World\Domain\Character\CharacterId;
 use PHPMud\World\Domain\Character\Sex;
 use PHPMud\World\Infrastructure\Server\ClientDisconnectedException;
 use PHPMud\World\Infrastructure\Server\ClientRegistry;
+use PHPMud\World\Infrastructure\Server\UnexpectedErrorLogger;
 use Webmozart\Assert\Assert;
 
 final readonly class WebSocketClientHandler implements AmpWebsocketClientHandler
@@ -51,7 +52,14 @@ final readonly class WebSocketClientHandler implements AmpWebsocketClientHandler
                     continue;
                 }
                 echo $client->getRemoteAddress().': '.$data['type'].PHP_EOL;
-                $this->handleMessage($client, $data);
+                try {
+                    $this->handleMessage($client, $data);
+                } catch (ClientDisconnectedException $exception) {
+                    throw $exception;
+                } catch (\Throwable $error) {
+                    UnexpectedErrorLogger::log($client->getRemoteAddress(), $error);
+                    $client->sendError('Unexpected server error.');
+                }
             }
         } catch (ClientDisconnectedException) {
         } finally {

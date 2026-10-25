@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace PHPMud\World\Infrastructure\Delivery\Telnet;
 
+use Amp\ByteStream\StreamException;
 use PHPMud\World\Application\Access\AuthenticateCharacter\AuthenticateCharacterCommand;
 use PHPMud\World\Application\Access\AuthenticateCharacter\AuthenticateCharacterCommandResponse;
 use PHPMud\World\Application\Access\CreateCharacter\CreateCharacterCommand;
@@ -20,6 +21,8 @@ use PHPMud\World\Application\Movement\Look\LookCommand;
 use PHPMud\World\Application\Time\CurrentDayPhase\CurrentDayPhaseCommand;
 use PHPMud\World\Domain\Character\CharacterId;
 use PHPMud\World\Domain\Character\Sex;
+use PHPMud\World\Infrastructure\Server\ClientDisconnectedException;
+use PHPMud\World\Infrastructure\Server\UnexpectedErrorLogger;
 use Webmozart\Assert\Assert;
 
 final readonly class TelnetClientHandler
@@ -42,6 +45,21 @@ final readonly class TelnetClientHandler
     }
 
     public function handleCommand(TelnetClient $client, string $commandString): void
+    {
+        try {
+            $this->dispatch($client, $commandString);
+        } catch (ClientDisconnectedException|StreamException $exception) {
+            throw $exception;
+        } catch (\Throwable $error) {
+            UnexpectedErrorLogger::log($client->getSocket()->getRemoteAddress()->toString(), $error);
+            $this->write($client, 'Si è verificato un errore imprevisto.');
+            if (!$client->isAuthenticated()) {
+                $this->restartLogin($client);
+            }
+        }
+    }
+
+    private function dispatch(TelnetClient $client, string $commandString): void
     {
         $characterId = $client->getCharacterId();
         if (null !== $characterId) {

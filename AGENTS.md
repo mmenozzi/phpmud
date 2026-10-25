@@ -427,7 +427,8 @@ Three layers, strict dependency direction `Infrastructure → Application → Do
         login, after `whoami` and `location`), `location {id, name, description,
         exits: {direction: {id, name}}, characters: [{name}]}`, `move_failed {direction}`,
         `unknown_command` (also for game commands before login),
-        `error {message}` (invalid JSON or missing fields);
+        `error {message}` (invalid JSON, missing fields or an unexpected
+        server error);
       - events (unsolicited): `day_phase_started {day_phase}`,
         `character_left {name, via}`, `character_arrived {name, via}`
         (`via` is the walking direction or null; the client derives
